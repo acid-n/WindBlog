@@ -1,0 +1,8 @@
+django~=5.0
+djangorestframework
+psycopg2-binary
+pytest
+pytest-django
+python-dotenv
+drf-spectacular
+pillow

@@ -1,0 +1,20 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Руководство по разработке фронтенда с использованием Next.js и Tailwind CSS"
+globs:
+  - "frontend/**/*"
+alwaysApply: true
+---
+
+- Использовать Next.js 14 с поддержкой App Router.
+- Применять Tailwind CSS для стилизации компонентов.
+- Структурировать компоненты в папке `components/`, каждый в отдельной подпапке с `index.tsx` и `styles.module.css`.
+- Именовать компоненты в PascalCase, файлы и папки — в kebab-case.
+- Использовать функциональные компоненты и хуки React.
+- Избегать использования `any`; применять строгую типизацию с TypeScript.
+- Для анимаций использовать Framer Motion.
+- Стараться использовать SSR для динамических страниц и SSG для статических.

@@ -1,0 +1,18 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Руководство по развертыванию и CI/CD"
+globs:
+  - ".github/workflows/*"
+  - "docker/**/*"
+alwaysApply: true
+---
+
+- Использовать Docker для контейнеризации приложений.
+- Настроить CI/CD с использованием GitHub Actions.
+- При пуше в ветку `main` автоматически запускать сборку и деплой.
+- Хранить секреты и переменные окружения в GitHub Secrets.
+- Для продакшн-среды использовать Yandex Cloud с настройкой масштабирования.

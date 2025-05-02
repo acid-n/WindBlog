@@ -1,0 +1,237 @@
+UX/UI STYLE GUIDE — MUSSON BLOG
+Документ фиксирует все визуальные и интерактивные решения блога MUSSON, включая типографику, сетку, анимации, адаптивность, и Tailwind-конфигурацию. Основан на анализе темы Read WP (https://themes.pixelwars.org/read-wp/).
+
+1. Типографика
+Font fallback:
+Все шрифты должны иметь безопасную цепочку: Lora, Georgia, serif, Open Sans, Helvetica, Arial, sans-serif
+В Tailwind: font-serif, font-sans
+Дополнительные элементы:
+table — таблицы без бордеров, с padding: 0.5em 1em, выравниванием текста по левому краю, thead и tbody с разной насыщенностью цвета
+abbr — подчёркнутые сокращения с подсказкой title при наведении
+sub / sup — индекс и верхний индекс для научной/технической разметки
+dl, dt, dd — списки определений, стилизованы с отступами и жирным заголовком (dt)
+Шрифты (только с поддержкой кириллицы):
+Lora — основной текст, body, абзацы
+Coustard — заголовки, навигация, meta-информация
+FontAwesome — все иконки (включая списки, кнопки, шаринг)
+UnifrakturMaguntia — используется только в логотипе, ограничена по кириллице, возможно заменить на декоративный Google Font
+Размеры заголовков:
+h1: 2.20em (~35px)
+h2: 1.60em (~25px)
+h3: 1.20em (~19px)
+h4/h5: 0.90em (~14px)
+h6: 0.85em (~13.5px)
+Абзацы: font-size: 16px, line-height: 1.8
+Цитаты: blockquote — с большими кавычками, выравнивание по центру, font-size: 1.3em
+Drop Cap: .drop-cap:first-letter { font-size: 300%; float: left; padding-right: 16px; }
+Code:
+Inline — code с рамкой и паддингом
+Block — pre.prettyprint, подсветка синтаксиса
+Списки:
+Поддержка icon-ok-list, icon-star-list, icon-chevron-right-list и др.
+Отступы иконок, поддержка многоуровневых ul/ol
+Таблицы:
+Верхняя граница у th, нижняя у td, минимализм
+Дополнительно поддерживаются элементы:
+abbr — с dotted underline, title отображается при наведении
+sub, sup — для научной разметки (формулы, примечания)
+dl, dt, dd — списки определений со стандартными отступами и контрастным заголовком (dt) в жирном
+Цвет текста: #444, a:hover — #A35208, selection — #FFFFCF
+
+2. Сетка
+Гибрид Bootstrap 2 + Custom:
+12 колонок .row-fluid .spanX (X от 1 до 12)
+Контейнер .wrapper > .row — 80% ширины (на десктопах)
+.readable-content — 780px макс. ширина текста
+Мобильная адаптация:
+Mobile-first, 1 колонка на <480px
+Планшеты: от 2 до 3 колонок
+Desktop: 4–5 колонок в masonry/blog-grid
+Изображения:
+img { max-width: 100%; height: auto }
+Стили .alignleft, .alignright, .aligncenter
+
+3. Цвета (основные)
+
+
+4. Компоненты
+Компонент: Rating (звёздная оценка)
+Вывод от 1 до 5 звёзд через иконки FontAwesome (fa-star, fa-star-o, fa-star-half)
+Состояния: пустая, частичная, полная звезда
+Поведение: hover → цвет #CE6607, при :disabled → opacity: 0.5
+Класс: .post-rating с вложенными <i> внутри <button> или <span>
+Компонент: Comments (не используется, но предусмотрен)
+Структура: блок .comments, заголовок, список <ol>, форма <form>
+Стилизация полей аналогична .contact-form
+Сообщения: .comment-awaiting-moderation, .comment-error
+Компонент: Categories / Tags
+Класс .post-categories или .post-meta .tags
+Теги кликабельны, inline, разделяются запятыми или через •
+Компонент: Поиск (в хедере)
+Элемент <li><a class="nav-search-toggle">Поиск</a></li> при клике заменяется на <form class="nav-search">
+Поле <input type="search" class="form-control" placeholder="Найти..."> отображается с анимацией (fadeIn / slideDown)
+После открытия поле получает focus
+Кнопка закрытия (крестик) возвращает меню в исходное состояние
+На мобильных: поле поиска занимает 100% ширины и выводится в отдельной строке
+Компонент: Tagline
+Отдельный текстовый блок .tagline
+Стиль: font-style: italic, opacity: 0.7, font-size: 0.9em, text-align: center (по умолчанию)
+Используется в шапке, футере, об авторе
+Расширенные UI-компоненты:
+Rating — звёздная оценка от 1 до 5 с иконками FontAwesome (icon-star). Показывает среднюю оценку, блокирует повторную отправку после оценки. Может быть реализовано через HTMX или JS.
+Comments — не используются, но предусмотрена возможность отображения формы и блока комментариев. Дизайн совместим с WPCOM/WPCF7.
+Categories/Tags — выводятся в .post-meta, ведут на /tags/<tag>/, используются также в фильтрах.
+Tagline — дополнительный поясняющий текст в .tagline, часто используется на странице «Обо мне» или в футере. Стилизуется через font-style: italic, opacity: 0.7, font-size: 0.9em.
+Карточка поста:
+Заголовок (h2)
+Обложка (если есть)
+Анонс (excerpt)
+Метаданные: теги, дата, рейтинг
+Кнопка: Читать →
+Рейтинг:
+Компонент звёздного рейтинга (1–5) с иконками FontAwesome (icon-star)
+Показывает среднюю оценку и подсказку о возможности голосования
+После голосования — элемент становится неинтерактивным
+Комментарии:
+В проекте отключены, однако дизайн предусматривает возможность отрисовки блока с заголовком, формой, списком ответов
+При реализации может использовать стили WPCOM или WPCF7
+Категории (теги):
+Теги выводятся под заголовком поста в .post-meta
+Используются для фильтрации и перехода на страницу /tags//
+Шаринг:
+Кнопка с иконкой FontAwesome (icon-share)
+Выпадающее меню: Telegram, VK, Копировать ссылку (/s/<id>)
+Форма поиска:
+Input #search с фокусом-расширением
+placeholder из <label>
+Форма обратной связи:
+Поддержка input, textarea, select, .error, капча
+Кнопки:
+.button, .button.big, .button.icon-button
+Цвета: blue, green, red, light, navy, orange
+С поддержкой FontAwesome внутри кнопки
+
+5. Анимации и скрипты
+Fade / Slide: hover/appear эффект у .media-box, .mask, .gamma-description
+Sticky header: нет, используется классический layout
+Masonry layout: для .blog-masonry, isotope.js
+Tabs / Toggles: .tabs, .toggle-group, анимация slide
+Responsive video: .media-wrap → fitVids()
+Lightbox: через fancybox, иконки FontAwesome (f00d, f054, f053)
+Uniform.js: стилизация select, checkbox, radio, file
+Validation: jquery.validate, .validate-form
+Scroll-based анимации: fadeIn/slideIn на появление блоков при прокрутке
+Буфер обмена (clipboard):
+Кнопка «Скопировать ссылку» вызывает fallback через prompt() (возможно замена на navigator.clipboard.writeText)
+Toggle:
+Используется для FAQ, аккордеонов, фильтров: .toggle-group, .toggle-title, .toggle-content
+Поведение реализуется через .slideToggle() и переключение классов active, open
+Уведомления: fadeIn/out сообщений, смена классов
+ScrollTo: плавная прокрутка к якорю
+
+6. Tailwind CSS настройка (прототип)
+// tailwind.config.js
+module.exports = {
+  content: ['./templates/**/*.html'],
+  theme: {
+    fontFamily: {
+      sans: ['Lora', 'Georgia', 'serif'],
+      heading: ['Coustard', 'Georgia', 'serif'],
+      icons: ['FontAwesome'],
+    },
+    extend: {
+      colors: {
+        accent: '#CE6607',
+        accentHover: '#A35208',
+        text: '#444',
+        heading: '#333',
+        selection: '#FFFFCF',
+      },
+      maxWidth: {
+        content: '780px',
+      },
+    },
+  },
+  plugins: [],
+};
+
+7. Мобильная адаптация
+Точки останова:
+1024px — перестроение карточек и сетки
+768px — переход на одну колонку, скрытие боковых блоков
+480px — уменьшение размеров текста, кнопок и отступов
+Поведение:
+Меню сворачивается в гамбургер
+Кнопки увеличивают зону нажатия (min-height: 44px)
+Галереи и изображения становятся вертикальными
+
+8. Иконки
+Библиотека: Font Awesome (v3)
+Использование:
+Через CSS-классы и ::before
+Применяются в меню, кнопках, списках, заголовках и формах
+Основные классы: icon-star, icon-heart, icon-share, icon-search, icon-facebook, icon-twitter, icon-play, icon-pause, icon-close
+Размеры: регулируются через font-size, например: 16px, 18px, 24px
+
+9. JS-поведение и анимации
+JavaScript-паттерны:
+fadeIn — появляется блок, opacity 0 → 1, через jQuery или CSS transition
+slideToggle — раскрытие блоков по клику, часто с классом .toggle-title
+scrollTo — плавная прокрутка, используется для якорей, пагинации, кнопки «вверх»
+scroll — добавляет классы на scroll (scrolled, visible, in-view)
+clipboard — реализация кнопки копирования: сначала navigator.clipboard.writeText(), fallback через prompt()
+classList — управление отображением блоков через classList.add/remove/toggle, особенно active, open, visible, is-expanded
+scroll — события прокрутки используются для появления блоков, анимации, кнопки «Наверх»
+clipboard — копирование короткой ссылки через prompt(), может быть заменено на navigator.clipboard.writeText()
+fadeIn, fadeOut — jQuery-анимации появления элементов
+slideToggle, slideDown, slideUp — для аккордеонов, скрытия блоков
+scrollTo — плавная прокрутка по якорю, используется в навигации и кнопке «Наверх»
+classList.toggle / add / remove — переключение состояний .active, .visible, .open, часто в меню, фильтрах, вкладках
+Scroll-based анимации:
+fadeIn, fadeOut, slideIn, slideUp — для появления блоков при прокрутке
+Используются в .gamma-description, .entry-content img, .media-box, .toggle-content
+Clipboard:
+Кнопка "копировать ссылку" использует prompt() как fallback
+Возможна замена на navigator.clipboard.writeText()
+Class toggling:
+Меняется classList.add/remove/toggle на .active, .visible, .open
+Применяется в меню, рейтингах, вкладках, аккордеонах
+Lightbox и overlay:
+Слайдеры и галереи — fancybox, gamma.js
+Overlay: rgba(0,0,0,0.95) + z-index
+Tabs / Toggles:
+Раскрытие блоков .toggle-content через slideToggle()
+ScrollTo:
+Плавная прокрутка по якорям и кнопке "Наверх"
+Уведомления:
+fadeIn/out сообщений (.success, .error, .info), часто с автозакрытием
+10. Дополнительные UI-модули
+Формы и элементы ввода
+Все поля ввода (input[type="text"], email, tel, search, url и т.д.) оформляются с использованием классов .form-control, border, rounded, px-4, py-2
+Поддержка кастомных checkbox, radio, file — через uniform.default.css или Tailwind-переопределения
+Обязателен фокус-состояние с выделением границы outline или ring
+Ошибки отображаются под полем с классом .error в red-500
+Галереи и портфолио
+Используются сетки Masonry и галереи с gamma.js и fancybox
+Поддержка фильтрации (на AJAX или JS-статичный)
+Каждая карточка .media-box с обложкой, заголовком, описанием
+При клике открывается полноэкранный лайтбокс или слайдер
+Медиа-плееры
+HTML5 <audio> и <video> оформлены с помощью mediaelement.js
+Стилизация кнопок play/pause/volume через .mejs-button, font-size, opacity
+Встраивание YouTube, Vimeo — с fitVids.js и адаптивной обёрткой .media-wrap
+Шорткоды и виджеты
+Шорткоды ([button], [quote], [icon-box]) преобразуются в разметку через JS или Django-теги
+Виджеты для сайдбара и футера оформляются через .widget, .widget-title, .widget-content
+Поддерживаются: последние посты, теги, категории, соцсети, произвольный HTML
+11. TODO (на вёрстке):
+Разметка главной страницы
+Постраничный список постов
+Поддержка всех SEO тегов
+Шаринг постов
+Система рейтинга (1–5 звёзд)
+Разметка всех типов контента внутри тела статьи (code, image, quote)
+Подключение кастомных иконок SVG
+Анимации по появлению элементов (fadeIn, slideIn и т.п.)
+Прототип дизайна страницы «Обо мне»
+=== END OF UX/UI STYLE GUIDE ===

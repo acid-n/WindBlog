@@ -1,0 +1,17 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Общие соглашения по проекту"
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+- Использовать Git Flow: ветки `main`, `develop`, `feature/*`, `bugfix/*`.
+- Применять ESLint и Prettier для обеспечения единого стиля кода.
+- Все коммиты должны следовать соглашению Conventional Commits.
+- Документировать функции и компоненты с использованием JSDoc (для фронтенда) и docstrings (для бэкенда).
+- Проводить код-ревью перед слиянием изменений в `main`.

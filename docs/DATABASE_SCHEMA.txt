@@ -1,0 +1,80 @@
+DATABASE_SCHEMA.txt — MUSSON BLOG
+Документ описывает структуру базы данных PostgreSQL, соответствующую моделям Django проекта MUSSON. Включает таблицы, поля, типы, связи, индексы и ограничения.
+
+📋 Список таблиц
+
+
+🧱 Схема таблиц (DDL)
+Таблица post_post
+CREATE TABLE post_post (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    description TEXT,
+    body JSONB NOT NULL,
+    image VARCHAR(100),
+    first_published_at TIMESTAMP,
+    is_published BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX idx_post_slug ON post_post(slug);
+Таблица post_tag
+CREATE TABLE post_tag (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(64) UNIQUE NOT NULL,
+    slug VARCHAR(64) UNIQUE NOT NULL
+);
+Таблица post_post_tags
+CREATE TABLE post_post_tags (
+    id SERIAL PRIMARY KEY,
+    post_id INTEGER REFERENCES post_post(id) ON DELETE CASCADE,
+    tag_id INTEGER REFERENCES post_tag(id) ON DELETE CASCADE
+);
+CREATE INDEX idx_post_tag ON post_post_tags(post_id, tag_id);
+Таблица post_rating
+CREATE TABLE post_rating (
+    id SERIAL PRIMARY KEY,
+    post_id INTEGER REFERENCES post_post(id) ON DELETE CASCADE,
+    score SMALLINT CHECK (score BETWEEN 1 AND 5),
+    user_hash VARCHAR(64),
+    created_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE (post_id, user_hash)
+);
+Таблица post_shortlink
+CREATE TABLE post_shortlink (
+    id SERIAL PRIMARY KEY,
+    post_id INTEGER REFERENCES post_post(id) ON DELETE CASCADE,
+    code VARCHAR(12) UNIQUE NOT NULL
+);
+Таблица analytics_event
+CREATE TABLE analytics_event (
+    id SERIAL PRIMARY KEY,
+    path VARCHAR(255),
+    ip INET,
+    user_agent TEXT,
+    referrer TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX idx_event_path ON analytics_event(path);
+Таблица contact_message
+CREATE TABLE contact_message (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(254),
+    message TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+🔗 Связи и ограничения
+post_post_tags: ManyToMany → post + tag
+post_rating: OneToMany → post, уникальность по post_id + user_hash
+post_shortlink: OneToOne → post
+Все внешние ключи используют ON DELETE CASCADE
+
+📌 Оптимизация и индексация
+GIN можно добавить для body (JSONB) при расширении
+Индексы по slug, path, (post_id, tag_id) обязательны
+Возможность partial index по is_published = TRUE
+
+Документ завершён. Используется как референс для схемы PostgreSQL в проекте MUSSON.

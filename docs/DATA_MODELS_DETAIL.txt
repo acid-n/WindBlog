@@ -1,0 +1,74 @@
+DATA_MODELS_DETAIL.txt — MUSSON BLOG
+Документ описывает детализированные модели данных блога MUSSON: поля, типы, связи, поведение, ограничения. Все модели реализованы через Django ORM, ориентированы на PostgreSQL.
+
+📄 Post
+class Post(models.Model):
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True, editable=True)
+    description = models.TextField(blank=True)
+    body = models.JSONField()  # StreamField-like JSON
+    image = models.ImageField(upload_to="posts/", null=True, blank=True)
+    tags = models.ManyToManyField("Tag", related_name="posts")
+    first_published_at = models.DateTimeField()
+    is_published = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-first_published_at"]
+        indexes = [models.Index(fields=["slug"])]
+
+    def get_absolute_url(self):
+        return f"/posts/{self.slug}/"
+
+🏷️ Tag
+class Tag(models.Model):
+    name = models.CharField(max_length=64, unique=True)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+⭐ Rating
+class Rating(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="ratings")
+    score = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    user_hash = models.CharField(max_length=64)  # IP+UserAgent hash
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("post", "user_hash")
+
+🔗 ShortLink
+class ShortLink(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="shortlinks")
+    code = models.CharField(max_length=12, unique=True)
+
+    def get_redirect_url(self):
+        return self.post.get_absolute_url()
+
+📈 AnalyticsEvent
+class AnalyticsEvent(models.Model):
+    path = models.CharField(max_length=255)
+    ip = models.GenericIPAddressField()
+    user_agent = models.TextField()
+    referrer = models.URLField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+📬 ContactMessage
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+🔧 Базовая модель (DRY)
+class AbstractBaseModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+Используется в Post, Tag, AnalyticsEvent, ContactMessage через наследование или mixin.
+
+Документ завершён. Используется как описание полной схемы моделей Django + PostgreSQL для проекта MUSSON.

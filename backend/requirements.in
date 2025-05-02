@@ -6,3 +6,4 @@ pytest-django
 python-dotenv
 drf-spectacular
 pillow
+djangorestframework-simplejwt

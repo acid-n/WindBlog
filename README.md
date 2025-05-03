@@ -1,52 +1,63 @@
-## Этап 2. Инициализация бэкенда
+# MUSSON Blog — Fullstack (Next.js + Django)
 
-**Цели:**
-- Создать Django-проект и основные приложения.
-- Настроить окружение, подключение к БД, базовые настройки безопасности.
+## Описание
 
-**Детальные шаги:**
-1. Создание Django-проекта  
-   В папке backend:  
-   `django-admin startproject config .`
+Полноценный блог-проект:
+- **Frontend:** Next.js 14 (App Router), Tailwind CSS, Framer Motion, строгий MUSSON UX/UI STYLE GUIDE, визуал и анимации как в Read WP.
+- **Backend:** Django 5, Django REST Framework, PostgreSQL, JWT, кастомная модель пользователя, админка, API v1.
+- **CI/CD:** Docker, GitHub Actions, pre-commit, автотесты, деплой.
 
-2. Создание основных приложений  
-   Приложения по областям:  
-   `python manage.py startapp blog`
-   `python manage.py startapp users`
-   `python manage.py startapp api`
-   `python manage.py startapp analytics`
-   `python manage.py startapp contact`
+## Структура репозитория
+- `frontend/` — Next.js 14, Tailwind CSS, компоненты, страницы, сервисы, тесты, README.md
+- `backend/` — Django 5, DRF, приложения (blog, users, analytics, contact), миграции, тесты
+- `.github/` — CI/CD (GitHub Actions)
+- `docker/` — Dockerfile, docker-compose для локального и продакшн запуска
 
-3. Настройка переменных окружения  
-   - Создать `.env` с настройками (SECRET_KEY, DEBUG, DB, EMAIL и т.д.).
-   - Использовать python-dotenv для загрузки переменных.
-   - Для секретов использовать .env и не хранить их в git.
+## Запуск проекта
 
-4. Настройка подключения к PostgreSQL  
-   - В settings.py прописать параметры подключения из .env.
-   - Проверить доступность БД (можно через docker-compose для локальной БД).
+### Backend
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env  # заполнить переменные
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
 
-5. Настройка базовых middleware и приложений  
-   - Подключить rest_framework, drf_spectacular, corsheaders, django.contrib.admin и т.д.
-   - Настроить CORS (разрешить localhost:3000 для фронта).
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-6. Настройка статики и медиа  
-   - MEDIA_ROOT, MEDIA_URL, STATIC_ROOT, STATIC_URL.
-   - Для dev — использовать django runserver, для prod — WhiteNoise или S3.
+### Docker (всё сразу)
+```bash
+docker-compose up --build
+```
 
-7. Настройка pre-commit хуков  
-   - Установить и активировать pre-commit: `pre-commit install`
+## Тесты
+- **Backend:** pytest, pytest-django
+- **Frontend:** Jest, React Testing Library
 
-8. Инициализация миграций  
-   - Выполнить: `python manage.py makemigrations` и `python manage.py migrate`
+## Проверка стиля
+- **Python:** black, isort, flake8
+- **JS/TS:** eslint, prettier
 
-9. Создание суперпользователя  
-   - Выполнить: `python manage.py createsuperuser`
+## Документация
+- [Frontend README](frontend/README.md)
+- [Backend README](backend/README.md) *(если есть)*
+- OpenAPI/Swagger: `/api/v1/schema/` (Django)
 
-10. Документирование  
-    - Описать структуру backend и основные команды в README.md.
+## Основные фичи
+- SSR/SSG, адаптивность, SEO, aria, уникальные мета-теги
+- Masonry/blog-grid, анимация поиска в меню, кастомные шрифты
+- JWT, REST API, структурированные ошибки, версионирование
+- CI/CD, pre-commit, code review, Conventional Commits
 
-**Рекомендации:**
-- Использовать docker-compose для локального запуска PostgreSQL.
-- Для секретов использовать .env и не хранить их в git.
-- Вести README.md и CHANGELOG.md с самого начала.
+## Лицензия и контакты
+- MIT License
+- Вопросы: musson@support.ru

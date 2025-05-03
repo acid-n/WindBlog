@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "users",
     "analytics",
     "contact",
+    "config",
 ]
 
 MIDDLEWARE = [
@@ -163,3 +164,5 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+APPEND_SLASH = False

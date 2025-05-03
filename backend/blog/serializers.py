@@ -6,9 +6,11 @@ from .models import AnalyticsEvent, ContactMessage, Post, Rating, ShortLink, Tag
 class TagSerializer(serializers.ModelSerializer):
     """Сериализатор для тегов."""
 
+    posts_count = serializers.IntegerField(source="posts.count", read_only=True)
+
     class Meta:
         model = Tag
-        fields = ["id", "name", "slug"]
+        fields = ["id", "name", "slug", "posts_count"]
 
 
 class PostSerializer(serializers.ModelSerializer):

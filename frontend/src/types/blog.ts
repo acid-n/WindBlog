@@ -23,4 +23,6 @@ export interface Post {
   image?: string;
   short_description?: string;
   average_rating?: number;
+  author?: string;
+  comments_count?: number;
 }

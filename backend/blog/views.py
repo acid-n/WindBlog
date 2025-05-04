@@ -1,4 +1,6 @@
 from rest_framework import mixins, permissions, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from .models import AnalyticsEvent, ContactMessage, Post, Rating, ShortLink, Tag
 from .serializers import (
@@ -17,6 +19,7 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.AllowAny]
+    lookup_field = "slug"
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -25,6 +28,15 @@ class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = [permissions.AllowAny]
+    lookup_field = "slug"
+
+    @action(detail=True, methods=["get"], url_path="posts")
+    def posts(self, request, slug=None):
+        """Получить все опубликованные посты по тегу (slug)."""
+        tag = self.get_object()
+        posts = tag.posts.filter(is_published=True).order_by("-first_published_at")
+        serializer = PostSerializer(posts, many=True, context={"request": request})
+        return Response(serializer.data)
 
 
 class RatingViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):

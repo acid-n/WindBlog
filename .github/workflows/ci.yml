@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: musson_db
+          POSTGRES_USER: musson_user
+          POSTGRES_PASSWORD: musson_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U musson_user" --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      POSTGRES_DB: musson_db
+      POSTGRES_USER: musson_user
+      POSTGRES_PASSWORD: musson_pass
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      DJANGO_SECRET_KEY: test-key
+      DJANGO_DEBUG: 'True'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install pytest pytest-django
+      - name: Run linters
+        run: |
+          pip install black isort flake8
+          black --check backend/
+          isort --check-only backend/
+          flake8 backend/
+      - name: Run tests
+        run: |
+          cd backend
+          pytest 

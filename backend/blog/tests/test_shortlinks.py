@@ -43,7 +43,10 @@ class TestShortLinkAPI:
         url = reverse("shortlink-list")
         response = self.client.get(url)
         assert response.status_code == 200
-        assert any(s["id"] == self.shortlink.id for s in response.data)
+        assert isinstance(response.data, dict)
+        assert "results" in response.data
+        assert isinstance(response.data["results"], list)
+        assert any(s["id"] == self.shortlink.id for s in response.data["results"])
 
     def test_shortlink_detail(self):
         url = reverse("shortlink-detail", args=[self.shortlink.id])

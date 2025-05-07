@@ -1,35 +1,110 @@
 import React from "react";
+import Link from "next/link";
 import styles from "./styles.module.css";
 
 interface PaginationProps {
-  page: number;
+  currentPage: number;
   totalPages: number;
+  baseUrl: string; // Унифицированный prop для базового URL
+  // searchParams?: URLSearchParams; // Для сохранения других параметров запроса
 }
 
-const Pagination: React.FC<PaginationProps> = ({ page, totalPages }) => (
-  <nav>
-    <ul className={styles.pagination}>
-      {page > 1 && (
-        <li>
-          <a href={`/?page=${page - 1}`} className={styles["pagination-link"]}>Назад</a>
-        </li>
-      )}
-      {Array.from({ length: totalPages }, (_, i) => (
-        <li key={i + 1}>
-          {page === i + 1 ? (
-            <span className={styles["pagination-active"]}>{i + 1}</span>
-          ) : (
-            <a href={`/?page=${i + 1}`} className={styles["pagination-link"]}>{i + 1}</a>
-          )}
-        </li>
-      ))}
-      {page < totalPages && (
-        <li>
-          <a href={`/?page=${page + 1}`} className={styles["pagination-link"]}>Вперёд</a>
-        </li>
-      )}
-    </ul>
-  </nav>
-);
+const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, baseUrl }) => {
+  const getPageUrl = (pageNum: number) => {
+    const url = new URL(baseUrl, "http://localhost"); // Временный base для конструктора URL
+    url.searchParams.set("page", pageNum.toString());
+    return `${url.pathname}${url.search}`;
+  };
+
+  // Не отображаем пагинацию, если всего одна страница или меньше
+  if (totalPages <= 1) {
+    return null;
+  }
+
+  const pageNumbers = [];
+  const maxPagesToShow = 5; // Максимальное количество номеров страниц для отображения
+  const halfPagesToShow = Math.floor(maxPagesToShow / 2);
+
+  let startPage = Math.max(1, currentPage - halfPagesToShow);
+  let endPage = Math.min(totalPages, currentPage + halfPagesToShow);
+
+  if (currentPage - halfPagesToShow <= 0) {
+    endPage = Math.min(totalPages, maxPagesToShow);
+  }
+
+  if (currentPage + halfPagesToShow >= totalPages) {
+    startPage = Math.max(1, totalPages - maxPagesToShow + 1);
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    pageNumbers.push(i);
+  }
+
+  return (
+    <nav aria-label="Пагинация" className="flex justify-center mt-8 mb-4">
+      <ul className={`inline-flex items-center -space-x-px ${styles.paginationList}`}>
+        {currentPage > 1 && (
+          <li>
+            <Link
+              href={getPageUrl(currentPage - 1)}
+              className={`${styles.paginationLink} ${styles.paginationPrev}`}
+              aria-label="Предыдущая страница"
+            >
+              Назад
+            </Link>
+          </li>
+        )}
+
+        {startPage > 1 && (
+          <>
+            <li>
+              <Link href={getPageUrl(1)} className={styles.paginationLink}>1</Link>
+            </li>
+            {startPage > 2 && (
+              <li><span className={styles.paginationEllipsis}>...</span></li>
+            )}
+          </>
+        )}
+
+        {pageNumbers.map((pageNum) => (
+          <li key={pageNum}>
+            {currentPage === pageNum ? (
+              <span className={`${styles.paginationLink} ${styles.paginationActive}`} aria-current="page">
+                {pageNum}
+              </span>
+            ) : (
+              <Link href={getPageUrl(pageNum)} className={styles.paginationLink}>
+                {pageNum}
+              </Link>
+            )}
+          </li>
+        ))}
+
+        {endPage < totalPages && (
+          <>
+            {endPage < totalPages - 1 && (
+              <li><span className={styles.paginationEllipsis}>...</span></li>
+            )}
+            <li>
+              <Link href={getPageUrl(totalPages)} className={styles.paginationLink}>{totalPages}</Link>
+            </li>
+          </>
+        )}
+
+        {currentPage < totalPages && (
+          <li>
+            <Link
+              href={getPageUrl(currentPage + 1)}
+              className={`${styles.paginationLink} ${styles.paginationNext}`}
+              aria-label="Следующая страница"
+            >
+              Вперёд
+            </Link>
+          </li>
+        )}
+      </ul>
+    </nav>
+  );
+};
 
 export default Pagination; 

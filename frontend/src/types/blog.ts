@@ -9,6 +9,15 @@ export interface Tag {
 }
 
 /**
+ * Тип данных для короткой ссылки.
+ */
+export interface ShortLink {
+  code: string;
+  url: string;
+  full_url?: string;
+}
+
+/**
  * Тип данных для поста блога.
  */
 export interface Post {
@@ -16,6 +25,8 @@ export interface Post {
   title: string;
   slug: string;
   content: string;
+  description?: string;
+  body?: any;
   created_at: string;
   updated_at: string;
   first_published_at: string;
@@ -25,4 +36,5 @@ export interface Post {
   average_rating?: number;
   author?: string;
   comments_count?: number;
+  shortlink?: ShortLink;
 }

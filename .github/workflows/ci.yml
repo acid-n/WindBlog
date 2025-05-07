@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,45 +7,187 @@ on:
     branches: [main, develop]
 
 jobs:
-  test:
+  test-and-lint-backend:
     runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_DB: musson_db
+          POSTGRES_DB: musson_db_test # Используем отдельную БД для тестов CI
           POSTGRES_USER: musson_user
           POSTGRES_PASSWORD: musson_pass
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U musson_user" --health-interval 10s --health-timeout 5s --health-retries 5
+          --health-cmd "pg_isready -U musson_user -d musson_db_test" --health-interval 10s --health-timeout 5s --health-retries 5
     env:
-      POSTGRES_DB: musson_db
+      POSTGRES_DB: musson_db_test
       POSTGRES_USER: musson_user
       POSTGRES_PASSWORD: musson_pass
-      POSTGRES_HOST: localhost
+      POSTGRES_HOST: localhost # Для сервиса postgres, доступного по localhost
       POSTGRES_PORT: 5432
-      DJANGO_SECRET_KEY: test-key
+      DJANGO_SECRET_KEY: ci-test-secret-key
       DJANGO_DEBUG: 'True'
+      # Убедитесь, что .env файл не используется в CI или содержит тестовые значения
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - name: Install dependencies
+          python-version: '3.11' # Убедитесь, что соответствует вашей версии
+          cache: 'pip' # Кэширование зависимостей pip
+
+      - name: Install backend dependencies
+        working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          pip install -r backend/requirements.txt
-          pip install pytest pytest-django
-      - name: Run linters
+          pip install -r requirements.txt
+          # pytest, pytest-django, black, isort, flake8 должны быть в requirements.txt или requirements-dev.txt
+
+      - name: Run backend linters
+        working-directory: ./backend
         run: |
-          pip install black isort flake8
-          black --check backend/
-          isort --check-only backend/
-          flake8 backend/
-      - name: Run tests
+          flake8 .
+          black --check .
+          isort --check-only .
+          
+      - name: Run backend tests
+        working-directory: ./backend
         run: |
-          cd backend
-          pytest 
+          pytest
+
+  test-lint-build-frontend:
+    runs-on: ubuntu-latest
+    needs: test-and-lint-backend # Запускать после успешного завершения backend джобы
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Укажите вашу версию Node.js
+          cache: 'npm' # Кэширование npm зависимостей
+          cache-dependency-path: frontend/package-lock.json # или yarn.lock
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci # Используйте npm ci для более быстрого и надежного билда в CI
+
+      - name: Run frontend linters
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Run frontend tests
+        working-directory: ./frontend
+        run: npm test -- --coverage # Добавляем --coverage для отчета о покрытии
+
+      - name: Build frontend application
+        working-directory: ./frontend
+        run: npm run build
+
+  deploy-to-production: # Placeholder для CD
+    runs-on: ubuntu-latest
+    needs: test-lint-build-frontend # Запускать после успешного фронтенда
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' # Только для push в main
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Yandex Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: cr.yandex/
+          username: json_key # Используем этот username для аутентификации по JSON-ключу
+          password: ${{ secrets.YC_SA_JSON_KEY_FOR_CR }} # Секрет с содержимым JSON-ключа сервисного аккаунта
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: |
+            cr.yandex/<YOUR_REGISTRY_ID_PLACEHOLDER>/blog-backend:latest
+            cr.yandex/<YOUR_REGISTRY_ID_PLACEHOLDER>/blog-backend:${{ github.sha }}
+          cache-from: type=registry,ref=cr.yandex/<YOUR_REGISTRY_ID_PLACEHOLDER>/blog-backend:latest
+          cache-to: type=inline
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: |
+            cr.yandex/<YOUR_REGISTRY_ID_PLACEHOLDER>/blog-frontend:latest
+            cr.yandex/<YOUR_REGISTRY_ID_PLACEHOLDER>/blog-frontend:${{ github.sha }}
+          cache-from: type=registry,ref=cr.yandex/<YOUR_REGISTRY_ID_PLACEHOLDER>/blog-frontend:latest
+          cache-to: type=inline
+          # Пример передачи build-time переменных окружения, если Dockerfile их использует
+          # secrets: |
+          #   NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL_PROD }}
+
+      - name: Deploy to Yandex Cloud
+        env:
+          YC_SA_JSON_KEY: ${{ secrets.YC_SA_JSON_KEY_FOR_DEPLOY }} # Секрет с JSON-ключом для деплоя
+          YC_CLOUD_ID: ${{ secrets.YC_CLOUD_ID }} # Секрет с ID облака
+          YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }} # Секрет с ID каталога
+          BACKEND_IMAGE_TAG: ${{ github.sha }}
+          FRONTEND_IMAGE_TAG: ${{ github.sha }}
+          YC_REGISTRY_ID: <YOUR_REGISTRY_ID_PLACEHOLDER> # Замените на ваш ID
+        run: |
+          echo "Deploying to Yandex Cloud..."
+          echo "Installing Yandex Cloud CLI..."
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -n -i /tmp/yc
+          export PATH="/tmp/yc/bin:$PATH"
+          yc version
+
+          echo "Authenticating with Yandex Cloud SA Key..."
+          echo "${YC_SA_JSON_KEY}" > sa-key.json
+          yc config profile create sa-profile
+          yc config set service-account-key sa-key.json
+          yc config set cloud-id "${YC_CLOUD_ID}"
+          yc config set folder-id "${YC_FOLDER_ID}"
+          rm sa-key.json
+          
+          echo "Current YC config:"
+          yc config list
+
+          echo "Backend image: cr.yandex/${YC_REGISTRY_ID}/blog-backend:${BACKEND_IMAGE_TAG}"
+          echo "Frontend image: cr.yandex/${YC_REGISTRY_ID}/blog-frontend:${FRONTEND_IMAGE_TAG}"
+
+          # --- ЗАМЕНИТЕ ЭТО НА ВАШУ РЕАЛЬНУЮ ЛОГИКУ ДЕПЛОЯ ---
+          # Пример для Yandex Serverless Containers (замените <backend-container-id> и <frontend-container-id>)
+          # echo "Deploying backend to Serverless Container..."
+          # yc serverless container revision deploy \
+          #   --container-id <backend-container-id> \
+          #   --image cr.yandex/${YC_REGISTRY_ID}/blog-backend:${BACKEND_IMAGE_TAG} \
+          #   --cores 1 \
+          #   --memory 512M \
+          #   --execution-timeout 60s \
+          #   --concurrency 10 \
+          #   --service-account-id <your-invoker-sa-id> \
+          #   --environment DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY_PROD }},POSTGRES_DB=${{ secrets.POSTGRES_DB_PROD }},...
+
+          # echo "Deploying frontend to Serverless Container..."
+          # yc serverless container revision deploy \
+          #   --container-id <frontend-container-id> \
+          #   --image cr.yandex/${YC_REGISTRY_ID}/blog-frontend:${FRONTEND_IMAGE_TAG} \
+          #   --cores 1 \
+          #   --memory 512M \
+          #   --execution-timeout 60s \
+          #   --concurrency 10 \
+          #   --service-account-id <your-invoker-sa-id> \
+          #   --environment NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL_PROD }},...
+          echo "----------------------------------------------------"
+          echo "Placeholder: YC Deploy commands go here."
+          echo "----------------------------------------------------" 

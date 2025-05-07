@@ -1,0 +1,59 @@
+/* Стили для обтекания изображений */
+.imageLeft {
+  float: left;
+  margin: 5px 20px 10px 0;
+  max-width: 40%;
+  height: auto;
+}
+
+.imageRight {
+  float: right;
+  margin: 5px 0 10px 20px;
+  max-width: 40%;
+  height: auto;
+}
+
+.imageCenter {
+  display: block;
+  margin: 2em auto;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Стилизация блок-цитат */
+.blockquote {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 1.3em;
+  line-height: 1.5;
+  color: #555;
+  margin: 1.5em auto;
+  text-align: center;
+  position: relative;
+  max-width: 80%;
+  padding: 1em 2em;
+  border-left: none;
+  font-style: italic;
+}
+
+.blockquote::before {
+  content: '"';
+  font-size: 4em;
+  color: #ddd;
+  position: absolute;
+  left: -0.2em;
+  top: -0.4em;
+  font-family: Georgia, serif;
+}
+
+@media (max-width: 768px) {
+  .imageLeft, .imageRight {
+    float: none;
+    margin: 1.5em auto;
+    max-width: 100%;
+  }
+  
+  .blockquote {
+    max-width: 100%;
+    padding: 1em;
+  }
+}

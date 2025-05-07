@@ -1,17 +1,94 @@
 version: '3.9'
 
+# Рекомендуется создать .env файл в этой же директории (docker/.env)
+# и определить в нем переменные POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, DJANGO_SECRET_KEY и т.д.
+# Пример docker/.env:
+# POSTGRES_DB=musson_db
+# POSTGRES_USER=musson_user
+# POSTGRES_PASSWORD=yoursecurepassword
+# DJANGO_SECRET_KEY=yourdjangosecretkey
+# FRONTEND_API_URL=http://localhost:8000/api/v1 # Для Next.js, если он собирается в Docker
+
 services:
   db:
     image: postgres:15-alpine
+    container_name: blog_db
     restart: always
     environment:
-      POSTGRES_DB: musson_db
-      POSTGRES_USER: musson_user
-      POSTGRES_PASSWORD: musson_pass
+      POSTGRES_DB: ${POSTGRES_DB:-musson_db} # Фоллбэк, если переменная не задана
+      POSTGRES_USER: ${POSTGRES_USER:-musson_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-musson_pass} # Этот пароль лучше задать в .env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - blog_network
+
+  backend:
+    build:
+      context: ../backend # Путь к директории с Dockerfile бэкенда
+      dockerfile: Dockerfile
+    container_name: blog_backend
+    restart: always
+    # env_file:
+    #   - .env # Загрузка переменных из docker/.env
+    environment:
+      # Эти переменные должны быть определены (например, в .env файле или здесь)
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY_BE} # Убедитесь, что эта переменная задана!
+      - DJANGO_DEBUG=${DJANGO_DEBUG:-False} # Для прода True, для прода False
+      - POSTGRES_DB=${POSTGRES_DB:-musson_db}
+      - POSTGRES_USER=${POSTGRES_USER:-musson_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-musson_pass}
+      - POSTGRES_HOST=db # Имя сервиса базы данных в Docker Compose
+      - POSTGRES_PORT=5432
+      - FRONTEND_URL=${FRONTEND_URL_BE:-http://localhost:3000} # Для Django (например, короткие ссылки)
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend:/app # Для разработки с hot-reload (если manage.py runserver)
+      - ../media:/app/media # Том для медиафайлов, чтобы они сохранялись
+    depends_on:
+      - db
+    networks:
+      - blog_network
+    # Команда для запуска миграций при старте (может потребовать wait-for-it скрипт)
+    # command: >
+    #   sh -c "python manage.py migrate &&
+    #          python manage.py runserver 0.0.0.0:8000"
+    # Для продакшена используйте Gunicorn (см. Dockerfile)
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args: # Передаем аргументы сборки, если они нужны Dockerfile
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL_FE:-http://backend:8000/api/v1} # URL бэкенда внутри Docker сети
+    container_name: blog_frontend
+    restart: always
+    # env_file:
+    #   - .env # Загрузка переменных из docker/.env
+    environment:
+      - NODE_ENV=production # или development для разработки
+      # NEXT_PUBLIC_API_URL должен быть передан как build arg, если используется во время сборки
+      # Если он нужен во время выполнения (runtime), то можно задать здесь:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL_FE:-http://backend:8000/api/v1}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../frontend:/app # Для разработки с hot-reload (если настроено)
+      - /app/node_modules # Исключаем node_modules из монтирования, чтобы использовать установленные в образе
+      - /app/.next # Исключаем .next из монтирования
+    depends_on:
+      - backend
+    networks:
+      - blog_network
 
 volumes:
-  postgres_data: 
+  postgres_data:
+
+networks:
+  blog_network:
+    driver: bridge
+
+ 

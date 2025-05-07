@@ -3,24 +3,23 @@
 ## Описание
 
 Полноценный блог-проект:
-- **Frontend:** Next.js 14 (App Router), Tailwind CSS, Framer Motion, строгий MUSSON UX/UI STYLE GUIDE, визуал и анимации как в Read WP.
-- **Backend:** Django 5, Django REST Framework, PostgreSQL, JWT, кастомная модель пользователя, админка, API v1.
-- **CI/CD:** Docker, GitHub Actions, pre-commit, автотесты, деплой.
+- **Frontend:** Next.js 14 (App Router), Tailwind CSS, Framer Motion, Jest, React Testing Library, строгий MUSSON UX/UI STYLE GUIDE, визуал и анимации как в Read WP.
+- **Backend:** Django 5, Django REST Framework, PostgreSQL, Pytest, JWT, кастомная модель пользователя, админка, API v1.
+- **CI/CD:** Docker, GitHub Actions (проверка backend и frontend), pre-commit, автотесты, заготовка для деплоя.
 
 ## Соответствие Read WP (pixel-perfect)
 - Внешний вид, ширина, типографика, цвета, анонсы, кнопки, пагинация, шрифты полностью повторяют тему [Read WP](https://themes.pixelwars.org/read-wp/).
-- Используются кастомные CSS-модули для pixel-perfect.
+- Используются CSS-модули Tailwind CSS для pixel-perfect.
 - Все ключевые элементы сверстаны в точности по оригиналу.
 
 ## Главная страница блога
 
 ### Особенности реализации
 - **Внешний вид и UX:**
-  - Полное соответствие оригинальной теме Read WP (https://themes.pixelwars.org/read-wp/):
-    - Ширина, типографика, стилизация, анонсы, кнопки, пагинация, шрифты, цвета.
-  - Используется Next.js 14 (App Router) + Tailwind CSS + кастомные CSS-модули для pixel-perfect.
+  - Полное соответствие оригинальной теме Read WP (https://themes.pixelwars.org/read-wp/).
+  - Используется Next.js 14 (App Router) + Tailwind CSS + CSS-модули для pixel-perfect.
   - SSR/SSG для страниц, строгая типизация TypeScript.
-  - Семантическая верстка, SEO-мета-теги, доступность.
+  - Семантическая верстка, SEO-мета-теги (включая OpenGraph), оптимизация изображений с `next/image` (поддержка WebP), доступность (aria-атрибуты).
 
 - **Пагинация:**
   - Минималистичная, с кастомным шрифтом, цветами и подчёркиванием как в Read WP.
@@ -28,9 +27,9 @@
 
 - **Анонсы и посты:**
   - Анонс ограничен 180 символами, всегда лаконичный.
-  - Обложка — широкая, невысокая (1200x400), как постер.
-  - Генерация тестовых данных: каждый пост содержит все типы блоков (заголовки, параграфы, цитаты, картинки с разным обтеканием, галереи, код, видео, списки, таблицы).
-  - Все изображения скачиваются и сохраняются в media/posts/.
+  - Обложка — широкая, невысокая (1200x400), как постер. Используется `next/image`.
+  - Генерация тестовых данных: каждый пост содержит все типы блоков.
+  - Все изображения скачиваются и сохраняются в `media/posts/`.
   - Генерация тестовых данных не затирает старые посты, каждый запуск добавляет 10 новых.
 
 - **Динамическое название сайта:**
@@ -39,105 +38,126 @@
 
 - **Архитектура:**
   - Бэкенд: Django 5, PostgreSQL, DRF, кастомная модель пользователя, сериализаторы, JWT, OpenAPI.
-  - Фронтенд: Next.js, Tailwind, отдельные компоненты, строгая типизация, SSR/SSG, кастомные хуки.
-  - Тесты: Pytest (бэкенд), Jest/RTL (фронтенд), покрытие >80%.
-  - CI/CD: Docker, GitHub Actions, pre-commit хуки.
+  - Фронтенд: Next.js, Tailwind, CSS-модули, отдельные компоненты, строгая типизация, SSR/SSG, кастомные хуки, сервисы API.
+  - Тесты: Pytest (бэкенд), Jest/React Testing Library (фронтенд), покрытие >80% (цель).
+  - CI/CD: Docker, GitHub Actions (linting, tests, build для backend и frontend), pre-commit хуки (Python, JS/TS/CSS и др.).
 
 - **Локализация:**
   - Весь интерфейс и даты — на русском языке.
 
 - **SEO и доступность:**
-  - Семантическая верстка, уникальные мета-теги, sitemap.xml, robots.txt, оптимизация изображений (WebP, lazy), aria-атрибуты.
+  - Семантическая верстка, уникальные мета-теги (включая `generateMetadata` в Next.js), sitemap.xml, robots.txt (необходимо создать/проверить), оптимизация изображений (`next/image` для WebP, lazy loading), aria-атрибуты.
 
 ## Структура репозитория
-- `frontend/` — Next.js 14, Tailwind CSS, компоненты, страницы, сервисы, тесты, README.md
-- `backend/` — Django 5, DRF, приложения (blog, users, analytics, contact), миграции, тесты
-- `.github/` — CI/CD (GitHub Actions)
-- `docker/` — Dockerfile, docker-compose для локального и продакшн запуска
+- `frontend/` — Next.js 14, Tailwind CSS, компоненты, страницы, сервисы, тесты (Jest/RTL), Dockerfile, README.md
+- `backend/` — Django 5, DRF, приложения (blog, users, analytics, contact), миграции, тесты (Pytest), Dockerfile, README.md
+- `.github/` — CI/CD (GitHub Actions workflow)
+- `docker/` — `docker-compose.yml` для полного стека (frontend, backend, db), `.env.example` для конфигурации Docker.
 - `docs/UX_UI_STYLE_GUIDE.txt` — [UX/UI STYLE GUIDE](docs/UX_UI_STYLE_GUIDE.txt) (pixel-perfect, типографика, сетка, цвета, компоненты)
 
 ## Запуск проекта
 
-### Backend
+### Локально (без Docker)
+
+#### Backend
 ```bash
 cd backend
+# Рекомендуется использовать Python 3.11 (или указанную в Dockerfile/CI версию)
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate # для Linux/macOS или venv\Scripts\activate для Windows
 pip install -r requirements.txt
-cp .env.example .env  # заполнить переменные
+cp .env.example .env  # заполнить переменные для локального запуска (не Docker)
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
 ```
 
-### Frontend
+#### Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### Docker (всё сразу)
-```bash
-docker-compose up --build
-```
+### Docker (рекомендуемый способ для разработки и продакшена)
+1.  **Скопируйте `docker/.env.example` в `docker/.env`** и настройте переменные:
+    ```bash
+    cd docker
+    cp .env.example .env
+    # Откройте .env и отредактируйте значения (POSTGRES_PASSWORD, DJANGO_SECRET_KEY_BE и др.)
+    ```
+2.  **Запустите все сервисы:**
+    ```bash
+    docker-compose -f docker/docker-compose.yml up --build
+    ```
+    Приложения будут доступны:
+    - Frontend: http://localhost:3000
+    - Backend: http://localhost:8000
 
-### Генерация тестовых данных
+### Генерация тестовых данных (после запуска backend)
 ```bash
+# Если backend запущен локально (без Docker):
 python backend/manage.py generate_test_data
+
+# Если backend запущен в Docker:
+docker-compose -f docker/docker-compose.yml exec backend python manage.py generate_test_data
 ```
 - Каждый запуск добавляет 10 новых постов с полным набором блоков и изображений.
 - Старые посты не затираются.
 
 ## Тесты
-- **Backend:** pytest, pytest-django
-- **Frontend:** Jest, React Testing Library
-- Покрытие тестами не менее 80%.
-- Тесты запускаются автоматически через pre-commit и CI.
+- **Backend:** Pytest, pytest-django. Запуск: `cd backend && pytest`
+- **Frontend:** Jest, React Testing Library. Запуск: `cd frontend && npm test`
+- Покрытие тестами не менее 80% (цель).
+- Тесты и линтеры запускаются автоматически через pre-commit и CI.
 
-## Проверка стиля
-- **Python:** black, isort, flake8
-- **JS/TS:** eslint, prettier
+## Проверка стиля и линтинг
+- **Python:** black, isort, flake8 (настроены в pre-commit и CI).
+- **JS/TS/CSS и др.:** Prettier, ESLint (настроены в pre-commit и CI).
 
 ## Документация
 - [Frontend README](frontend/README.md)
-- [Backend README](backend/README.md) *(если есть)*
-- OpenAPI/Swagger: `/api/v1/schema/` (Django)
+- [Backend README](backend/README.md)
+- OpenAPI/Swagger: `/api/docs/` (после запуска backend)
 - [UX/UI STYLE GUIDE](docs/UX_UI_STYLE_GUIDE.txt)
 
 ## Основные фичи
 - Pixel-perfect, SSR/SSG, адаптивность, SEO, aria, уникальные мета-теги
 - Masonry/blog-grid, анимация поиска в меню, кастомные шрифты
-- JWT, REST API, структурированные ошибки, версионирование
-- CI/CD, pre-commit, code review, Conventional Commits
+- JWT, REST API (защищенные эндпоинты для CUD операций), структурированные ошибки, версионирование
+- CI/CD (GitHub Actions), pre-commit (Python, JS/TS), code review, Conventional Commits
 
-## Быстрый старт
+## Быстрый старт (Docker)
+1.  Склонируйте репозиторий.
+2.  Перейдите в папку `docker/`, скопируйте `.env.example` в `.env` и настройте его.
+3.  Выполните `docker-compose up --build` из корня проекта или указав путь к файлу.
+4.  Откройте [http://localhost:3000](http://localhost:3000).
+5.  Сгенерируйте тестовые данные: `docker-compose exec backend python manage.py generate_test_data`.
 
-1. Установите зависимости:
-   - backend: `pip install -r requirements.txt`
-   - frontend: `npm install`
-2. Запустите бэкенд: `python manage.py runserver`
-3. Запустите фронтенд: `npm run dev`
-4. Сгенерируйте тестовые данные: `python backend/manage.py generate_test_data`
-
-## Структура кода
-- `frontend/src/app/page.tsx` — главная страница, SSR, пагинация, рендеринг постов.
-- `frontend/src/components/pagination/` — компонент и стили пагинации.
-- `frontend/src/components/blog-post-preview/` — превью поста.
-- `frontend/src/components/footer/` — динамический футер.
-- `backend/config/models.py` — SiteSettings (название и описание сайта).
+## Структура кода (ключевые точки)
+- `frontend/src/app/` — страницы Next.js App Router.
+- `frontend/src/components/` — React-компоненты.
+- `frontend/src/services/api.ts` — унифицированный сервис для работы с API.
+- `frontend/next.config.ts` — конфигурация Next.js (включая `remotePatterns` для `next/image`).
+- `backend/config/settings.py` — настройки Django.
+- `backend/blog/views.py` — ViewSets для API блога (с `IsAuthenticatedOrReadOnly`).
 - `backend/blog/management/commands/generate_test_data.py` — генерация тестовых постов.
+- `.github/workflows/ci.yml` — CI/CD пайплайн.
+- `docker/docker-compose.yml` — оркестрация сервисов.
+- `backend/Dockerfile`, `frontend/Dockerfile` — инструкции по сборке образов.
 
 ## Стандарты и гайдлайны
 - Все стили и архитектура соответствуют [UX/UI STYLE GUIDE](docs/UX_UI_STYLE_GUIDE.txt).
 - Pixel-perfect соответствие Read WP.
-- Код покрыт тестами, проходит линтеры и CI.
+- Код покрыт тестами (цель >80%), проходит линтеры и CI.
 
 ## FAQ / Типичные проблемы
-- **Ошибка миграций:** Проверьте настройки .env и выполните `python manage.py migrate`.
-- **Не отображаются изображения:** Проверьте настройки MEDIA_URL и MEDIA_ROOT в Django, убедитесь, что сервер отдаёт media-файлы.
-- **Проблемы с генерацией тестовых данных:** Убедитесь, что есть интернет для скачивания изображений, и директория media/posts/ доступна для записи.
-- **Проблемы с запуском фронтенда:** Проверьте, что все зависимости установлены (`npm install`).
+- **Ошибка миграций (Docker):** Убедитесь, что сервис `db` успел запуститься перед `backend`. `docker-compose.yml` использует `depends_on`, но для миграций может потребоваться wait-for-it скрипт в entrypoint бэкенда.
+- **Ошибка миграций (локально):** Проверьте настройки `.env` и выполните `python manage.py migrate`.
+- **Не отображаются изображения:** Проверьте `MEDIA_URL`/`MEDIA_ROOT` в Django и доступность `media/` тома в Docker.
+- **Проблемы с генерацией тестовых данных:** Убедитесь, что есть интернет для скачивания изображений, и директория `media/posts/` доступна для записи (права доступа к тому в Docker).
+- **Проблемы с запуском фронтенда:** Проверьте, что все зависимости установлены (`npm install`). Проверьте `NEXT_PUBLIC_API_URL` при запуске в Docker.
+- **ESLint/Prettier в pre-commit:** Убедитесь, что в `frontend/` установлены все зависимости (`npm install`), включая `eslint-config-next` и другие плагины ESLint, указанные в `additional_dependencies` в `.pre-commit-config.yaml`.
 - **Вопросы:** musson@support.ru
 
 ## Лицензия и контакты
@@ -146,4 +166,4 @@ python backend/manage.py generate_test_data
 
 ---
 
-Для доработок и новых фич — см. [CONTRIBUTING.md] или обращайтесь к разработчикам.
+Для доработок и новых фич — см. [CONTRIBUTING.md] (необходимо создать) или обращайтесь к разработчикам.

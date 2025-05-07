@@ -3,11 +3,62 @@ repos:
     rev: v5.10.1
     hooks:
       - id: isort
+        args: ["--profile", "black"]
+        files: \.py$
   - repo: https://github.com/psf/black
-    rev: 25.1.0
+    rev: 25.4.2
     hooks:
       - id: black
+        language_version: python3
+        files: \.py$
   - repo: https://github.com/pycqa/flake8
     rev: 7.2.0
     hooks:
-      - id: flake8 
+      - id: flake8
+        files: \.py$
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        types_or: [javascript, jsx, ts, tsx, css, scss, html, json, yaml, markdown]
+        exclude: "^frontend/pnpm-lock.yaml$"
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.9.1
+    hooks:
+      - id: eslint
+        files: \.[jt]sx?$
+        types: [javascript, tsx]
+        args: [--fix]
+        additional_dependencies:
+          - eslint-config-next@15.3.1
+
+  # Локальный хук для запуска pytest в бэкенде
+  - repo: local
+    hooks:
+      - id: pytest-backend
+        name: Pytest Backend
+        entry: bash -c 'cd backend && pytest'
+        language: system
+        types: [python]
+        pass_filenames: false # Тесты запускаются для всего проекта, а не для отдельных файлов
+
+  # Локальный хук для запуска Jest в фронтенде
+  - repo: local
+    hooks:
+      - id: jest-frontend
+        name: Jest Frontend
+        entry: bash -c 'cd frontend && npm test'
+        language: system
+        types: [javascript, tsx] # Запускать при изменении JS/TSX файлов
+        pass_filenames: false # Тесты запускаются для всего проекта
+
+  # Другие полезные хуки (опционально):
+  # - repo: https://github.com/pre-commit/pre-commit-hooks
+  #   rev: v4.6.0 # Актуальная версия
+  #   hooks:
+  #     - id: check-yaml
+  #     - id: check-json
+  #     - id: check-merge-conflict
+  #     - id: detect-private-key
+  #     - id: end-of-file-fixer
+  #     - id: trailing-whitespace 

@@ -10,8 +10,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        heading: ["Coustard", "Georgia", "serif"],
-        serif: ["Lora", "Georgia", "serif"],
+        heading: ["var(--font-coustard)", "Georgia", "serif"],
+        serif: ["var(--font-lora)", "Georgia", "serif"],
       },
       colors: {
         heading: "#333333",

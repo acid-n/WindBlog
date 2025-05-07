@@ -7,12 +7,37 @@ from .models import AnalyticsEvent, ContactMessage, Post, Rating, ShortLink, Tag
 class PostAdmin(admin.ModelAdmin):
     """Админка для постов блога."""
 
-    list_display = ("title", "is_published", "first_published_at")
-    list_filter = ("is_published", "first_published_at", "tags")
-    search_fields = ("title", "slug", "description")
+    list_display = (
+        "title",
+        "slug",
+        "is_published",
+        "first_published_at",
+        "created_at",
+        "updated_at",
+        "sitemap_include",
+    )
+    list_filter = ("is_published", "tags", "first_published_at")
+    search_fields = ("title", "description", "body")
     prepopulated_fields = {"slug": ("title",)}
-    autocomplete_fields = ("tags",)
-    date_hierarchy = "first_published_at"
+    raw_id_fields = ('tags',)
+    readonly_fields = ('created_at', 'updated_at')
+
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'slug', 'is_published', 'first_published_at')
+        }),
+        ('Контент', {
+            'fields': ('description', 'body', 'image', 'tags')
+        }),
+        ('SEO для Sitemap', {
+            'fields': ('sitemap_include', 'sitemap_priority', 'sitemap_changefreq'),
+            'classes': ('collapse',),
+        }),
+        ('Даты', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
 
 
 @admin.register(Tag)

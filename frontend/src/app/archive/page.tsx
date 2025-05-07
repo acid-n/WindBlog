@@ -1,77 +1,73 @@
 import React from "react";
-import { fetchPosts } from "@/services/api";
-import type { Post } from "@/types/blog";
+// Убираем моковые типы и функции
+// import type { Post } from "@/types/blog"; // Post не нужен здесь
+import { fetchArchiveYearsSummary, YearSummary } from "@/services/api"; // Импортируем реальную функцию и тип
+
+// --- Плейсхолдеры для API --- // Убираем весь этот блок
+// interface YearSummary {
+//   year: number;
+//   posts_count: number;
+// }
+// async function fetchArchiveYearsSummary(): Promise<YearSummary[]> {
+//   console.warn("API call 'fetchArchiveYearsSummary' is not implemented. Using mock data.");
+//   return [
+//     { year: 2025, posts_count: 15 },
+//     { year: 2024, posts_count: 8 },
+//   ];
+// }
+// --- Конец плейсхолдеров ---
 
 /**
- * Группирует посты по годам и месяцам публикации.
- */
-function groupPostsByYearMonth(posts: Post[]) {
-  const groups: Record<string, Record<string, Post[]>> = {};
-  posts.forEach((post) => {
-    const date = new Date(post.first_published_at);
-    const year = date.getFullYear().toString();
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    if (!groups[year]) groups[year] = {};
-    if (!groups[year][month]) groups[year][month] = [];
-    groups[year][month].push(post);
-  });
-  return groups;
-}
-
-/**
- * Страница архива — навигация по годам, месяцам, датам публикации постов.
+ * Страница архива — навигация по годам.
  */
 const ArchivePage = async () => {
-  let posts: Post[] = [];
+  let yearsSummary: YearSummary[] = [];
   let error = "";
   try {
-    posts = await fetchPosts();
-  } catch (e: any) {
-    error = e?.message || "Ошибка загрузки постов";
+    // Используем реальную функцию API
+    yearsSummary = await fetchArchiveYearsSummary();
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : "An unknown error occurred while fetching archive year summary";
+    console.error("Error fetching archive year summary:", errorMessage);
+    error = errorMessage; // Сохраняем сообщение об ошибке для отображения
   }
-  const groups = groupPostsByYearMonth(posts);
-  const years = Object.keys(groups).sort((a, b) => Number(b) - Number(a));
+  // Сортировка больше не нужна, API возвращает в нужном порядке (-year)
+  // yearsSummary.sort((a, b) => b.year - a.year);
 
   return (
-    <section className="flex flex-col items-center gap-8 py-16 w-full">
-      <h1 className="text-3xl font-bold text-gray-900">Архив</h1>
-      {error && <div className="text-red-600 text-center">{error}</div>}
-      <div className="w-full max-w-3xl">
-        {years.length === 0 && !error && (
-          <div className="text-gray-500 text-center">Посты отсутствуют.</div>
+    <section className="container mx-auto px-4 py-8 md:py-12">
+      <h1
+        className="font-lora text-[#222] text-3xl md:text-4xl font-medium text-center mb-8"
+        style={{ fontFamily: "'Lora', serif" }}
+      >
+        Архив
+      </h1>
+      {error && <div className="text-red-600 text-center mb-4">{error}</div>}
+      <div className="w-full max-w-3xl mx-auto">
+        {yearsSummary.length === 0 && !error && (
+          <div className="text-gray-500 text-center py-10">Посты отсутствуют.</div>
         )}
-        {years.map((year) => (
-          <div key={year} className="mb-8">
-            <h2 className="text-2xl font-semibold text-blue-800 mb-4">{year}</h2>
-            {Object.keys(groups[year])
-              .sort((a, b) => Number(b) - Number(a))
-              .map((month) => (
-                <div key={month} className="mb-4 ml-4">
-                  <h3 className="text-lg font-medium text-blue-600 mb-2">
-                    {new Date(Number(year), Number(month) - 1).toLocaleString("ru-RU", { month: "long" })}
-                  </h3>
-                  <ul className="space-y-2">
-                    {groups[year][month].map((post) => (
-                      <li key={post.id}>
-                        <a
-                          href={`/posts/${post.slug}`}
-                          className="text-base text-gray-900 hover:text-blue-700 underline"
-                        >
-                          {post.title}
-                        </a>
-                        <span className="ml-2 text-gray-400 text-sm">
-                          {new Date(post.first_published_at).toLocaleDateString("ru-RU")}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-          </div>
-        ))}
+        <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+          {yearsSummary.map(({ year, posts_count }) => (
+            <li key={year}>
+              <a
+                href={`/archive/${year}`}
+                className="inline-block px-3 py-1.5 text-lg font-medium text-gray-600 underline decoration-dotted decoration-gray-400 hover:text-gray-900 hover:bg-gray-100 hover:no-underline rounded transition-colors duration-150 ease-in-out"
+              >
+                {year} год{" "}
+                <span className="ml-1 text-gray-900">({posts_count})</span>
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
 };
+
+// Вспомогательная функция getPostWord больше не нужна здесь
+// function getPostWord(count: number): string {
+// ...
+// }
 
 export default ArchivePage;

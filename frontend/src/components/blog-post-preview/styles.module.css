@@ -1,32 +1,85 @@
-.bg-hover-clone {
+/* Эффект фона при наведении для заголовка (с line-height и padding) */
+.bgHoverClone {
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
   transition: background 0.2s;
   line-height: 1.26;
   padding-bottom: 0.34em;
 }
-.bg-hover-clone:hover {
-  background: #f6f7f8;
+.bgHoverClone:hover {
+  background: #f6f7f8; /* Светло-серый фон при наведении */
 }
 
-.tag-link {
-  color: #888;
-  text-decoration: none;
-  border-bottom: 1px dotted transparent;
-  transition: color 0.2s, border-bottom-color 0.2s;
-}
-.tag-link:hover {
-  color: #222;
-  border-bottom: 1px dotted #222;
+/* Общий эффект фона при наведении (более компактный) */
+.hoverCloneEffect {
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition: background 0.2s;
+  padding: 0.1em 0.2em; /* Небольшие отступы для фона */
 }
 
-.read-link {
-  color: #222;
-  text-decoration: none;
-  border-bottom: 2px dotted transparent;
-  transition: color 0.2s, border-bottom-color 0.2s;
+.hoverCloneEffect:hover {
+  background: #f6f7f8; /* Светло-серый фон при наведении */
 }
-.read-link:hover {
-  color: #ce6607;
-  border-bottom: 2px dotted #ce6607;
-} 
+
+/* Если нужны какие-то уникальные стили для контейнера заголовка, 
+   которые не достигаются Tailwind, их можно добавить сюда. 
+   Пока оставляем пустым, так как основные стили для h2 будут в JSX. */
+.titleLinkContainer {}
+
+/* Если нужны какие-то уникальные стили для самой ссылки заголовка, 
+   которые не достигаются Tailwind, их можно добавить сюда. 
+   Пока оставляем пустым, так как основные стили для <a> будут в JSX. */
+.titleLink {}
+
+/* Аналогично для других элементов, если для них нужны какие-то 
+   специфические CSS-модульные стили, не покрываемые Tailwind. */
+.tagLink {}
+.dateLink {}
+.readLink {}
+
+/* Стили для заголовка-ссылки поста */
+/* .titleLinkContainer {
+  /* Дополнительные стили для контейнера заголовка, если нужны */
+/* } */
+
+/* .titleLink:hover {
+  @apply text-accentDark; /* Пример цвета при наведении для текста заголовка */
+/* } */
+
+/* Стили для ссылок на теги */
+/* .tagLink {
+  @apply inline-block no-underline text-gray-500 hover:text-accentDark transition-colors duration-200;
+  padding: 0.1em 0.3em;
+  /* .hoverCloneEffect будет применен через JSX */
+/* } */
+
+/* Стили для ссылки на дату */
+/* .dateLink {
+  @apply inline-block no-underline text-gray-400 hover:text-accentDark transition-colors duration-200;
+  padding: 0.1em 0.3em;
+  /* .hoverCloneEffect будет применен через JSX */
+/* } */
+
+/* Стили для ссылки "Читать" */
+/* .readLink {
+  @apply inline-block font-bold text-base tracking-wider uppercase no-underline text-gray-800 hover:text-accentDark transition-colors duration-200;
+  padding: 0.2em 0.4em;
+  margin-top: 0.5rem;
+  /* .hoverCloneEffect будет применен через JSX */
+/* } */
+
+/* Общий эффект для ссылок-клонов */
+/* .hoverCloneEffect {
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition: background 0.2s;
+} */
+
+/* .hoverCloneEffect:hover {
+  background: #f6f7f8; /* Светло-серый фон при наведении */
+/* } */
+
+/* .coverImage {
+  /* Дополнительные стили для изображения поста */
+/* } */ 

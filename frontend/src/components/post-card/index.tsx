@@ -51,7 +51,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               <React.Fragment key={tag.id}>
                 <a
                   href={`/tags/${tag.slug}`}
-                  className="hover:text-[#A35208] text-[#CE6607] underline transition-colors"
+                  className="text-gray-600 hover:text-gray-900 hover:underline decoration-dotted transition-colors duration-150 ease-in-out"
                   aria-label={`Посты с тегом ${tag.name}`}
                 >
                   {tag.name}
@@ -63,7 +63,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         )}
       </div>
       <div className="flex items-center justify-between text-xs text-gray-400">
-        <span>{format(new Date(post.created_at), "dd.MM.yyyy")}</span>
+        <span>{post.created_at ? format(new Date(post.created_at), "dd.MM.yyyy") : ''}</span>
         {typeof post.average_rating === "number" && <PostRating value={post.average_rating} />}
       </div>
       <div className="mt-2">

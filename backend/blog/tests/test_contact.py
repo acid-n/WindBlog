@@ -15,4 +15,4 @@ class TestContactAPI:
         assert response.status_code == 201
         assert response.data["name"] == "Тест"
         assert response.data["email"] == "test@example.com"
-        assert response.data["message"] == ("Ваше сообщение успешно отправлено!")
+        assert response.data["message"] == "Сообщение"

@@ -1,0 +1,100 @@
+/* Этот файл может быть использован для специфичных стилей компонента Header, если они понадобятся в будущем. */
+/* В данный момент основные стили хедера определены глобально в globals.css для сохранения оригинального вида. */
+/* Уникальный маркер для форсирования изменения */
+
+.siteHeader {
+  @apply mt-16 mb-6; /* было margin-top: 4em; margin-bottom: 1.5em; */
+}
+
+.siteTitle {
+  /* font-family: "UnifrakturMaguntia", Georgia, serif; - Используйте Tailwind класс font-unifrakturmaguntia, если он определен в tailwind.config.js, или оставьте так */
+  font-family: var(--font-unifrakturmaguntia); /* Предполагаем, что UnifrakturMaguntia подключен через CSS переменную */
+  @apply text-3xl leading-tight mb-0 mt-0 text-center text-gray-800 no-underline block;
+  /* было font-size: 2em; color: #222; */
+}
+
+.siteTitleLink {
+  @apply text-gray-800 no-underline;
+}
+.siteTitleLink:hover,
+.siteTitleLink:active,
+.siteTitleLink:focus {
+  @apply text-gray-800 no-underline;
+}
+
+.siteTitleSep {
+  @apply border-b border-dotted border-gray-400 w-1/2 my-1 mx-auto;
+  /* было border-bottom: 1px dotted #bbb; width: 50%; margin: 0.2em auto 0.7em auto; */
+}
+
+.siteDescription {
+  @apply font-heading text-base font-medium tracking-tight text-text text-center mb-8;
+  /* было font-family: 'Coustard', Georgia, serif; font-size: 1em; font-weight: 500; letter-spacing: 0.01em; color: #444; margin-bottom: 2em; */
+  /* Используем Tailwind: font-heading (Coustard), text-base, font-medium, tracking-tight (примерно 0.01em), text-text, mb-8 */
+}
+
+.mainNavigation {
+  @apply font-heading text-lg font-normal text-center mb-0;
+  /* было font-family: 'Coustard', Georgia, serif; font-size: 1.15em; font-weight: 400; */
+  /* Используем Tailwind: font-heading, text-lg (примерно 1.15em), font-normal */
+}
+
+.navList {
+  @apply flex justify-center items-center relative;
+  min-width: 700px; /* Оставляем, если это специфичное требование дизайна */
+}
+
+.navItem {
+  @apply flex items-center h-[38px] transition-all duration-300;
+}
+
+.navLink {
+  @apply text-gray-800 no-underline px-[1.2em] whitespace-nowrap h-[38px] flex items-center transition-colors;
+  /* было color: #222; padding: 0 1.2em; */
+  /* border-bottom: 1px solid transparent; - Tailwind не имеет прямого аналога для этого без псевдоэлементов */
+}
+
+.navLink:hover {
+  /* border-bottom: 1px dotted #bbb; - Tailwind не имеет прямого аналога для этого без псевдоэлементов */
+  @apply text-accentDark; /* было text-[#A35208] */
+}
+
+.navLinkActive {
+  @apply text-accent font-bold; /* было color: #CE6607 (accent); */
+}
+
+.menuSep {
+  @apply w-[90%] my-3 mx-auto border-b border-gray-200;
+  /* было width: 90%; margin: 0.7em auto; border-bottom: 1px solid #ededed; */
+}
+
+/* Стили для строки поиска, если нужны дополнительные */
+.searchAnimatedContainer {
+  @apply flex items-center h-[38px] transition-all duration-300 overflow-hidden;
+  /* width и minWidth/maxWidth будут управляться Framer Motion */
+}
+
+.searchTextPrompt {
+  @apply inline-flex items-center w-full justify-center cursor-pointer px-[1.2em] h-[38px];
+  user-select: none;
+}
+
+.searchForm {
+  @apply flex items-center w-full h-[38px] px-0;
+}
+
+.searchInput {
+  @apply border-none border-b border-dotted border-gray-400 focus:border-accent focus:border-solid rounded-none px-[1.2em] py-0 text-lg font-heading h-[32px] leading-none text-gray-800 bg-white focus:outline-none focus:shadow-none transition-colors w-full text-center;
+}
+.searchInput::placeholder {
+  @apply italic text-gray-400;
+}
+
+.searchSubmitButton {
+  @apply ml-2 text-gray-800 hover:text-accentDark transition-colors text-xl;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer; /* Добавил cursor: pointer, так как это кнопка */
+}
+

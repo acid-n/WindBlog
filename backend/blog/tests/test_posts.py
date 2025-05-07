@@ -37,11 +37,13 @@ class TestPostAPI:
         url = reverse("post-list")
         response = self.client.get(url)
         assert response.status_code == 200
-        assert isinstance(response.data, list)
-        assert any(p["id"] == self.post.id for p in response.data)
+        assert isinstance(response.data, dict)
+        assert "results" in response.data
+        assert isinstance(response.data["results"], list)
+        assert any(p["id"] == self.post.id for p in response.data["results"])
 
     def test_post_detail(self):
-        url = reverse("post-detail", args=[self.post.id])
+        url = reverse("post-detail", args=[self.post.slug])
         response = self.client.get(url)
         assert response.status_code == 200
         assert response.data["id"] == self.post.id

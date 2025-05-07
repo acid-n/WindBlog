@@ -6,7 +6,7 @@ repos:
         args: ["--profile", "black"]
         files: \.py$
   - repo: https://github.com/psf/black
-    rev: 25.4.2
+    rev: 25.1.0
     hooks:
       - id: black
         language_version: python3
@@ -17,13 +17,14 @@ repos:
       - id: flake8
         files: \.py$
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.1.0
+    rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
-        types_or: [javascript, jsx, ts, tsx, css, scss, html, json, yaml, markdown]
+        types_or:
+          [javascript, jsx, ts, tsx, css, scss, html, json, yaml, markdown]
         exclude: "^frontend/pnpm-lock.yaml$"
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v9.9.1
+    rev: v9.26.0
     hooks:
       - id: eslint
         files: \.[jt]sx?$
@@ -52,6 +53,7 @@ repos:
         types: [javascript, tsx] # Запускать при изменении JS/TSX файлов
         pass_filenames: false # Тесты запускаются для всего проекта
 
+
   # Другие полезные хуки (опционально):
   # - repo: https://github.com/pre-commit/pre-commit-hooks
   #   rev: v4.6.0 # Актуальная версия
@@ -61,4 +63,4 @@ repos:
   #     - id: check-merge-conflict
   #     - id: detect-private-key
   #     - id: end-of-file-fixer
-  #     - id: trailing-whitespace 
+  #     - id: trailing-whitespace

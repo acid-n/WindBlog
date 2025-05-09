@@ -1,28 +1,46 @@
-/* Стили для обтекания изображений */
-.imageLeft {
+/* Стили для обтекания изображений с использованием next/image */
+
+/* Контейнеры для обтекания */
+.imageLeftContainer {
   float: left;
-  margin: 5px 20px 10px 0;
-  max-width: 40%;
-  height: auto;
+  margin: 0.5rem 1.5rem 0.5rem 0; /* Отступы вокруг контейнера */
+  max-width: 50%; /* Максимальная ширина контейнера, чтобы текст мог обтекать */
+  /* width: 100%; /* Контейнер может быть 100% от max-width */
 }
 
-.imageRight {
+.imageRightContainer {
   float: right;
-  margin: 5px 0 10px 20px;
-  max-width: 40%;
-  height: auto;
+  margin: 0.5rem 0 0.5rem 1.5rem;
+  max-width: 50%;
+  /* width: 100%; */
 }
 
-.imageCenter {
-  display: block;
+/* Если нужно центрировать изображение, которое не обтекается */
+/* .imageCenterContainer {
+  display: block; 
   margin: 2em auto;
-  max-width: 100%;
-  height: auto;
+  max-width: 100%; 
+} */
+
+/* Класс для самого тега Image, если нужны специфичные стили, 
+   но большинство стилей лучше применять к обертке imageWrapperClass в TSX 
+   или к floatContainerClass */
+.imageContent {
+  /* display: block;  next/image с fill уже блочный по сути */
+  /* max-width: 100%; */
+  /* height: auto;  с fill и aspect-ratio это управляется иначе */
+}
+
+/* Очистка обтекания, если потребуется после плавающих элементов */
+.clearFloat::after {
+  content: "";
+  clear: both;
+  display: table;
 }
 
 /* Стилизация блок-цитат */
 .blockquote {
-  font-family: 'Lora', Georgia, serif;
+  font-family: "Lora", Georgia, serif;
   font-size: 1.3em;
   line-height: 1.5;
   color: #555;
@@ -46,12 +64,13 @@
 }
 
 @media (max-width: 768px) {
-  .imageLeft, .imageRight {
+  .imageLeftContainer,
+  .imageRightContainer {
     float: none;
-    margin: 1.5em auto;
-    max-width: 100%;
+    margin: 1.5em auto; /* Центрируем на мобильных, если нет обтекания */
+    max-width: 100%; /* Изображение занимает всю доступную ширину */
   }
-  
+
   .blockquote {
     max-width: 100%;
     padding: 1em;

@@ -1,27 +1,16 @@
 import type { Metadata } from "next";
-import { Lora, Coustard } from "next/font/google";
-import "@/app/globals.css";
-import Layout from "@/components/layout";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import Header from "@/components/header";
+import Footer from "@/components/footer";
+import { AuthProvider } from "@/contexts/AuthContext";
 
-const lora = Lora({
-  subsets: ["latin", "cyrillic"],
-  variable: "--font-lora",
-  weight: ["400", "700"],
-});
-
-const coustard = Coustard({
-  subsets: ["latin"],
-  variable: "--font-coustard",
-  weight: ["400", "900"],
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MyBlog — MUSSON",
-  description: "Блог о технологиях, разработке и жизни. Читайте свежие статьи, обзоры и советы.",
-  openGraph: {
-    title: "MyBlog — MUSSON",
-    description: "Блог о технологиях, разработке и жизни. Читайте свежие статьи, обзоры и советы.",
-  },
+  title: "Muggn Техноблог про ИИ",
+  description:
+    "Технологический блог о машинном обучении, нейронных сетях и будущем искусственного интеллекта",
 };
 
 export default function RootLayout({
@@ -30,13 +19,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={`${lora.variable} ${coustard.variable}`}>
+    <html lang="ru">
       <head>
-        <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+        {/* <link 
+          rel="stylesheet" 
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" 
+          integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" 
+          crossOrigin="anonymous" 
+          referrerPolicy="no-referrer" 
+        /> */}
       </head>
-      <body className="font-serif text-text bg-bg selection:bg-[#FFFFCF] min-h-screen">
-        <Layout>{children}</Layout>
+      <body
+        className={`${inter.className} bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col min-h-screen`}
+      >
+        <AuthProvider>
+          <Header />
+          <main className="flex-grow container mx-auto px-4 py-8">
+            {children}
+          </main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

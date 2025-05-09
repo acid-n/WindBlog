@@ -9,7 +9,11 @@ interface PaginationProps {
   // searchParams?: URLSearchParams; // Для сохранения других параметров запроса
 }
 
-const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, baseUrl }) => {
+const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  totalPages,
+  baseUrl,
+}) => {
   const getPageUrl = (pageNum: number) => {
     const url = new URL(baseUrl, "http://localhost"); // Временный base для конструктора URL
     url.searchParams.set("page", pageNum.toString());
@@ -42,12 +46,12 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, baseUr
 
   return (
     <nav aria-label="Пагинация" className="flex justify-center mt-8 mb-4">
-      <ul className={`inline-flex items-center -space-x-px ${styles.paginationList}`}>
+      <ul className={styles.paginationList}>
         {currentPage > 1 && (
           <li>
             <Link
               href={getPageUrl(currentPage - 1)}
-              className={`${styles.paginationLink} ${styles.paginationPrev}`}
+              className={styles.paginationLink}
               aria-label="Предыдущая страница"
             >
               Назад
@@ -58,10 +62,14 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, baseUr
         {startPage > 1 && (
           <>
             <li>
-              <Link href={getPageUrl(1)} className={styles.paginationLink}>1</Link>
+              <Link href={getPageUrl(1)} className={styles.paginationLink}>
+                1
+              </Link>
             </li>
             {startPage > 2 && (
-              <li><span className={styles.paginationEllipsis}>...</span></li>
+              <li>
+                <span className={styles.paginationEllipsis}>...</span>
+              </li>
             )}
           </>
         )}
@@ -69,11 +77,14 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, baseUr
         {pageNumbers.map((pageNum) => (
           <li key={pageNum}>
             {currentPage === pageNum ? (
-              <span className={`${styles.paginationLink} ${styles.paginationActive}`} aria-current="page">
+              <span className={styles.paginationActive} aria-current="page">
                 {pageNum}
               </span>
             ) : (
-              <Link href={getPageUrl(pageNum)} className={styles.paginationLink}>
+              <Link
+                href={getPageUrl(pageNum)}
+                className={styles.paginationLink}
+              >
                 {pageNum}
               </Link>
             )}
@@ -83,10 +94,17 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, baseUr
         {endPage < totalPages && (
           <>
             {endPage < totalPages - 1 && (
-              <li><span className={styles.paginationEllipsis}>...</span></li>
+              <li>
+                <span className={styles.paginationEllipsis}>...</span>
+              </li>
             )}
             <li>
-              <Link href={getPageUrl(totalPages)} className={styles.paginationLink}>{totalPages}</Link>
+              <Link
+                href={getPageUrl(totalPages)}
+                className={styles.paginationLink}
+              >
+                {totalPages}
+              </Link>
             </li>
           </>
         )}
@@ -95,7 +113,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, baseUr
           <li>
             <Link
               href={getPageUrl(currentPage + 1)}
-              className={`${styles.paginationLink} ${styles.paginationNext}`}
+              className={styles.paginationLink}
               aria-label="Следующая страница"
             >
               Вперёд
@@ -107,4 +125,4 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, baseUr
   );
 };
 
-export default Pagination; 
+export default Pagination;

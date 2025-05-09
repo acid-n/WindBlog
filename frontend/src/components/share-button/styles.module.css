@@ -25,16 +25,18 @@
   cursor: pointer;
   text-decoration: none;
   transition: background-color 0.2s;
-  font-family: 'Lora', Georgia, serif;
+  font-family: "Lora", Georgia, serif;
 }
 
 .shareMenuItem:hover {
   background-color: #f8f8f8;
-  color: #CE6607;
+  color: #ce6607;
 }
 
-.shareMenuItem i {
+/* Новый стиль для иконок-компонентов */
+.shareIcon {
   margin-right: 0.5rem;
-  width: 16px;
-  text-align: center;
-} 
+  /* width и text-align обычно не нужны для SVG иконок из react-icons, 
+     но можно добавить, если потребуется точное позиционирование или размер. 
+     Размер можно также контролировать через props компонента иконки (size={...}) */
+}

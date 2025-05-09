@@ -1,7 +1,8 @@
 /**
  * API-сервис для работы с backend (REST, JWT, обработка ошибок).
  */
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
 export interface ApiErrorFormat {
   error: string; // Обычно строка-ключ ошибки, например, "validation_error" или "not_found"
@@ -12,6 +13,7 @@ export interface ApiErrorFormat {
 interface FetchServiceOptions extends RequestInit {
   isPublic?: boolean; // Если true, не будет пытаться добавить JWT токен
   revalidate?: number | false; // Для Next.js кеширования, false для отключения
+  tags?: string[]; // Добавляем опцию для тегов
 }
 
 /**
@@ -20,9 +22,9 @@ interface FetchServiceOptions extends RequestInit {
  */
 async function fetchService<T>(
   endpoint: string,
-  options: FetchServiceOptions = {}
+  options: FetchServiceOptions = {},
 ): Promise<T> {
-  const { isPublic = false, revalidate = 60, ...fetchOptions } = options;
+  const { isPublic = false, revalidate = 60, tags, ...fetchOptions } = options;
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     ...fetchOptions.headers,
@@ -35,17 +37,21 @@ async function fetchService<T>(
     }
   }
 
+  const nextOptions: { revalidate?: number | false; tags?: string[] } = {};
+  if (typeof revalidate === "number" || revalidate === false) {
+    nextOptions.revalidate = revalidate;
+  }
+  if (tags && tags.length > 0) {
+    nextOptions.tags = tags;
+  }
+
   const requestOptions: RequestInit = {
     ...fetchOptions,
     headers,
+    next: nextOptions,
   };
 
-  // Добавляем опции кеширования Next.js, если revalidate не false
-  if (typeof revalidate === 'number') {
-    (requestOptions as any).next = { ...((requestOptions as any).next || {}), revalidate };
-  }
-
-  const url = `${API_BASE_URL}/${endpoint.startsWith('/') ? endpoint.substring(1) : endpoint}`;
+  const url = `${API_BASE_URL}/${endpoint.startsWith("/") ? endpoint.substring(1) : endpoint}`;
   // console.log(`Fetching API: ${url}`, requestOptions);
 
   try {
@@ -59,13 +65,18 @@ async function fetchService<T>(
       try {
         const errorJson = await res.json();
         // Предполагаем, что бэкенд возвращает { error: "...", message: "...", details: "..." } или { detail: "..." } (DRF стиль)
-        errorPayload.error = errorJson.error || errorJson.detail || errorPayload.error;
-        errorPayload.message = errorJson.message || errorJson.detail || errorPayload.message;
+        errorPayload.error =
+          errorJson.error || errorJson.detail || errorPayload.error;
+        errorPayload.message =
+          errorJson.message || errorJson.detail || errorPayload.message;
         if (errorJson.details) errorPayload.details = errorJson.details;
       } catch (e) {
         // Не удалось распарсить JSON ошибки, оставляем HTTP статус/текст
       }
-      console.error(`API Error (${url}): ${res.status} ${res.statusText}`, errorPayload);
+      console.error(
+        `API Error (${url}): ${res.status} ${res.statusText}`,
+        errorPayload,
+      );
       throw errorPayload; // Выбрасываем структурированную ошибку
     }
 
@@ -73,10 +84,14 @@ async function fetchService<T>(
       return null as T; // Для No Content ответов
     }
 
-    return await res.json() as T;
+    return (await res.json()) as T;
   } catch (error) {
     // Если ошибка уже ApiErrorFormat, просто перебрасываем ее
-    if (error && typeof (error as ApiErrorFormat).error === 'string' && typeof (error as ApiErrorFormat).message === 'string') {
+    if (
+      error &&
+      typeof (error as ApiErrorFormat).error === "string" &&
+      typeof (error as ApiErrorFormat).message === "string"
+    ) {
       throw error;
     }
     // Иначе, это может быть сетевая ошибка или другая проблема
@@ -102,23 +117,35 @@ export interface PaginatedTagsResponse {
  * Получить пагинированный список постов блога.
  * @param page Номер страницы
  */
-export async function fetchPosts(page: number = 1): Promise<PaginatedPostsResponse> {
-  return fetchService<PaginatedPostsResponse>(`posts/?page=${page}`, { isPublic: true });
+export async function fetchPosts(
+  page: number = 1,
+): Promise<PaginatedPostsResponse> {
+  return fetchService<PaginatedPostsResponse>(`posts/?page=${page}`, {
+    isPublic: true,
+  });
 }
 
 /**
  * Получить пост по slug.
  */
 export async function fetchPost(slug: string): Promise<Post> {
-  return fetchService<Post>(`posts/${slug}/`, { isPublic: true });
+  return fetchService<Post>(`posts/${slug}/`, {
+    isPublic: true,
+    tags: ["posts", `post-${slug}`],
+    cache: "no-store",
+  });
 }
 
 /**
  * Получить пагинированный список тегов.
  * @param page Номер страницы
  */
-export async function fetchTags(page: number = 1): Promise<PaginatedTagsResponse> {
-  return fetchService<PaginatedTagsResponse>(`tags/?page=${page}`, { isPublic: true });
+export async function fetchTags(
+  page: number = 1,
+): Promise<PaginatedTagsResponse> {
+  return fetchService<PaginatedTagsResponse>(`tags/?page=${page}`, {
+    isPublic: true,
+  });
 }
 
 /**
@@ -139,7 +166,9 @@ export async function fetchPostById(id: string): Promise<Post> {
   // Эндпоинт /by-id/ был в PostViewSet, но он ожидал slug как ID. Стандартный get по slug уже есть.
   // Если нужен поиск по числовому ID, то на бэкенде нужен другой эндпоинт или фильтр.
   // Пока закомментирую, так как его логика была спорной и дублирующей.
-  throw new Error('fetchPostById is deprecated or needs backend adjustment for ID lookup.');
+  throw new Error(
+    "fetchPostById is deprecated or needs backend adjustment for ID lookup.",
+  );
 }
 
 // --- Типы для API Архива --- //
@@ -171,8 +200,12 @@ export async function fetchArchiveYearsSummary(): Promise<YearSummary[]> {
  * Получить месячную сводку архива для года (месяц, кол-во постов).
  * @param year Год
  */
-export async function fetchArchiveMonthsSummary(year: number): Promise<MonthSummary[]> {
-  return fetchService<MonthSummary[]>(`archive/${year}/summary/`, { isPublic: true });
+export async function fetchArchiveMonthsSummary(
+  year: number,
+): Promise<MonthSummary[]> {
+  return fetchService<MonthSummary[]>(`archive/${year}/summary/`, {
+    isPublic: true,
+  });
 }
 
 /**
@@ -180,9 +213,14 @@ export async function fetchArchiveMonthsSummary(year: number): Promise<MonthSumm
  * @param year Год
  * @param month Месяц (1-12)
  */
-export async function fetchArchiveDaysSummary(year: number, month: number): Promise<DaySummary[]> {
+export async function fetchArchiveDaysSummary(
+  year: number,
+  month: number,
+): Promise<DaySummary[]> {
   const monthPadded = month.toString();
-  return fetchService<DaySummary[]>(`archive/${year}/${monthPadded}/summary/`, { isPublic: true });
+  return fetchService<DaySummary[]>(`archive/${year}/${monthPadded}/summary/`, {
+    isPublic: true,
+  });
 }
 
 /**
@@ -209,8 +247,14 @@ export async function fetchArchivePostsByDate(
  * @param query Поисковый запрос
  * @param page Номер страницы
  */
-export async function searchPosts(query: string, page: number = 1): Promise<PaginatedPostsResponse> {
-  return fetchService<PaginatedPostsResponse>(`posts/?search=${encodeURIComponent(query)}&page=${page}`, { isPublic: true });
+export async function searchPosts(
+  query: string,
+  page: number = 1,
+): Promise<PaginatedPostsResponse> {
+  return fetchService<PaginatedPostsResponse>(
+    `posts/?search=${encodeURIComponent(query)}&page=${page}`,
+    { isPublic: true },
+  );
 }
 
 // Пример функции, требующей аутентификации (если появится такая необходимость)
@@ -225,10 +269,13 @@ export async function searchPosts(query: string, page: number = 1): Promise<Pagi
 
 // Для получения настроек сайта (используется в Header, данные не чувствительные)
 export interface SiteSettingsData {
-    site_title: string;
-    site_description: string;
-    // добавьте другие поля, если они есть
+  site_title: string;
+  site_description: string;
+  // добавьте другие поля, если они есть
 }
 export async function fetchSiteSettings(): Promise<SiteSettingsData> {
-    return fetchService<SiteSettingsData>('site-settings', { isPublic: true, revalidate: 3600 }); // Кешируем на час
+  return fetchService<SiteSettingsData>("site-settings", {
+    isPublic: true,
+    revalidate: 3600,
+  }); // Кешируем на час
 }

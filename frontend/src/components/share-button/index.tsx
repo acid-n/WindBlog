@@ -1,7 +1,9 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import styles from './styles.module.css';
+import React, { useState, useRef, useEffect } from "react";
+import styles from "./styles.module.css";
+// Импортируем иконки из react-icons
+import { FaShareAlt, FaVk, FaTelegramPlane, FaCopy } from "react-icons/fa";
 
 interface ShareButtonProps {
   title: string;
@@ -10,11 +12,11 @@ interface ShareButtonProps {
   className?: string;
 }
 
-const ShareButton: React.FC<ShareButtonProps> = ({ 
-  title, 
-  url, 
-  shortUrl, 
-  className = ''
+const ShareButton: React.FC<ShareButtonProps> = ({
+  title,
+  url,
+  shortUrl,
+  className = "",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -29,9 +31,9 @@ const ShareButton: React.FC<ShareButtonProps> = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -53,8 +55,8 @@ const ShareButton: React.FC<ShareButtonProps> = ({
         setIsOpen(false);
       },
       (err) => {
-        console.error('Не удалось скопировать ссылку: ', err);
-      }
+        console.error("Не удалось скопировать ссылку: ", err);
+      },
     );
   };
 
@@ -64,42 +66,39 @@ const ShareButton: React.FC<ShareButtonProps> = ({
 
   return (
     <div className={`relative inline-block ${className}`} ref={menuRef}>
-      <button 
-        onClick={() => setIsOpen(!isOpen)} 
+      <button
+        onClick={() => setIsOpen(!isOpen)}
         className="bg-transparent border-none text-[#b3b3b3] cursor-pointer p-0 m-0 inline-flex items-center transition-all duration-200 hover:text-[#222]"
         aria-label="Поделиться"
         aria-expanded={isOpen}
       >
-        <i className="fa fa-share-alt" aria-hidden="true"></i>
+        <FaShareAlt />
       </button>
-      
+
       {isOpen && (
         <div className={styles.shareMenu}>
-          <a 
-            href={vkShareUrl} 
-            target="_blank" 
+          <a
+            href={vkShareUrl}
+            target="_blank"
             rel="noopener noreferrer"
             className={styles.shareMenuItem}
           >
-            <i className="fa fa-vk" aria-hidden="true"></i>
+            <FaVk className={styles.shareIcon} />
             ВКонтакте
           </a>
-          
-          <a 
-            href={telegramShareUrl} 
-            target="_blank" 
+
+          <a
+            href={telegramShareUrl}
+            target="_blank"
             rel="noopener noreferrer"
             className={styles.shareMenuItem}
           >
-            <i className="fa fa-telegram" aria-hidden="true"></i>
+            <FaTelegramPlane className={styles.shareIcon} />
             Телеграм
           </a>
-          
-          <button 
-            onClick={copyToClipboard}
-            className={styles.shareMenuItem}
-          >
-            <i className="fa fa-copy" aria-hidden="true"></i>
+
+          <button onClick={copyToClipboard} className={styles.shareMenuItem}>
+            <FaCopy className={styles.shareIcon} />
             {copied ? "Скопировано!" : "Копировать ссылку"}
           </button>
         </div>
@@ -108,4 +107,4 @@ const ShareButton: React.FC<ShareButtonProps> = ({
   );
 };
 
-export default ShareButton; 
+export default ShareButton;

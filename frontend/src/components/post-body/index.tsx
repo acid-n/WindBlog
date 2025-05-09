@@ -1,207 +1,107 @@
+"use client"; // Добавляем для useEditor
+
 import React from "react";
-import styles from "./styles.module.css";
+import { useEditor, EditorContent, JSONContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Link from "@tiptap/extension-link";
+import { extendedImage } from "@/lib/tiptapExtensions"; // Используем кастомное расширение
+// import Highlight from '@tiptap/extension-highlight';
+// import Typography from '@tiptap/extension-typography';
 
 /**
- * Компонент для рендеринга контента поста (StreamField-like JSON).
+ * Компонент для рендеринга HTML-контента поста.
  */
 
-// Определяем типы для данных каждого блока
-interface TextBlockData {
-  text: string;
-}
-
-interface HeadingBlockData {
-  text: string;
-}
-
-interface ImageBlockData {
-  url: string;
-  alt?: string;
-  float?: 'left' | 'right' | 'center';
-}
-
-interface QuoteBlockData {
-  text: string;
-}
-
-interface CodeBlockData {
-  code: string;
-}
-
-interface GalleryImage {
-  url: string;
-  alt?: string;
-}
-
-interface GalleryBlockData {
-  images: GalleryImage[];
-}
-
-interface VideoBlockData {
-  url: string;
-  title?: string;
-}
-
-interface LinkBlockData {
-  url: string;
-  text?: string;
-}
-
-// Определяем интерфейс для каждого типа блока с конкретным типом данных
-interface TextBlock {
-  type: 'text';
-  data: TextBlockData;
-}
-
-interface HeadingBlock {
-  type: 'heading';
-  data: HeadingBlockData;
-}
-
-interface ImageBlock {
-  type: 'image';
-  data: ImageBlockData;
-}
-
-interface QuoteBlock {
-  type: 'quote';
-  data: QuoteBlockData;
-}
-
-interface CodeBlock {
-  type: 'code';
-  data: CodeBlockData;
-}
-
-interface GalleryBlock {
-  type: 'gallery';
-  data: GalleryBlockData;
-}
-
-interface VideoBlock {
-  type: 'video';
-  data: VideoBlockData;
-}
-
-interface LinkBlock {
-  type: 'link';
-  data: LinkBlockData;
-}
-
-// Объединение всех возможных типов блоков
-type AnyBlock =
-  | TextBlock
-  | HeadingBlock
-  | ImageBlock
-  | QuoteBlock
-  | CodeBlock
-  | GalleryBlock
-  | VideoBlock
-  | LinkBlock;
+// Удаляем все определения типов для блоков (TextBlockData, HeadingBlockData, etc., AnyBlock)
+// так как компонент теперь будет принимать простую HTML-строку.
 
 interface PostBodyProps {
-  body: { blocks: AnyBlock[] };
+  content: any;
 }
 
-const PostBody: React.FC<PostBodyProps> = ({ body }) => {
-  if (!body?.blocks?.length) return null;
-  
-  return (
-    <div className="prose prose-lg max-w-none">
-      {body.blocks.map((block, i) => {
-        switch (block.type) {
-          case "text":
-            return (
-              <p key={i} dangerouslySetInnerHTML={{ __html: block.data.text.replace(/\n/g, '<br/>') }} />
-            );
-            
-          case "heading":
-            return <h2 key={i} className="text-[#333] text-[1.6em] font-bold mt-8 mb-4">{block.data.text}</h2>;
-            
-          case "image": {
-            const float = block.data.float;
-            let floatClass = "";
-            
-            if (float === "left") {
-              floatClass = styles.imageLeft;
-            } else if (float === "right") {
-              floatClass = styles.imageRight;
-            } else {
-              floatClass = styles.imageCenter;
-            }
-            
-            return (
-              <img
-                key={i}
-                src={block.data.url}
-                alt={block.data.alt || ""}
-                className={`rounded shadow ${floatClass}`}
-                loading="lazy"
-              />
-            );
-          }
-            
-          case "quote":
-            return (
-              <blockquote key={i} className={styles.blockquote}>
-                {block.data.text}
-              </blockquote>
-            );
-            
-          case "code":
-            return (
-              <pre key={i} className="bg-gray-100 rounded p-4 overflow-x-auto my-6 text-sm">
-                <code>{block.data.code}</code>
-              </pre>
-            );
-            
-          case "gallery":
-            return (
-              <div key={i} className="flex flex-wrap gap-2 my-6">
-                {block.data.images.map((img, idx: number) => (
-                  <div key={idx} className="w-1/3 p-1">
-                    <img
-                      src={img.url}
-                      alt={img.alt || ""}
-                      className="w-full h-auto rounded shadow"
-                      loading="lazy"
-                    />
-                  </div>
-                ))}
-              </div>
-            );
-            
-          case "video":
-            return (
-              <div key={i} className="my-6 aspect-video relative">
-                <iframe
-                  src={block.data.url}
-                  title={block.data.title || "Видео"}
-                  className="w-full h-full rounded"
-                  allowFullScreen
-                />
-              </div>
-            );
-            
-          case "link":
-            return (
-              <a
-                key={i}
-                href={block.data.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#CE6607] hover:text-[#A35208] underline"
-              >
-                {block.data.text || block.data.url}
-              </a>
-            );
-            
-          default:
-            // Можно добавить обработку для неизвестных типов блоков или просто null
-            // console.warn("Unknown block type:", block.type);
-            return null;
+// Вспомогательная функция для рекурсивной обработки URL изображений в JSON Tiptap
+const processImageUrlsInJson = (node: any, mediaUrlBase: string): any => {
+  if (typeof node === "object" && node !== null && node.type) {
+    // console.log(`[PostBody] Processing node type: ${node.type}`, JSON.stringify(node.attrs)); // Убрал этот лог, чтобы не засорять
+  }
+
+  if (Array.isArray(node)) {
+    return node.map((item) => processImageUrlsInJson(item, mediaUrlBase));
+  }
+
+  if (typeof node === "object" && node !== null) {
+    const newNode = { ...node };
+    if (node.type === "image") {
+      // Нашли узел типа 'image'
+      // ОТЛАДКА: Логируем весь узел image, чтобы увидеть его структуру
+      console.log(
+        "[PostBody] Found image node structure:",
+        JSON.stringify(node, null, 2),
+      );
+      if (node.attrs && node.attrs.src && typeof node.attrs.src === "string") {
+        console.log("[PostBody] Image node original src:", node.attrs.src);
+        if (node.attrs.src.startsWith("/media/")) {
+          newNode.attrs.src = `${mediaUrlBase}${node.attrs.src.substring(1)}`;
+          console.log("[PostBody] Modified image src to:", newNode.attrs.src);
+        } else {
+          console.log(
+            "[PostBody] Image src does not start with /media/, not modified:",
+            node.attrs.src,
+          );
         }
-      })}
+      } else {
+        console.log(
+          "[PostBody] Image node attrs.src is not a string or is missing. Attrs:",
+          node.attrs,
+        );
+      }
+    }
+    if (node.content) {
+      newNode.content = processImageUrlsInJson(node.content, mediaUrlBase);
+    }
+    return newNode;
+  }
+  return node;
+};
+
+const PostBody: React.FC<PostBodyProps> = ({ content }) => {
+  console.log(
+    "CONTENT PROP RECEIVED BY PostBody:",
+    JSON.stringify(content, null, 2),
+  );
+
+  // Получаем base URL для медиа
+  const djangoMediaUrl =
+    process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL || "http://localhost:8000/media/";
+  // Удаляем завершающий слэш для корректной склейки
+  const mediaUrlBase = djangoMediaUrl.endsWith("/")
+    ? djangoMediaUrl
+    : `${djangoMediaUrl}/`;
+
+  // Обрабатываем src у изображений
+  const processedContent = React.useMemo(
+    () => processImageUrlsInJson(content, mediaUrlBase),
+    [content, mediaUrlBase],
+  );
+
+  // Инициализируем редактор только для чтения
+  const editor = useEditor({
+    extensions: [StarterKit, Link, extendedImage],
+    content: processedContent,
+    editable: false,
+  });
+
+  if (!editor) {
+    return (
+      <div className="prose">
+        <p>Загрузка контента...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="prose prose-lg w-full text-[#444]">
+      <EditorContent editor={editor} />
     </div>
   );
 };

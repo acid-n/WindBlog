@@ -2,11 +2,17 @@
 
 import React from "react";
 import { useEditor, EditorContent, JSONContent } from "@tiptap/react";
+import styles from "./styles.module.css";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import { extendedImage } from "@/lib/tiptapExtensions"; // Используем кастомное расширение
+import Table from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import CodeBlock from '@tiptap/extension-code-block';
 // import Highlight from '@tiptap/extension-highlight';
-// import Typography from '@tiptap/extension-typography';
+import Typography from '@tiptap/extension-typography';
 
 /**
  * Компонент для рендеринга HTML-контента поста.
@@ -96,7 +102,20 @@ const PostBody: React.FC<PostBodyProps> = ({ content }) => {
 
   // Инициализируем редактор только для чтения
   const editor = useEditor({
-    extensions: [StarterKit, Link, extendedImage],
+    immediatelyRender: false,
+    extensions: [
+      StarterKit,
+      Link,
+      extendedImage,
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableCell,
+      TableHeader,
+      CodeBlock.configure({
+        languageClassPrefix: 'language-',
+      }),
+      Typography,
+    ],
     content: processedContent,
     editable: false,
   });
@@ -110,9 +129,9 @@ const PostBody: React.FC<PostBodyProps> = ({ content }) => {
   }
 
   return (
-    <div className="prose prose-lg w-full text-[#444]">
-      <EditorContent editor={editor} />
-    </div>
+    <>
+      <EditorContent editor={editor} className="prose prose-lg max-w-none w-full text-[#444]" />
+    </>
   );
 };
 

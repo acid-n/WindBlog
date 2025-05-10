@@ -45,6 +45,9 @@ module.exports = {
       }),
     },
   },
-  safelist: ["fa", "fa-book-open", "fa-chevron-left", "fa-chevron-right"],
+  safelist: [
+    "fa", "fa-book-open", "fa-chevron-left", "fa-chevron-right",
+    "prose", "prose-lg", "prose-xl", "prose-sm", "prose-invert"
+  ],
   plugins: [require("@tailwindcss/typography")],
 };

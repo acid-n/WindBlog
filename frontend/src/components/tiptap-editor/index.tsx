@@ -2,7 +2,13 @@
 
 import React, { useCallback, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
+import styles from "../post-body/styles.module.css";
 import StarterKit from "@tiptap/starter-kit";
+import Table from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import CodeBlock from '@tiptap/extension-code-block';
 
 import TextAlign from "@tiptap/extension-text-align";
 import { Color } from "@tiptap/extension-color";
@@ -35,6 +41,7 @@ import {
   FaAlignJustify as FaAlignNone,
   FaArrowLeft,
   FaArrowRight,
+  FaTimesCircle,
 } from "react-icons/fa";
 import ImageUploader from "../image-uploader";
 import { extendedImage } from "@/lib/tiptapExtensions";
@@ -53,6 +60,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 }) => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
+  console.log('[TiptapEditor] content:', content);
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -67,6 +75,13 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         openOnClick: true,
         autolink: true,
         validate: (href) => /^https?:\/\//.test(href),
+      }),
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableCell,
+      TableHeader,
+      CodeBlock.configure({
+        languageClassPrefix: 'language-',
       }),
     ],
     content: content as import("@tiptap/react").Content,
@@ -387,6 +402,14 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         >
           <FaAlignNone />
         </MenuButton>
+        {/* Кнопка удаления изображения */}
+        <MenuButton
+          title="Удалить изображение"
+          onClick={() => editor.chain().focus().deleteSelection().run()}
+          disabled={!editor.isActive("image")}
+        >
+          <FaTimesCircle />
+        </MenuButton>
 
         {editor.isActive("image") && (
           <div className="flex items-center ml-2 p-1">
@@ -466,7 +489,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         </MenuButton>
       </div>
 
-      <EditorContent editor={editor} className="p-3" />
+      <EditorContent editor={editor} className="prose prose-lg max-w-none tiptap-content p-3" />
 
       {isImageModalOpen && (
         <div className="image-upload-modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -477,6 +500,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
             <ImageUploader
               label="Выберите или перетащите файл"
               onUploadComplete={handleImageInsert}
+              cropMode="content"
             />
             <button
               onClick={() => setIsImageModalOpen(false)}

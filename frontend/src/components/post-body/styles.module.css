@@ -38,7 +38,102 @@
   display: table;
 }
 
-/* Стилизация блок-цитат */
+/* --- Tiptap Typography & Prose Styles --- */
+/* .prose h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-top: 2em;
+  margin-bottom: 0.8em;
+  color: #222;
+} */
+/* .prose h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.7em;
+  color: #333;
+} */
+/* .prose h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+  color: #444;
+} */
+/* .prose ul {
+  list-style-type: disc;
+  margin-left: 2em;
+  margin-bottom: 1em;
+} */
+/* .prose ol {
+  list-style-type: decimal;
+  margin-left: 2em;
+  margin-bottom: 1em;
+} */
+/* .prose li {
+  margin-bottom: 0.3em;
+} */
+/* .prose blockquote {
+  border-left: 4px solid #ce6607;
+  padding-left: 1em;
+  color: #555;
+  font-style: italic;
+  background: #f9f9f9;
+  margin: 1.5em 0;
+} */
+/* .prose pre {
+  background: #23272e;
+  color: #f8f8f2;
+  border-radius: 6px;
+  padding: 1em;
+  overflow-x: auto;
+  font-family: 'Fira Mono', 'Consolas', monospace;
+} */  margin: 1.2em 0;
+  font-size: 1em;
+} */
+/* .prose code {
+  background: #ececec;
+  color: #c7254e;
+  border-radius: 3px;
+  padding: 0.2em 0.4em;
+  font-family: 'Fira Mono', 'Consolas', monospace;
+} */  font-size: 0.97em;
+}
+/* .prose a {
+  color: #2563eb;
+  text-decoration: underline;
+  font-weight: 500;
+  transition: color 0.2s;
+} */
+/* .prose a:hover {
+  color: #ce6607;
+  text-decoration: underline;
+} */
+/* .prose img {
+  display: block;
+  margin: 1.5em auto;
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+} */
+/* .prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  background: #fff;
+} */
+/* .prose th, .prose td {
+  border: 1px solid #e5e7eb;
+  padding: 0.6em 1em;
+  text-align: left;
+} */
+/* .prose th {
+  background: #f3f4f6;
+  font-weight: 600;
+} */
+
+/* --- Существующие специфические стили для обтекания и .blockquote --- */
+
 .blockquote {
   font-family: "Lora", Georgia, serif;
   font-size: 1.3em;
@@ -76,3 +171,4 @@
     padding: 1em;
   }
 }
+

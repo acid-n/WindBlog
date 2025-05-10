@@ -10,12 +10,15 @@ import {
   FaSpinner,
 } from "react-icons/fa"; // Иконки
 
+export type CropMode = "content" | "preview";
+
 interface ImageUploaderProps {
   label?: string; // Заголовок для поля загрузки
   onUploadComplete: (url: string) => void; // Колбэк при успешном подтверждении WEBP
   initialImageUrl?: string | null; // URL для отображения существующего изображения
   uploadFieldName?: string; // Имя поля для файла в POST запросе (по умолчанию 'upload')
   apiEndpoint?: string; // Эндпоинт для загрузки (по умолчанию '/api/v1/image-upload/')
+  cropMode?: CropMode; // preview (default) | content
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
@@ -24,6 +27,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   initialImageUrl = null,
   uploadFieldName = "upload",
   apiEndpoint = "/api/v1/image-upload/",
+  cropMode = "preview",
 }) => {
   const [originalFile, setOriginalFile] = useState<File | null>(null);
   const [originalPreview, setOriginalPreview] = useState<string | null>(null);
@@ -154,50 +158,62 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   );
   // --- КОНЕЦ ОТЛАДКИ ---
 
-  // Функция конвертации в WEBP на клиенте
-  const convertToWebP = async (file: File): Promise<File | null> => {
+  // Универсальная функция конвертации в WEBP с/без кропа
+  const convertToWebPWithCropMode = async (file: File, cropMode: CropMode): Promise<File | null> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const img = new window.Image();
         img.onload = function () {
-          // Целевые параметры
-          const TARGET_ASPECT_RATIO = 3 / 1;
-          const TARGET_WIDTH = 1200;
-          const TARGET_HEIGHT = Math.round(TARGET_WIDTH / TARGET_ASPECT_RATIO);
           const WEBP_QUALITY = 0.85;
-
-          // Вычисляем кроп
-          let sourceX = 0,
-            sourceY = 0,
-            sourceWidth = img.width,
-            sourceHeight = img.height;
-          const inputAspect = img.width / img.height;
-          if (inputAspect > TARGET_ASPECT_RATIO) {
-            // Обрезаем по ширине
-            sourceWidth = Math.round(img.height * TARGET_ASPECT_RATIO);
-            sourceX = Math.round((img.width - sourceWidth) / 2);
-          } else if (inputAspect < TARGET_ASPECT_RATIO) {
-            // Обрезаем по высоте
-            sourceHeight = Math.round(img.width / TARGET_ASPECT_RATIO);
-            sourceY = Math.round((img.height - sourceHeight) / 2);
+          let canvas, ctx, newWidth, newHeight;
+          if (cropMode === "preview") {
+            // Кроп под 3:1
+            const TARGET_ASPECT_RATIO = 3 / 1;
+            const TARGET_WIDTH = 1200;
+            const TARGET_HEIGHT = Math.round(TARGET_WIDTH / TARGET_ASPECT_RATIO);
+            let sourceX = 0, sourceY = 0, sourceWidth = img.width, sourceHeight = img.height;
+            const inputAspect = img.width / img.height;
+            if (inputAspect > TARGET_ASPECT_RATIO) {
+              sourceWidth = Math.round(img.height * TARGET_ASPECT_RATIO);
+              sourceX = Math.round((img.width - sourceWidth) / 2);
+            } else if (inputAspect < TARGET_ASPECT_RATIO) {
+              sourceHeight = Math.round(img.width / TARGET_ASPECT_RATIO);
+              sourceY = Math.round((img.height - sourceHeight) / 2);
+            }
+            canvas = document.createElement("canvas");
+            canvas.width = TARGET_WIDTH;
+            canvas.height = TARGET_HEIGHT;
+            ctx = canvas.getContext("2d");
+            if (!ctx) return reject(new Error("Не удалось получить 2D контекст канваса."));
+            ctx.drawImage(
+              img,
+              sourceX,
+              sourceY,
+              sourceWidth,
+              sourceHeight,
+              0,
+              0,
+              TARGET_WIDTH,
+              TARGET_HEIGHT,
+            );
+          } else {
+            // content: только ресайз по ширине, без кропа
+            const MAX_WIDTH = 1200;
+            if (img.width > MAX_WIDTH) {
+              newWidth = MAX_WIDTH;
+              newHeight = Math.round((img.height / img.width) * newWidth);
+            } else {
+              newWidth = img.width;
+              newHeight = img.height;
+            }
+            canvas = document.createElement("canvas");
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+            ctx = canvas.getContext("2d");
+            if (!ctx) return reject(new Error("Не удалось получить 2D контекст канваса."));
+            ctx.drawImage(img, 0, 0, newWidth, newHeight);
           }
-          const canvas = document.createElement("canvas");
-          canvas.width = TARGET_WIDTH;
-          canvas.height = TARGET_HEIGHT;
-          const ctx = canvas.getContext("2d");
-          if (!ctx) return reject(new Error("Не удалось получить 2D контекст канваса."));
-          ctx.drawImage(
-            img,
-            sourceX,
-            sourceY,
-            sourceWidth,
-            sourceHeight,
-            0,
-            0,
-            TARGET_WIDTH,
-            TARGET_HEIGHT,
-          );
           canvas.toBlob(
             (blob) => {
               if (blob) {
@@ -222,17 +238,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         if (event.target?.result && typeof event.target.result === "string") {
           img.src = event.target.result;
         } else {
-          reject(
-            new Error(
-              "Результат FileReader не является строкой или отсутствует.",
-            )
-          );
+          reject(new Error("Результат FileReader не является строкой или отсутствует."));
         }
       };
       reader.onerror = () => reject(new Error("Ошибка чтения файла"));
       reader.readAsDataURL(file);
     });
   };
+
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -241,7 +254,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       setOriginalPreview(URL.createObjectURL(file));
       setIsConverting(true);
       try {
-        const convertedWebpFile = await convertToWebP(file);
+        const convertedWebpFile = await convertToWebPWithCropMode(file, cropMode);
         if (convertedWebpFile) {
           setConvertedWebpFile(convertedWebpFile);
           setConvertedWebpPreview(URL.createObjectURL(convertedWebpFile));
@@ -254,6 +267,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       }
     }
   };
+
 
   const handleUploadConvertedWebP = async () => {
     // Переименовали функцию

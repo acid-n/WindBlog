@@ -119,6 +119,101 @@ h6 {
   border-bottom: 1px solid transparent;
 }
 .main-navigation a:hover {
+
+/* --- Tiptap Typography & Prose Styles (GLOBAL) --- */
+/* .prose h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-top: 2em;
+  margin-bottom: 0.8em;
+  color: #222;
+} */
+/* .prose h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.7em;
+  color: #333;
+}
+/* .prose h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+  color: #444;
+} */
+/* .prose ul {
+  list-style-type: disc;
+  margin-left: 2em;
+  margin-bottom: 1em;
+}
+/* .prose ol {
+  list-style-type: decimal;
+  margin-left: 2em;
+  margin-bottom: 1em;
+}
+/* .prose li {
+  margin-bottom: 0.3em;
+} */
+/* .prose blockquote {
+  border-left: 4px solid #ce6607;
+  padding-left: 1em;
+  color: #555;
+  font-style: italic;
+  background: #f9f9f9;
+  margin: 1.5em 0;
+} */
+/* .prose pre {
+  background: #23272e;
+  color: #f8f8f2;
+  border-radius: 6px;
+  padding: 1em;
+  overflow-x: auto;
+  font-family: 'Fira Mono', 'Consolas', monospace;
+  margin: 1.2em 0;
+  font-size: 1em;
+} */
+/* .prose code {
+  background: #ececec;
+  color: #c7254e;
+  border-radius: 3px;
+  padding: 0.2em 0.4em;
+  font-family: 'Fira Mono', 'Consolas', monospace;
+  font-size: 0.97em;
+}
+.prose a {
+  color: #2563eb;
+  text-decoration: underline;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.prose a:hover {
+  color: #ce6607;
+  text-decoration: underline;
+}
+.prose img {
+  display: block;
+  margin: 1.5em auto;
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  background: #fff;
+}
+.prose th, .prose td {
+  border: 1px solid #e5e7eb;
+  padding: 0.6em 1em;
+  text-align: left;
+}
+.prose th {
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
   border-bottom: 1px dotted #bbb;
   text-decoration: none;
 }
@@ -136,6 +231,180 @@ h6 {
 /* globals.css */
 
 /* --- Стили для контента Tiptap внутри .prose --- */
+
+/* Базовые стили для изображений/* purgecss start ignore */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* purgecss end ignore */
+
+/* 0. Ясность для параграфов */
+.prose p {
+  margin-top: 0.5em;
+  margin-bottom: 0.8em;
+  color: #444;
+  font-size: 1.08rem;
+  line-height: 1.75;
+}
+
+/* --- Tiptap + Tailwind Typography best practices --- */
+
+/* 1. Списки: текст внутри li не должен быть обёрнут в <p> (TipTap по умолчанию так делает)
+   Решение: делаем <p> внутри <li> инлайновым и убираем отступы */
+.prose li > p {
+  margin: 0;
+  display: inline;
+}
+
+/* 1a. Списки: стилизация маркеров и отступов */
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+  margin-bottom: 1em;
+}
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 1.7em;
+  margin-bottom: 1em;
+}
+.prose ul li, .prose ol li {
+  margin-bottom: 0.3em;
+  padding-left: 0.2em;
+}
+.prose ul li::marker, .prose ol li::marker {
+  color: #60a5fa;
+  font-size: 1em;
+}
+
+/* 1b. Вложенные списки */
+.prose ul ul, .prose ol ul, .prose ul ol, .prose ol ol {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+  padding-left: 1.2em;
+}
+
+/* 2. Современный стиль для pre/code-блоков */
+.prose pre {
+  background: #222;
+  color: #f8f8f2;
+  border-radius: 0.5em;
+  padding: 1em 1.2em;
+  font-size: 1em;
+  font-family: 'Fira Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+  overflow-x: auto;
+  margin: 1.2em 0;
+  line-height: 1.7;
+}
+.prose pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* 3. Исправить отображение таблиц (убрать двойные границы и добавить читаемость) */
+.prose table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.prose th, .prose td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5em 1em;
+}
+
+/* 4. Улучшить стили для blockquote */
+.prose blockquote {
+  border-left: 4px solid #cbd5e1;
+  padding-left: 1em;
+  color: #555;
+  font-style: italic;
+  background: #f8fafc;
+}
+
+/* 5. Убрать лишние маргины у первого и последнего элемента в .prose */
+.prose > :first-child {
+  margin-top: 0;
+}
+.prose > :last-child {
+  margin-bottom: 0;
+}
+
+/* 6. Ссылки: подчёркивание только при ховере */
+.prose a {
+  text-decoration: none;
+  border-bottom: 1px dashed #60a5fa;
+  transition: border-bottom 0.2s;
+}
+.prose a:hover {
+  border-bottom: 2px solid #2563eb;
+}
+
+/* 7. Картинки: адаптивность и скругление */
+.prose img {
+  border-radius: 0.5em;
+  max-width: 100%;
+  height: auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  object-fit: unset !important;
+  aspect-ratio: unset !important;
+}
+
+/* 8. Улучшить читаемость inline code */
+.prose code {
+  background: #f3f4f6;
+  color: #d97706;
+  border-radius: 4px;
+  padding: 0.2em 0.4em;
+  font-size: 0.95em;
+}
+
+/* 9. Списки: убрать лишний маргин у ul/ol внутри li */
+.prose li ul,
+.prose li ol {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+/* 10. Исправить стили для заголовков внутри .prose */
+.prose h1 {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  color: #222;
+  letter-spacing: 0.01em;
+  font-size: 2.5rem;
+  line-height: 1.15;
+  margin-top: 1.5em;
+  margin-bottom: 0.6em;
+}
+.prose h2 {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  color: #222;
+  letter-spacing: 0.01em;
+  font-size: 2rem;
+  line-height: 1.2;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+}
+.prose h3 {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  color: #222;
+  letter-spacing: 0.01em;
+  font-size: 1.5rem;
+  line-height: 1.25;
+  margin-top: 1em;
+  margin-bottom: 0.4em;
+}
+.prose h4, .prose h5, .prose h6 {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  color: #222;
+  letter-spacing: 0.01em;
+  font-size: 1.15rem;
+  margin-top: 0.8em;
+  margin-bottom: 0.3em;
+}
 
 /* Базовые стили для изображений внутри .prose */
 /* Tailwind CSS @tailwindcss/typography (класс .prose) уже применяет 

@@ -34,12 +34,12 @@ export async function POST(request: NextRequest) {
       now: Date.now(),
       path: path,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error(`Error revalidating path ${path}:`, err);
     // Если путь не существует, revalidatePath выбросит ошибку. Это нормально.
     // Если происходит другая ошибка, это может быть проблема.
     return NextResponse.json(
-      { message: "Error revalidating", error: err.message },
+      { message: "Error revalidating", error: err instanceof Error ? err.message : String(err) },
       { status: 500 },
     );
   }

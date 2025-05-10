@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { fetchPosts, fetchActiveTags, PaginatedPostsResponse, PaginatedTagsResponse } from '@/services/api'; // Предполагаем, что эти функции существуют и могут получать все данные
+import { fetchPosts } from '@/services/api'; // Используем только fetchPosts, убираем связанные несуществующие типы
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
@@ -30,16 +30,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Необходимо убедиться, что API и функция fetchPosts поддерживают возврат всех постов без пагинации
     // и включают поля sitemap_priority и sitemap_changefreq.
     // Передаем параметр для получения данных sitemap (если API его поддерживает)
-    const postsResponse: PaginatedPostsResponse = await fetchPosts(1, true); // page=1, forSitemap=true
+    const postsData = await fetchPosts(1); // fetchPosts принимает только один аргумент (page: number)
 
-    postsResponse.results.forEach(post => {
+    postsData.results.map((post: { slug: string; updated_at: string; sitemap_priority?: number; sitemap_changefreq?: string }) => {
       // Используем данные из поста, если они есть, иначе - значения по умолчанию
       const priority = post.sitemap_priority ?? 0.8;
       const changeFrequency = post.sitemap_changefreq ?? 'weekly';
       
       sitemapEntries.push({
         url: `${BASE_URL}/posts/${post.slug}`,
-        lastModified: new Date(post.updated_at || post.first_published_at),
+        lastModified: new Date(post.updated_at || ("first_published_at" in post ? (post as any).first_published_at : undefined)),
         changeFrequency: changeFrequency as MetadataRoute.Sitemap[0]['changeFrequency'],
         priority: priority,
       });
@@ -48,21 +48,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("Failed to fetch posts for sitemap:", error);
   }
 
-  // 3. Теги
-  try {
-    // Предполагаем, что fetchActiveTags может вернуть все теги
-    const tagsResponse: PaginatedTagsResponse = await fetchActiveTags(1, 1000); // page=1, limit=1000 (или без лимита)
-    tagsResponse.results.forEach(tag => {
-      sitemapEntries.push({
-        url: `${BASE_URL}/tags/${tag.slug}`,
-        lastModified: new Date(), // Теги могут не иметь lastModified
-        changeFrequency: 'weekly',
-        priority: 0.6,
-      });
-    });
-  } catch (error) {
-    console.error("Failed to fetch tags for sitemap:", error);
-  }
 
   return sitemapEntries;
 } 

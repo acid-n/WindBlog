@@ -1,10 +1,11 @@
-# MUSSON Blog — Fullstack (Next.js + Django)
+# MUSSON Blog — Next.js + Django
 
-## Описание
+[![Build Status](https://img.shields.io/github/actions/workflow/status/your-org/your-repo/ci.yml?branch=main)](https://github.com/your-org/your-repo/actions)
+[![Coverage Status](https://img.shields.io/codecov/c/github/your-org/your-repo/main.svg)](https://codecov.io/gh/your-org/your-repo)
 
-Полноценный блог-проект:
+---
 
-- **Frontend:** Next.js 15.3.1 (App Router), Tailwind CSS, Framer Motion, Jest, React Testing Library, строгий MUSSON UX/UI STYLE GUIDE, визуал и анимации как в Read WP.
+**Современный блог-проект: Next.js (TypeScript, Tailwind CSS) + Django 5 (DRF, PostgreSQL, JWT), строгая типизация, Docker, CI/CD, автотесты, pixel-perfect UI.**
 - **Backend:** Django 5, Django REST Framework, PostgreSQL, Pytest, JWT, кастомная модель пользователя, админка, API v1.
 - **CI/CD:** Docker (Dockerfile для backend и frontend), GitHub Actions (linting, tests, сборка и пуш образов в Yandex Container Registry), pre-commit хуки, автотесты. Подготовлена инфраструктура для деплоя в Yandex Cloud (пользователю необходимо настроить GitHub Secrets: `YC_SA_JSON_KEY_FOR_CR`, `YC_SA_JSON_KEY_FOR_DEPLOY`, `YC_CLOUD_ID`, `YC_FOLDER_ID` и заменить плейсхолдеры в `.github/workflows/ci.yml`).
 

@@ -23,26 +23,26 @@ const DraftsPage = () => {
     }
 
     if (user) {
-      const fetchDrafts = async () => {
+      const fetchDrafts = async (): Promise<Post[]> => {
         setIsLoading(true);
         setError(null);
         try {
           const djangoApiUrl =
             process.env.NEXT_PUBLIC_DJANGO_API_URL ||
             "http://localhost:8000/api/v1";
-          // Запрос списка постов с параметром ?drafts=true
-          // Или, если мы создали отдельный эндпоинт /posts/drafts/, то его
           const response = await fetchWithAuth(
             `${djangoApiUrl}/posts/?drafts=true`,
           );
           if (!response.ok) {
             throw new Error("Не удалось загрузить черновики");
           }
-          const data: { results: Post[] } = await response.json(); // Предполагаем пагинацию DRF
+          const data: { results: Post[] } = await response.json();
           setDrafts(data.results || []);
-        } catch (e: any) {
-          setError(e.message);
+          return data.results || [];
+        } catch (e: unknown) {
+          setError(e instanceof Error ? e.message : String(e));
           console.error("Ошибка загрузки черновиков:", e);
+          return [];
         } finally {
           setIsLoading(false);
         }

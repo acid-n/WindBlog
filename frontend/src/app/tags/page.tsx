@@ -1,8 +1,8 @@
 import React from "react";
 import { fetchTags, PaginatedTagsResponse } from "@/services/api";
-import type { Tag } from "@/types/blog";
+
 import Pagination from "@/components/pagination";
-import { Metadata, OpenGraph } from "next";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -95,22 +95,15 @@ export default TagsPage;
 
 export async function generateMetadata(): Promise<Metadata> {
   // Метаданные для страницы тегов
-  // ... (код для получения title, description, openGraph)
+  // ... (код для получения title, description)
   try {
     // Здесь может быть логика, если метаданные зависят от каких-то асинхронных данных
     // В данном случае, они в основном статичны или берутся из констант
     const title = "Все теги | Блог Имя Фамилия";
     const description =
-      "Обзор всех тегов, используемых в блоге Имя Фамилия. Найдите посты по интересующим вас темам.";
-    const openGraph: OpenGraph = {
-      title: title,
-      description: description,
-      type: "website",
-      url: `${process.env.NEXT_PUBLIC_BASE_URL}/tags`,
-      // images: [ ... ] // Добавьте изображение, если нужно
-    };
+      "Список всех тегов, используемых в блоге Имя Фамилия. Найдите интересующие вас темы и исследуйте связанные посты.";
 
-    return { title, description, openGraph };
+    return { title, description };
   } catch (e: unknown) {
     const errorMessage =
       e instanceof Error

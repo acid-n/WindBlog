@@ -1,7 +1,6 @@
 import React, { ReactNode } from "react";
 import Header from "../header";
 import Footer from "../footer";
-import styles from "./styles.module.css";
 
 /**
  * Компонент Layout — основной шаблон страницы с Header и Footer.

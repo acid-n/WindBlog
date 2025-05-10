@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchPostById } from '@/services/api';
 
 export default function ShortLinkRedirect({ 
   params 
@@ -26,17 +25,10 @@ export default function ShortLinkRedirect({
       
       try {
         console.log(`Получаем пост по ID: ${code}`);
-        const post = await fetchPostById(code);
-        
-        if (post && post.slug) {
-          console.log(`Перенаправление на: /posts/${post.slug}`);
-          router.push(`/posts/${post.slug}`);
-        } else {
-          console.error('Пост получен, но отсутствует slug');
-          setError('Пост получен, но отсутствует slug');
-          setLoading(false);
-          setTimeout(() => router.push('/'), 2000);
-        }
+        // fetchPostById is deprecated or not implemented.
+        setError('Функция коротких ссылок временно недоступна. Пожалуйста, обратитесь к администратору.');
+        setLoading(false);
+        setTimeout(() => router.push('/'), 2000);
       } catch (error) {
         console.error('Ошибка при перенаправлении короткой ссылки:', error);
         setError('Не удалось найти запрашиваемую страницу');

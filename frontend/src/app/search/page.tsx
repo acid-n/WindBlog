@@ -80,7 +80,7 @@ const SearchPage = async ({ searchParams: searchParamsProp = {} }: SearchPagePro
 
         {searchQuery && !error && posts.length === 0 && totalPostsFound === 0 && (
           <p className="font-lora text-lg text-gray-500 text-center py-10">
-            По вашему запросу "{searchQuery}" ничего не найдено.
+            По вашему запросу &quot;{searchQuery}&quot; ничего не найдено.
           </p>
         )}
 

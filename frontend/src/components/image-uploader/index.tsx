@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import { fetchWithAuth } from "@/services/apiClient"; // Для отправки файла
 import Image from "next/image"; // Для превью
 import {
@@ -30,14 +30,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const [webpUrl, setWebpUrl] = useState<string | null>(initialImageUrl);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Новые состояния для локальной конвертации
   const [isConverting, setIsConverting] = useState(false);
   const [convertedWebpFile, setConvertedWebpFile] = useState<File | null>(null);
-  const [convertedWebpPreview, setConvertedWebpPreview] = useState<
-    string | null
-  >(null);
+  const [convertedWebpPreview, setConvertedWebpPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const djangoApiUrl =
     process.env.NEXT_PUBLIC_DJANGO_API_URL || "http://localhost:8000";
@@ -54,7 +50,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   );
   // --- КОНЕЦ ОТЛАДКИ ---
 
-  let currentRelativeWebpPath: string | null = null;
+  let currentRelativeWebpPath: string = "";
   if (webpUrl) {
     // webpUrl здесь это effectively initialImageUrl при первом рендере или измененное состояние
     let pathForProcessing = webpUrl;
@@ -75,13 +71,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         if (pathForProcessing.startsWith("/media/")) {
           pathForProcessing = pathForProcessing.substring("/media/".length);
         }
-      } catch (e) {
-        // Ошибка парсинга URL, возможно, это уже был "мусорный" путь с http внутри
+      } catch {
+        // Ошибка парсинга URL
         console.error(
-          `[ImageUploader ERROR] Не удалось распарсить как URL, хотя начинался с http: ${pathForProcessing}`,
-          e,
+          `[ImageUploader ERROR] Не удалось распарсить как URL, хотя начинался с http: ${pathForProcessing}`
         );
-        pathForProcessing = null; // Считаем путь невалидным
+        pathForProcessing = ""; // Считаем путь невалидным
       }
     }
     // 3. Если он не начинался с http, но начинается с /media/, отрезаем /media/
@@ -105,7 +100,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       console.error(
         `[ImageUploader ERROR] Получен некорректный относительный путь ПОСЛЕ ВСЕХ очисток: ${currentRelativeWebpPath}. Исходный webpUrl: ${webpUrl}`,
       );
-      currentRelativeWebpPath = null; // Сбрасываем, если он все еще содержит полный URL
+      currentRelativeWebpPath = ""; // Сбрасываем, если он все еще содержит полный URL
     }
   }
 
@@ -138,11 +133,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       }
       // currentRelativeWebpPath уже должен быть очищен от начальных слэшей
       fullWebpPreviewUrl = new URL(currentRelativeWebpPath, base).toString();
-    } catch (e: any) {
+    } catch {
       console.error(
-        `[ImageUploader ERROR] Ошибка при формировании fullWebpPreviewUrl из djangoMediaBase ('${djangoMediaBase}') и currentRelativeWebpPath ('${currentRelativeWebpPath}'). Error: ${e.message}`,
+        `[ImageUploader ERROR] Ошибка при формировании fullWebpPreviewUrl из djangoMediaBase ('${djangoMediaBase}') и currentRelativeWebpPath ('${currentRelativeWebpPath}').`,
       );
-      fullWebpPreviewUrl = null;
+      fullWebpPreviewUrl = "";
     }
   } else if (currentRelativeWebpPath) {
     // Запасной вариант, если NEXT_PUBLIC_DJANGO_MEDIA_URL не установлен, но есть относительный путь
@@ -161,67 +156,48 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   // Функция конвертации в WEBP на клиенте
   const convertToWebP = async (file: File): Promise<File | null> => {
-    // Целевые параметры
-    const TARGET_ASPECT_RATIO = 3 / 1; // ИЗМЕНЕНО: Соотношение сторон 3:1
-    const TARGET_WIDTH = 1200; // Фиксированная ширина в пикселях
-    const TARGET_HEIGHT = Math.round(TARGET_WIDTH / TARGET_ASPECT_RATIO); // Будет 400px
-    const WEBP_QUALITY = 0.85; // Качество WEBP (0.0 - 1.0)
-
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (event) => {
-        const img = document.createElement("img");
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
+        const img = new window.Image();
+        img.onload = function () {
+          // Целевые параметры
+          const TARGET_ASPECT_RATIO = 3 / 1;
+          const TARGET_WIDTH = 1200;
+          const TARGET_HEIGHT = Math.round(TARGET_WIDTH / TARGET_ASPECT_RATIO);
+          const WEBP_QUALITY = 0.85;
 
-          const originalWidth = img.naturalWidth;
-          const originalHeight = img.naturalHeight;
-          const originalAspectRatio = originalWidth / originalHeight;
-
-          let sourceX = 0;
-          let sourceY = 0;
-          let sourceWidth = originalWidth;
-          let sourceHeight = originalHeight;
-
-          // Рассчитываем размеры и позицию для кропа из оригинала
-          if (originalAspectRatio > TARGET_ASPECT_RATIO) {
-            // Оригинал шире целевого: обрезаем по горизонтали (X)
-            sourceWidth = originalHeight * TARGET_ASPECT_RATIO;
-            sourceX = (originalWidth - sourceWidth) / 2;
-          } else if (originalAspectRatio < TARGET_ASPECT_RATIO) {
-            // Оригинал выше целевого: обрезаем по вертикали (Y)
-            sourceHeight = originalWidth / TARGET_ASPECT_RATIO;
-            sourceY = (originalHeight - sourceHeight) / 2;
+          // Вычисляем кроп
+          let sourceX = 0,
+            sourceY = 0,
+            sourceWidth = img.width,
+            sourceHeight = img.height;
+          const inputAspect = img.width / img.height;
+          if (inputAspect > TARGET_ASPECT_RATIO) {
+            // Обрезаем по ширине
+            sourceWidth = Math.round(img.height * TARGET_ASPECT_RATIO);
+            sourceX = Math.round((img.width - sourceWidth) / 2);
+          } else if (inputAspect < TARGET_ASPECT_RATIO) {
+            // Обрезаем по высоте
+            sourceHeight = Math.round(img.width / TARGET_ASPECT_RATIO);
+            sourceY = Math.round((img.height - sourceHeight) / 2);
           }
-          // Если соотношения совпадают, sourceX, sourceY, sourceWidth, sourceHeight остаются оригинальными
-
-          // Устанавливаем размеры канваса равными целевым размерам
+          const canvas = document.createElement("canvas");
           canvas.width = TARGET_WIDTH;
           canvas.height = TARGET_HEIGHT;
-
           const ctx = canvas.getContext("2d");
-          if (!ctx) {
-            return reject(
-              new Error("Не удалось получить 2D контекст канваса."),
-            );
-          }
-
-          // Очищаем канвас (на случай если он используется повторно, хотя здесь создается новый)
-          // ctx.clearRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
-
-          // Отрисовываем обрезанную и масштабированную часть изображения на канвас
+          if (!ctx) return reject(new Error("Не удалось получить 2D контекст канваса."));
           ctx.drawImage(
-            img, // Исходное изображение
-            sourceX, // X координата начала кропа на исходном изображении
-            sourceY, // Y координата начала кропа на исходном изображении
-            sourceWidth, // Ширина кропа на исходном изображении
-            sourceHeight, // Высота кропа на исходном изображении
-            0, // X координата отрисовки на канвасе (начинаем с 0)
-            0, // Y координата отрисовки на канвасе (начинаем с 0)
-            TARGET_WIDTH, // Целевая ширина отрисовки на канвасе
-            TARGET_HEIGHT, // Целевая высота отрисовки на канвасе
+            img,
+            sourceX,
+            sourceY,
+            sourceWidth,
+            sourceHeight,
+            0,
+            0,
+            TARGET_WIDTH,
+            TARGET_HEIGHT,
           );
-
           canvas.toBlob(
             (blob) => {
               if (blob) {
@@ -240,7 +216,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             WEBP_QUALITY,
           );
         };
-        img.onerror = () => {
+        img.onerror = function () {
           reject(new Error("Не удалось загрузить изображение в элемент img."));
         };
         if (event.target?.result && typeof event.target.result === "string") {
@@ -249,56 +225,32 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           reject(
             new Error(
               "Результат FileReader не является строкой или отсутствует.",
-            ),
+            )
           );
         }
       };
-      reader.onerror = () => {
-        reject(new Error("Ошибка при чтении файла с помощью FileReader."));
-      };
+      reader.onerror = () => reject(new Error("Ошибка чтения файла"));
       reader.readAsDataURL(file);
     });
   };
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (file) {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
       setOriginalFile(file);
-      setError(null);
-      setWebpUrl(null); // Сбрасываем URL от сервера
-      setConvertedWebpFile(null); // Сбрасываем предыдущий сконвертированный файл
-      setConvertedWebpPreview(null); // Сбрасываем превью сконвертированного файла
-      setIsConverting(true); // Показываем индикатор конвертации
-
-      // Генерируем превью оригинала
-      const originalPreviewReader = new FileReader();
-      originalPreviewReader.onloadend = () => {
-        setOriginalPreview(originalPreviewReader.result as string);
-      };
-      originalPreviewReader.readAsDataURL(file);
-
+      setOriginalPreview(URL.createObjectURL(file));
+      setIsConverting(true);
       try {
-        const webpFile = await convertToWebP(file);
-        if (webpFile) {
-          setConvertedWebpFile(webpFile);
-          // Генерируем превью для локально сконвертированного WEBP
-          const webpPreviewReader = new FileReader();
-          webpPreviewReader.onloadend = () => {
-            setConvertedWebpPreview(webpPreviewReader.result as string);
-          };
-          webpPreviewReader.readAsDataURL(webpFile);
-        } else {
-          setError("Не удалось конвертировать изображение в WEBP.");
+        const convertedWebpFile = await convertToWebP(file);
+        if (convertedWebpFile) {
+          setConvertedWebpFile(convertedWebpFile);
+          setConvertedWebpPreview(URL.createObjectURL(convertedWebpFile));
         }
-      } catch (conversionError: any) {
-        console.error("Ошибка конвертации в WEBP:", conversionError);
-        setError(
-          conversionError.message || "Ошибка при конвертации изображения.",
-        );
+      } catch (error) {
+        console.error("Ошибка конвертации в WEBP:", error);
+        setError("Ошибка конвертации в WEBP.");
       } finally {
-        setIsConverting(false); // Убираем индикатор конвертации
+        setIsConverting(false);
       }
     }
   };
@@ -311,7 +263,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
 
     setIsLoading(true);
-    setError(null);
+    setError("");
 
     const formData = new FormData();
     formData.append(uploadFieldName, convertedWebpFile, convertedWebpFile.name);
@@ -336,10 +288,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
               errorResult.error ||
               errorResult.detail ||
               JSON.stringify(errorResult);
-          } catch (e) {
+          } catch {
             errorMessage = `Ошибка сервера: ${response.status}. Не удалось декодировать JSON с ошибкой.`;
           }
-        } else {
+        }
+        else {
           errorMessage = `Сервер вернул неожиданный ответ (не JSON). Статус: ${response.status}`;
         }
         throw new Error(errorMessage);
@@ -364,16 +317,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         "[ImageUploader INTERNAL DEBUG] Successfully uploaded. Calling onUploadComplete with URL:",
         result.url,
       );
-      onUploadComplete(result.url);
+      onUploadComplete(result.url as string); // result.url должен быть строкой, уточните тип если нужно
       // ---- КОНЕЦ НОВОГО ВЫЗОВА ----
 
       // После успешной загрузки и вызова onUploadComplete, можно сбросить локальные файлы, если нужно
       // setOriginalFile(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Ошибка загрузки WEBP:", err);
-      setError(
-        err.message || "Произошла неизвестная ошибка при загрузке WEBP.",
-      );
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Произошла неизвестная ошибка при загрузке WEBP.");
+      }
       setWebpUrl(null); // Сбрасываем URL от сервера в случае ошибки загрузки
     } finally {
       setIsLoading(false);

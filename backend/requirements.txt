@@ -19,7 +19,14 @@ django==5.2
     #   drf-spectacular
 django-ckeditor-5==0.2.17
     # via -r requirements.in
-djangorestframework==3.16.0
+djangorestframework==3.15.1
+    # via
+    #   -r requirements.in
+    #   djangorestframework-simplejwt
+    #   drf-spectacular
+django-cors-headers==4.3.1
+beautifulsoup4
+lxml
     # via
     #   -r requirements.in
     #   djangorestframework-simplejwt

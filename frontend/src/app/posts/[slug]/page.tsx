@@ -1,6 +1,8 @@
 import React from "react";
+import type { Post, Tag } from "@/types/blog";
+import Image from "next/image";
 import { fetchPost } from "@/services/api";
-import type { Post } from "@/types/blog";
+
 import PostRating from "@/components/post-rating";
 import { notFound } from "next/navigation";
 import PostBody from "@/components/post-body";
@@ -84,7 +86,7 @@ const PostPage = async ({
   const params = await paramsProp;
   // console.log('[PostPage] params AFTER await - type:', typeof params, 'isPromise:', params instanceof Promise, 'value:', JSON.stringify(params));
   let post: Post | null = null;
-  let error = "";
+  const error = "";
   try {
     post = await fetchPost(params.slug);
   } catch (e: unknown) {
@@ -126,9 +128,11 @@ const PostPage = async ({
       <article className="flex flex-col items-center max-w-4xl w-full mx-auto">
         {post.image && (
           <div className="w-full max-w-[800px] px-4 md:px-0">
-            <img
-              src={getAbsoluteImageUrl(post.image) || undefined}
+            <Image
+              src={getAbsoluteImageUrl(post.image) || ""}
               alt={post.title}
+              width={800}
+              height={400}
               className="w-full h-auto object-cover rounded mb-6"
               loading="lazy"
             />
@@ -149,7 +153,7 @@ const PostPage = async ({
           >
             <span>пост в</span>
             {post.tags_details && post.tags_details.length > 0 ? (
-              post.tags_details.map((tag) => (
+              post.tags_details.map((tag: Tag) => (
                 <React.Fragment key={tag.id}>
                   <a
                     href={`/tags/${tag.slug}`}
@@ -190,7 +194,7 @@ const PostPage = async ({
               letterSpacing: "0.02em",
             }}
           >
-            <PostBody content={post.body} />
+            <PostBody content={post.body as any} />
           </div>
         </div>
       </article>

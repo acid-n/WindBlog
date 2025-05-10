@@ -1,0 +1,13 @@
+# DEV Dockerfile for Next.js frontend
+FROM node:18-alpine
+WORKDIR /app
+
+# Копируем только package.json и lock для ускорения install
+COPY package.json package-lock.json* ./
+RUN npm install
+
+# Копируем исходники (но для hot-reload будет volume)
+COPY . .
+
+EXPOSE 3000
+CMD ["npm", "run", "dev"]

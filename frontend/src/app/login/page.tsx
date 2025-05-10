@@ -46,8 +46,8 @@ const LoginPage: React.FC = () => {
       } else {
         throw new Error("Токены не получены от сервера.");
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setIsLoading(false);
     }

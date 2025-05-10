@@ -5,14 +5,14 @@ export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
 export interface ApiErrorFormat {
-  error: string; // Обычно строка-ключ ошибки, например, "validation_error" или "not_found"
+  error: string; // Обычно строка-ключ ошибки, например, "valation_error" или "not_found"
   message: string; // Человекочитаемое сообщение
-  details?: Record<string, any>; // Опционально: детали ошибки, например, ошибки полей при валидации
+  details?: Record<string, unknown>; // Опционально: детали ошибки, например, ошибки полей при валидации
 }
 
 interface FetchServiceOptions extends RequestInit {
   isPublic?: boolean; // Если true, не будет пытаться добавить JWT токен
-  revalidate?: number | false; // Для Next.js кеширования, false для отключения
+  revalate?: number | false; // Для Next.js кеширования, false для отключения
   tags?: string[]; // Добавляем опцию для тегов
 }
 
@@ -24,10 +24,10 @@ async function fetchService<T>(
   endpoint: string,
   options: FetchServiceOptions = {},
 ): Promise<T> {
-  const { isPublic = false, revalidate = 60, tags, ...fetchOptions } = options;
-  const headers: HeadersInit = {
+  const { isPublic = false, revalate = 60, tags, ...fetchOptions } = options;
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...fetchOptions.headers,
+    ...(fetchOptions.headers as Record<string, string>),
   };
 
   if (!isPublic && typeof window !== "undefined") {
@@ -37,9 +37,9 @@ async function fetchService<T>(
     }
   }
 
-  const nextOptions: { revalidate?: number | false; tags?: string[] } = {};
-  if (typeof revalidate === "number" || revalidate === false) {
-    nextOptions.revalidate = revalidate;
+  const nextOptions: { revalate?: number | false; tags?: string[] } = {};
+  if (typeof revalate === "number" || revalate === false) {
+    nextOptions.revalate = revalate;
   }
   if (tags && tags.length > 0) {
     nextOptions.tags = tags;
@@ -58,7 +58,7 @@ async function fetchService<T>(
     const res = await fetch(url, requestOptions);
 
     if (!res.ok) {
-      let errorPayload: ApiErrorFormat = {
+      const errorPayload: ApiErrorFormat = {
         error: `http_error_${res.status}`,
         message: res.statusText || "An unknown API error occurred",
       };
@@ -70,7 +70,7 @@ async function fetchService<T>(
         errorPayload.message =
           errorJson.message || errorJson.detail || errorPayload.message;
         if (errorJson.details) errorPayload.details = errorJson.details;
-      } catch (e) {
+      } catch {
         // Не удалось распарсить JSON ошибки, оставляем HTTP статус/текст
       }
       console.error(
@@ -103,7 +103,7 @@ async function fetchService<T>(
   }
 }
 
-import type { Post, Tag, PaginatedPostsResponse, Rating } from "@/types/blog";
+import type { Post, Tag, PaginatedPostsResponse } from "@/types/blog";
 
 // Добавляем тип для пагинированного ответа тегов
 export interface PaginatedTagsResponse {
@@ -158,18 +158,7 @@ export async function fetchPostsByTag(slug: string): Promise<Post[]> {
 /**
  * Получить пост по ID (для коротких ссылок).
  */
-export async function fetchPostById(id: string): Promise<Post> {
-  // console.log(`API: Запрос поста по ID ${id}`);
-  // const response = await fetchService<Post>(`posts/${id}/by-id/`, { isPublic: true });
-  // console.log(`API: Получен пост ${response.title} (ID: ${response.id})`);
-  // return response;
-  // Эндпоинт /by-id/ был в PostViewSet, но он ожидал slug как ID. Стандартный get по slug уже есть.
-  // Если нужен поиск по числовому ID, то на бэкенде нужен другой эндпоинт или фильтр.
-  // Пока закомментирую, так как его логика была спорной и дублирующей.
-  throw new Error(
-    "fetchPostById is deprecated or needs backend adjustment for ID lookup.",
-  );
-}
+// Функция fetchPostById устарела или требует доработки на бэкенде для поиска по ID.
 
 // --- Типы для API Архива --- //
 export interface YearSummary {
@@ -258,12 +247,12 @@ export async function searchPosts(
 }
 
 // Пример функции, требующей аутентификации (если появится такая необходимость)
-// export async function submitPostRating(postId: number, score: number): Promise<Rating> {
-//   return fetchService<Rating>(`posts/${postId}/rate/`, {
+// export async function submitPost(postId: number, score: number): Promise<> {
+//   return fetchService<>(`posts/${postId}/rate/`, {
 //     method: 'POST',
 //     body: JSON.stringify({ score }),
 //     isPublic: false, // Этот запрос требует JWT
-//     revalidate: 0, // Не кешировать ответ на POST запрос (или false)
+//     revalate: 0, // Не кешировать ответ на POST запрос (или false)
 //   });
 // }
 
@@ -276,6 +265,6 @@ export interface SiteSettingsData {
 export async function fetchSiteSettings(): Promise<SiteSettingsData> {
   return fetchService<SiteSettingsData>("site-settings", {
     isPublic: true,
-    revalidate: 3600,
+    revalate: 3600,
   }); // Кешируем на час
 }

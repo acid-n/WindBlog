@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: backendProtocol,
+        protocol: backendProtocol as "http" | "https",
         hostname: backendHostname,
         // port: backendPort, // Раскомментируйте, если порт нестандартный и нужен в паттерне
         // pathname: '/media/**', // Можно указать более конкретный путь, если нужно

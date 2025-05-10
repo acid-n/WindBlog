@@ -16,17 +16,25 @@ import { extendedImage } from "@/lib/tiptapExtensions"; // Используем 
 // так как компонент теперь будет принимать простую HTML-строку.
 
 interface PostBodyProps {
-  content: any;
+  content: JSONContent;
 }
 
 // Вспомогательная функция для рекурсивной обработки URL изображений в JSON Tiptap
-const processImageUrlsInJson = (node: any, mediaUrlBase: string): any => {
-  if (typeof node === "object" && node !== null && node.type) {
-    // console.log(`[PostBody] Processing node type: ${node.type}`, JSON.stringify(node.attrs)); // Убрал этот лог, чтобы не засорять
+const processImageUrlsInJson = (node: JSONContent, mediaUrlBase: string): JSONContent | JSONContent[] => {
+  if (typeof node === "object" && node !== null && 'type' in node) {
+    // Здесь node гарантированно JSONContent
+    // console.log(`[PostBody] Processing node type: ${node.type}`, JSON.stringify((node as unknown).attrs));
   }
 
   if (Array.isArray(node)) {
-    return node.map((item) => processImageUrlsInJson(item, mediaUrlBase));
+    return node.map((child) => processImageUrlsInJson(child, mediaUrlBase)) as JSONContent[];
+  }
+
+  if (typeof node === "object" && node !== null && 'content' in node && Array.isArray((node as any).content)) {
+    return {
+      ...node,
+      content: (node as any).content.map((child: JSONContent) => processImageUrlsInJson(child, mediaUrlBase)),
+    } as JSONContent;
   }
 
   if (typeof node === "object" && node !== null) {
@@ -38,15 +46,15 @@ const processImageUrlsInJson = (node: any, mediaUrlBase: string): any => {
         "[PostBody] Found image node structure:",
         JSON.stringify(node, null, 2),
       );
-      if (node.attrs && node.attrs.src && typeof node.attrs.src === "string") {
-        console.log("[PostBody] Image node original src:", node.attrs.src);
-        if (node.attrs.src.startsWith("/media/")) {
-          newNode.attrs.src = `${mediaUrlBase}${node.attrs.src.substring(1)}`;
-          console.log("[PostBody] Modified image src to:", newNode.attrs.src);
+      if (newNode.attrs?.src && typeof newNode.attrs?.src === "string") {
+        console.log("[PostBody] Image node original src:", newNode.attrs?.src);
+        if (newNode.attrs?.src && newNode.attrs.src.startsWith("/media/")) {
+          if (newNode.attrs) newNode.attrs.src = `${mediaUrlBase}${newNode.attrs.src.substring(1)}`;
+          console.log("[PostBody] Modified image src to:", newNode.attrs?.src);
         } else {
           console.log(
             "[PostBody] Image src does not start with /media/, not modified:",
-            node.attrs.src,
+            node.attrs?.src,
           );
         }
       } else {
@@ -57,7 +65,8 @@ const processImageUrlsInJson = (node: any, mediaUrlBase: string): any => {
       }
     }
     if (node.content) {
-      newNode.content = processImageUrlsInJson(node.content, mediaUrlBase);
+      const processed = processImageUrlsInJson(node.content, mediaUrlBase);
+      newNode.content = Array.isArray(processed) ? processed : [processed];
     }
     return newNode;
   }
@@ -79,10 +88,11 @@ const PostBody: React.FC<PostBodyProps> = ({ content }) => {
     : `${djangoMediaUrl}/`;
 
   // Обрабатываем src у изображений
-  const processedContent = React.useMemo(
-    () => processImageUrlsInJson(content, mediaUrlBase),
-    [content, mediaUrlBase],
-  );
+  const processedContent = React.useMemo(() => {
+    const result = processImageUrlsInJson(content, mediaUrlBase);
+    // TipTap Editor ожидает объект, а не массив
+    return Array.isArray(result) ? { type: 'doc', content: result } : result;
+  }, [content, mediaUrlBase]);
 
   // Инициализируем редактор только для чтения
   const editor = useEditor({

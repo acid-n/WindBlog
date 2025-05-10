@@ -1,12 +1,20 @@
 /**
  * Тип данных для тега поста.
  */
+export interface PaginatedPostsResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Post[];
+}
+
 export interface Tag {
   id: number;
   name: string;
   slug: string;
   posts_count?: number;
 }
+
 
 /**
  * Тип данных для короткой ссылки.
@@ -17,6 +25,7 @@ export interface ShortLink {
   full_url?: string;
 }
 
+
 /**
  * Тип данных для поста блога.
  */
@@ -26,7 +35,7 @@ export interface Post {
   slug: string;
   content: string;
   description?: string;
-  body?: any;
+  body?: unknown;
   created_at: string;
   updated_at: string;
   first_published_at: string;
@@ -39,3 +48,4 @@ export interface Post {
   comments_count?: number;
   shortlink?: ShortLink;
 }
+

@@ -12,7 +12,7 @@ function getMonthName(month: number): string {
 }
 
 interface ArchiveYearPageProps {
-  params: Promise<{ year: string }>;
+  params: { year: string };
   // Можно добавить searchParams, если они понадобятся
   // searchParams?: { [key: string]: string | string[] | undefined };
 }
@@ -20,10 +20,7 @@ interface ArchiveYearPageProps {
 /**
  * Страница архива для конкретного года — навигация по месяцам.
  */
-// Изменяем сигнатуру: принимаем props целиком, params теперь Promise
-const ArchiveYearPage = async ({ params: paramsPromise }: ArchiveYearPageProps) => {
-  // Доступ к параметрам через await самого Promise
-  const params = await paramsPromise;
+const ArchiveYearPage = async ({ params }: ArchiveYearPageProps) => {
   const { year: yearString } = params;
   const year = parseInt(yearString, 10);
 

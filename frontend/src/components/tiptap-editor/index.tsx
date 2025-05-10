@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useCallback, useState, useRef } from "react";
-import { useEditor, EditorContent, Editor } from "@tiptap/react";
+import React, { useCallback, useState } from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
+
 import TextAlign from "@tiptap/extension-text-align";
 import { Color } from "@tiptap/extension-color";
 import TextStyle from "@tiptap/extension-text-style";
@@ -41,8 +41,8 @@ import { extendedImage } from "@/lib/tiptapExtensions";
 // import './styles.css'; // Если нужны будут специфичные стили для редактора
 
 interface TiptapEditorProps {
-  content: any; // Начальное содержимое (JSON или HTML)
-  onChange: (content: any) => void; // Функция обратного вызова при изменении
+  content: unknown; // Начальное содержимое (JSON или HTML)
+  onChange: (content: unknown) => void; // Функция обратного вызова при изменении
   editable?: boolean;
 }
 
@@ -57,7 +57,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3, 4] },
-        link: false,
       }),
       extendedImage,
       TextAlign.configure({ types: ["heading", "paragraph", "image"] }),
@@ -70,7 +69,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         validate: (href) => /^https?:\/\//.test(href),
       }),
     ],
-    content: content,
+    content: content as import("@tiptap/react").Content,
     editable: editable,
     immediatelyRender: false,
     onUpdate: ({ editor: currentEditor }) => {
@@ -163,6 +162,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   };
 
   const setLink = useCallback(() => {
+    if (!editor) return;
     const previousUrl = editor.getAttributes("link").href;
     const url = window.prompt("URL", previousUrl);
 
@@ -266,20 +266,20 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         </MenuButton>
         {headingLevels.map((level) => (
           <MenuButton
-            key={level}
+            key={level as number | string}
             title={`Heading ${level}`}
             onClick={() =>
               editor
                 .chain()
                 .focus()
-                .toggleHeading({ level: level as any })
+                .toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 })
                 .run()
             }
-            isActive={editor.isActive("heading", { level: level as any })}
+            isActive={editor.isActive("heading", { level: level as 1 | 2 | 3 | 4 | 5 | 6 })}
           >
             <div className="flex items-center">
               <FaHeading />
-              <span className="ml-1 text-xs">{level}</span>
+              <span className="ml-1 text-xs">{String(level)}</span>
             </div>
           </MenuButton>
         ))}
@@ -406,7 +406,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
                   : editor.getAttributes("image").width || ""
               }
               placeholder="авто (напр. 50%)"
-              onBlur={(e) => {
+              onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
                 let newWidth = e.target.value.trim();
                 if (newWidth === "" || newWidth === "auto") {
                   newWidth = "auto"; // Устанавливаем 'auto' если пусто или явно 'auto'
@@ -424,20 +424,20 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
                 } else if (newWidth !== "auto" && newWidth !== "") {
                   // Если формат неверный и не пусто, можно вернуть предыдущее значение или сообщить об ошибке
                   // Пока просто не применяем некорректное значение, кроме 'auto'
-                  e.target.value =
+                  (e.target as HTMLInputElement).value =
                     editor.getAttributes("image").width === "auto"
                       ? ""
                       : editor.getAttributes("image").width || "";
                 }
               }}
-              onKeyDown={(e) => {
+              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
                   (e.target as HTMLInputElement).blur(); // Вызываем onBlur для применения значения
                 }
                 if (e.key === "Escape") {
                   e.preventDefault();
-                  e.target.value =
+                  (e.target as HTMLInputElement).value =
                     editor.getAttributes("image").width === "auto"
                       ? ""
                       : editor.getAttributes("image").width || "";
@@ -497,7 +497,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   );
 };
 
-const headingLevels: any[] = [1, 2, 3];
+const headingLevels: unknown[] = [1, 2, 3];
 
 const MenuButton: React.FC<{
   onClick: () => void;

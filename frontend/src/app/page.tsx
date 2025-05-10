@@ -1,6 +1,7 @@
 import React from "react";
-import { fetchPosts, PaginatedPostsResponse } from "@/services/api";
-import type { Post } from "@/types/blog";
+import { fetchPosts } from "@/services/api";
+import type { PaginatedPostsResponse } from "@/types/blog";
+
 import BlogPostPreview from "@/components/blog-post-preview";
 import AnimatedSection from "@/components/animated-section";
 import Pagination from "@/components/pagination";

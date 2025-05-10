@@ -44,7 +44,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           aria-label={`Открыть пост: ${post.title}`}
         >
           <Image
-            src={getAbsoluteImageUrl(post.image)}
+            src={getAbsoluteImageUrl(post.image) || ""}
             alt={post.title}
             fill
             className="object-cover rounded"
@@ -74,20 +74,33 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         </p>
       ) : null}
       <div className="flex flex-wrap items-center gap-2 mb-1 text-sm text-[#CE6607]">
-        {post.tags.length > 0 && (
+        {Array.isArray(post.tags) && post.tags.length > 0 && (
           <span className="post-meta tags">
-            {post.tags.map((tag, idx) => (
-              <React.Fragment key={tag.id}>
-                <a
-                  href={`/tags/${tag.slug}`}
-                  className="text-gray-600 hover:text-gray-900 hover:underline decoration-dotted transition-colors duration-150 ease-in-out"
-                  aria-label={`Посты с тегом ${tag.name}`}
-                >
-                  {tag.name}
-                </a>
-                {idx < post.tags.length - 1 && <span className="mx-1">•</span>}
-              </React.Fragment>
-            ))}
+            {(post.tags as (import("@/types/blog").Tag | number)[]).map((tag, idx) => {
+              // Если tag — объект (Tag), иначе — число (id)
+              if (typeof tag === "object" && tag !== null && "id" in tag && "slug" in tag && "name" in tag) {
+                return (
+                  <React.Fragment key={tag.id}>
+                    <a
+                      href={`/tags/${tag.slug}`}
+                      className="text-gray-600 hover:text-gray-900 hover:underline decoration-dotted transition-colors duration-150 ease-in-out"
+                      aria-label={`Посты с тегом ${tag.name}`}
+                    >
+                      {tag.name}
+                    </a>
+                    {idx < (post.tags?.length ?? 0) - 1 && <span className="mx-1">•</span>}
+                  </React.Fragment>
+                );
+              } else if (typeof tag === "number") {
+                return (
+                  <React.Fragment key={tag}>
+                    <span>#{tag}</span>
+                    {idx < (post.tags?.length ?? 0) - 1 && <span className="mx-1">•</span>}
+                  </React.Fragment>
+                );
+              }
+              return null;
+            })}
           </span>
         )}
       </div>

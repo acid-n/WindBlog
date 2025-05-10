@@ -33,7 +33,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (access: string, refresh: string) => Promise<void>;
   logout: () => void;
-  // refreshToken: () => Promise<void>; // Добавим позже для обновления токена
+  refreshToken: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setIsLoading(true);
     try {
       const storedAccessToken = localStorage.getItem("accessToken");
-      const storedRefreshToken = localStorage.getItem("refreshToken"); // Пока не используем, но храним
+       // Пока не используем, но храним
 
       if (storedAccessToken) {
         const decodedToken = jwtDecode<DecodedJwt>(storedAccessToken); // Декодируем токен
@@ -110,11 +110,50 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     // router.push('/login');
   };
 
-  // TODO: Implement token refresh logic
+  // Логика обновления токена
+  const refreshToken = async () => {
+    setIsLoading(true);
+    try {
+      const storedRefreshToken = localStorage.getItem("refreshToken");
+      if (!storedRefreshToken) {
+        throw new Error("No refresh token found");
+      }
+      // Эндпоинт обновления токена (замените на ваш путь, если отличается)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_API_URL}/api/token/refresh/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refresh: storedRefreshToken }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to refresh token");
+      }
+      const data = await response.json();
+      if (data.access) {
+        localStorage.setItem("accessToken", data.access);
+        setAccessToken(data.access);
+        const decodedToken = jwtDecode<DecodedJwt>(data.access);
+        setUser({
+          id: decodedToken.user_id,
+          email: decodedToken.email,
+          username: decodedToken.username,
+        });
+      }
+      if (data.refresh) {
+        localStorage.setItem("refreshToken", data.refresh);
+      }
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+      logout(); // Если не удалось обновить — выходим из аккаунта
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <AuthContext.Provider
-      value={{ user, accessToken, isLoading, login, logout }}
+      value={{ user, accessToken, isLoading, login, logout, refreshToken }}
     >
       {children}
     </AuthContext.Provider>

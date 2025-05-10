@@ -10,21 +10,30 @@ import { fetchWithAuth } from "@/services/apiClient";
 import ImageUploader from "@/components/image-uploader";
 import { TrashIcon } from "@heroicons/react/24/outline";
 
-const processImageUrlsInJson = (node: any, mediaUrl: string): any => {
+const processImageUrlsInJson = (node: unknown, mediaUrl: string): unknown => {
   if (Array.isArray(node)) {
     return node.map((item) => processImageUrlsInJson(item, mediaUrl));
   }
-  if (typeof node === "object" && node !== null) {
-    const newNode = { ...node };
-    if (node.type === "image" && node.attrs && node.attrs.src) {
-      if (node.attrs.src.startsWith("/media/")) {
-        newNode.attrs.src = `${mediaUrl}${node.attrs.src}`;
-      }
+  if (
+    typeof node === "object" &&
+    node !== null &&
+    "type" in node &&
+    (node as any).type === "image" &&
+    "attrs" in node &&
+    (node as any).attrs &&
+    (node as any).attrs.src
+  ) {
+    const newNode = { ...node } as any;
+    if (newNode.attrs.src.startsWith("/media/")) {
+      newNode.attrs.src = `${mediaUrl}${newNode.attrs.src}`;
     }
-    if (node.content) {
-      newNode.content = processImageUrlsInJson(node.content, mediaUrl);
+    if ((node as any).content) {
+      newNode.content = processImageUrlsInJson((node as any).content, mediaUrl);
     }
     return newNode;
+  }
+  if (typeof node === "object" && node !== null) {
+    return { ...node };
   }
   return node;
 };
@@ -40,7 +49,7 @@ const EditPostPage = () => {
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
   const [isLoadingPageContent, setIsLoadingPageContent] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [editorContent, setEditorContent] = useState<any>(null);
+  const [editorContent, setEditorContent] = useState<any | null>(null);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(
     null,
   );
@@ -71,7 +80,8 @@ const EditPostPage = () => {
         if (!response.ok) throw new Error("Failed to fetch tags for editing");
         const data: { results: Tag[] } = await response.json();
         setAllTags(data.results || []);
-      } catch (e: any) {
+      } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
         console.error("Error fetching tags for editing:", e);
       }
     };
@@ -80,7 +90,7 @@ const EditPostPage = () => {
       fetchAllTags();
       const fetchPostToEdit = async () => {
         setIsLoadingPageContent(true);
-        setError(null);
+        setError(error ?? "");
         setSaveSuccessMessage(null);
         try {
           const djangoApiUrl =
@@ -136,9 +146,10 @@ const EditPostPage = () => {
             djangoMediaUrl,
           );
           setEditorContent(processedBody);
-        } catch (e: any) {
+        } catch (e: unknown) {
+          const errorMessage = e instanceof Error ? e.message : String(e);
           console.error("Error fetching post:", e);
-          setError(e.message);
+          setError(errorMessage);
           setPost(null);
         } finally {
           setIsLoadingPageContent(false);
@@ -194,7 +205,7 @@ const EditPostPage = () => {
       return;
     }
     setIsLoadingPageContent(true);
-    setError(null);
+    setError(error ?? "");
     setSaveSuccessMessage(null);
     if (successMessageTimerRef.current)
       clearTimeout(successMessageTimerRef.current);
@@ -224,7 +235,7 @@ const EditPostPage = () => {
         try {
           const url = new URL(path);
           path = url.pathname;
-        } catch (e) {
+        } catch {
           // Оставляем path как есть, если это не полный валидный URL (может быть уже относительным путем или мусором)
         }
 
@@ -243,7 +254,7 @@ const EditPostPage = () => {
         console.error(
           `[EditPostPage SAVE ERROR] Очищенный путь все еще содержит '://': '${path}'. Исходный: '${imageSource}'`,
         );
-        path = null;
+        path = "";
       } else if (
         path.toLowerCase().startsWith("http:") &&
         !path.toLowerCase().startsWith("http://")
@@ -251,14 +262,14 @@ const EditPostPage = () => {
         console.error(
           `[EditPostPage SAVE ERROR] Очищенный путь выглядит как некорректная ссылка http:/...: '${path}'. Исходный: '${imageSource}'`,
         );
-        path = null;
+        path = "";
       } else if (path.length === 0) {
-        path = null;
+        path = "";
       } else if (path.length > 255) {
         console.error(
           `[EditPostPage SAVE ERROR] Очищенный путь слишком длинный (${path.length} символов): '${path}'. Исходный: '${imageSource}'`,
         );
-        path = null;
+        path = "";
       }
       imagePathForSave = path;
     }
@@ -278,8 +289,8 @@ const EditPostPage = () => {
       first_published_at: post.first_published_at
         ? new Date(post.first_published_at).toISOString()
         : null,
-      sitemap_priority: post.sitemap_priority
-        ? parseFloat(post.sitemap_priority as any)
+      sitemap_priority: (post as any).sitemap_priority
+        ? parseFloat(String((post as any).sitemap_priority))
         : 0.5,
       tags: selectedTagIds,
       is_published: publishAction === "publish",
@@ -413,9 +424,10 @@ const EditPostPage = () => {
             }, 3000);
           });
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
       console.error("Error saving post:", e);
-      setError(e.message);
+      setError(errorMessage);
     } finally {
       setIsLoadingPageContent(false);
     }
@@ -429,7 +441,7 @@ const EditPostPage = () => {
     ) {
       try {
         setIsLoadingPageContent(true);
-        setError(null);
+        setError(error ?? "");
         const djangoApiUrl =
           process.env.NEXT_PUBLIC_DJANGO_API_URL ||
           "http://localhost:8000/api/v1";
@@ -458,9 +470,10 @@ const EditPostPage = () => {
         }
 
         router.push("/");
-      } catch (e: any) {
+      } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
         console.error("Ошибка при удалении поста:", e);
-        setError(e.message || "Не удалось удалить пост.");
+        setError(e instanceof Error ? e.message : "Не удалось удалить пост.");
         setIsLoadingPageContent(false);
       }
     }
@@ -689,7 +702,7 @@ const EditPostPage = () => {
               type="checkbox"
               name="sitemap_include"
               id="sitemap_include"
-              checked={post.sitemap_include || false}
+              checked={(post as any).sitemap_include || false}
               onChange={handleInputChange}
               className="checkbox-style"
             />
@@ -712,7 +725,7 @@ const EditPostPage = () => {
               name="sitemap_priority"
               id="sitemap_priority"
               value={
-                post.sitemap_priority === null ? "" : post.sitemap_priority
+                (post as any).sitemap_priority === null ? "" : (post as any).sitemap_priority
               }
               onChange={handleInputChange}
               className="input-field"
@@ -725,7 +738,7 @@ const EditPostPage = () => {
             <select
               name="sitemap_changefreq"
               id="sitemap_changefreq"
-              value={post.sitemap_changefreq || "monthly"}
+              value={(post as any).sitemap_changefreq || "monthly"}
               onChange={handleInputChange}
               className="input-field"
             >
@@ -775,10 +788,10 @@ const EditPostPage = () => {
             className="px-6 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
             {isLoadingPageContent
-              ? post?.is_published
+              ? (post as any)?.is_published
                 ? "Обновление..."
                 : "Публикация..."
-              : post?.is_published
+              : (post as any)?.is_published
                 ? "Обновить пост"
                 : "Опубликовать"}
           </button>

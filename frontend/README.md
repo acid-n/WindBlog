@@ -1,4 +1,108 @@
-# MUSSON Blog Frontend
+# MUSSON Blog — Frontend (Next.js, TypeScript)
+
+[⬅️ Назад к корневому README](../README.md)
+
+---
+
+## Описание
+
+Фронтенд-приложение MUSSON Blog реализовано на **Next.js 15.3.1** (App Router), **TypeScript** и **Tailwind CSS**. Анимации — с помощью **Framer Motion**. Строгая типизация, pixel-perfect дизайн (Read WP), все типовые ошибки устранены.
+
+---
+
+## Архитектура и особенности
+
+- **Типизация:** TypeScript, строгие интерфейсы (Post, Tag, PaginatedPostsResponse и др.)
+- **Редактор:** Tiptap Editor с кастомными расширениями, поддержка изображений, строгая обработка JSONContent
+- **API:** Запросы инкапсулированы в сервисах (`src/services/api.ts`), поддержка JWT, обработка ошибок, кэширование
+- **SEO:** generateMetadata, OpenGraph, динамическая sitemap.xml
+- **Тесты:** Jest, React Testing Library, покрытие >80%
+- **CI/CD:** pre-commit хуки, автолинтинг, автотесты
+- **Деплой:** Netlify/Vercel/Docker
+
+---
+
+## Структура директорий
+
+- `src/app/` — Маршруты и страницы (Server/Client Components)
+- `src/components/` — Переиспользуемые React-компоненты (каждый в своей папке)
+- `src/services/` — Вся логика работы с API
+- `src/types/` — TypeScript типы
+- `public/` — Статические ассеты
+- `next.config.ts` — Конфиг Next.js (rewrites, images.remotePatterns)
+- `tailwind.config.ts` — Конфиг Tailwind CSS
+
+---
+
+## Быстрый старт
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Приложение будет доступно на http://localhost:3000
+
+---
+
+## Тесты и линтинг
+
+```bash
+npm run lint       # ESLint
+npm test          # Все тесты (Jest)
+npm run test:watch # Watch-режим
+```
+
+Отчёт о покрытии: `npm test -- --coverage`
+
+---
+
+## Сборка для продакшена
+
+```bash
+npm run build
+```
+
+---
+
+## Взаимодействие с API
+
+- Все запросы к backend инкапсулированы в сервисах (`src/services/api.ts`)
+- Используется переменная окружения `NEXT_PUBLIC_API_URL` (по умолчанию http://localhost:8000/api/v1)
+- Поддерживается JWT для защищённых эндпоинтов
+- Пример структуры ответа:
+
+```ts
+export interface PaginatedPostsResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Post[];
+}
+```
+
+---
+
+## Полезные ссылки
+- [Backend API OpenAPI/Swagger](http://localhost:8000/api/schema/)
+- [UX/UI STYLE GUIDE](../docs/UX_UI_STYLE_GUIDE.txt)
+- [Backend README](../backend/README.md)
+
+---
+
+## FAQ
+- **Как добавить компонент?**  
+  В `src/components/`, следуйте style guide и типизации.
+- **Как писать тесты?**  
+  Используйте Jest/RTL, см. примеры рядом с компонентами.
+- **Как деплоить?**  
+  Netlify/Vercel или Docker (см. корневой README).
+
+---
+
+## Контакты
+- Issues: [github.com/your-org/your-repo/issues](https://github.com/your-org/your-repo/issues)
+
 
 Фронтенд-приложение для MUSSON Blog, реализованное на **Next.js 15.3.1** (с использованием App Router), **TypeScript** и **Tailwind CSS**. Анимации выполнены с помощью **Framer Motion**. Цель — максимальное соответствие MUSSON UX/UI STYLE GUIDE и теме Read WP.
 

@@ -1,32 +1,40 @@
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation"; // Убираем useParams
+import { useRouter } from "next/navigation";
 import TiptapEditor from "@/components/tiptap-editor";
-import { Post, Tag } from "@/types/blog"; // Используем тот же тип Post
+import { JSONContent } from "@tiptap/react";
+import { Post, Tag } from "@/types/blog";
 import { useAuth } from "@/contexts/AuthContext";
 import slugify from "slugify";
 import { fetchWithAuth } from "@/services/apiClient";
-import ImageUploader from "@/components/image-uploader"; // Импортируем новый компонент
+import ImageUploader from "@/components/image-uploader";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { WithContext as ReactTags } from "react-tag-input";
-import {
-  getPostBySlug,
-  createPost,
-  updatePost,
-  getUploadUrl,
-  uploadFile,
-} from "@/services/api";
-import styles from "./styles.module.css"; // Предполагаем, что стили здесь
 
-// processImageUrlsInJson не нужен для создания нового поста, т.к. тело изначально пустое
-// const processImageUrlsInJson = (node: any, mediaUrl: string): any => { ... };
+
+
+
+
 
 // Схема валидации с учетом максимальной длины
 const MAX_TITLE_LENGTH = 80;
 const MAX_DESCRIPTION_LENGTH = 160;
+
+// Интерфейс для формы создания поста
+export interface PostFormData {
+  title: string;
+  slug?: string;
+  description: string;
+  body: JSONContent;
+  is_published: boolean;
+  sitemap_include: boolean;
+  sitemap_priority: number;
+  sitemap_changefreq: string;
+  tags: number[];
+}
+
 
 const postSchema = z.object({
   title: z
@@ -44,18 +52,31 @@ const postSchema = z.object({
       MAX_DESCRIPTION_LENGTH,
       `Описание не должно превышать ${MAX_DESCRIPTION_LENGTH} символов`,
     ),
-  // ... остальная часть схемы
+  body: z.custom<JSONContent>().refine((val) => val !== undefined && val !== null, { message: "Body is required" }), // Для TipTap JSONContent
+  is_published: z.boolean(),
+  sitemap_include: z.boolean(),
+  sitemap_priority: z.number().min(0).max(1),
+  sitemap_changefreq: z.string(),
+  tags: z.array(z.number()),
 });
 
 const CreatePostPage = () => {
-  // const params = useParams(); // Не нужен для создания
+  
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
 
-  // const slug = params?.slug as string; // Не нужен для создания
+  
 
   // Начальное состояние для нового поста
-  const initialPostState: Partial<Post> = {
+  // Расширяем Post для поддержки нужных полей
+interface PostExtended extends Post {
+  is_published?: boolean;
+  sitemap_include?: boolean;
+  sitemap_priority?: number;
+  sitemap_changefreq?: string;
+}
+
+const initialPostState: Partial<PostExtended> = {
     title: "",
     slug: "",
     description: "",
@@ -68,23 +89,23 @@ const CreatePostPage = () => {
     // first_published_at будет устанавливаться на бэкенде при первой публикации
   };
 
-  const [post, setPost] = useState<Partial<Post>>(initialPostState);
+  const [post, setPost] = useState<Partial<PostExtended>>(initialPostState);
   const [allTags, setAllTags] = useState<Tag[]>([]); // Для списка всех тегов
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]); // Для ID выбранных тегов
   const [isLoadingPageContent, setIsLoadingPageContent] = useState(false); // Изначально не грузим контент
   const [error, setError] = useState<string | null>(null);
-  const [editorContent, setEditorContent] = useState<any>(
-    initialPostState.body,
+  const [editorContent, setEditorContent] = useState<JSONContent>(
+    initialPostState.body as JSONContent,
   );
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(
     null,
   );
   const successMessageTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const MAX_DESC_LENGTH = 160;
+  
 
   // Состояния для загрузчика изображений
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  
+  const [imagePreview] = useState<string | null>(null);
 
   const {
     control,
@@ -98,9 +119,12 @@ const CreatePostPage = () => {
       title: "",
       slug: "",
       description: "",
-      body: "",
-      meta_title: "",
-      meta_description: "",
+      body: { type: "doc", content: [] },
+      is_published: false,
+      sitemap_include: true,
+      sitemap_priority: 0.5,
+      sitemap_changefreq: "monthly",
+      tags: [],
     },
   });
 
@@ -130,11 +154,13 @@ const CreatePostPage = () => {
         if (!response.ok) throw new Error("Failed to fetch tags");
         const data: { results: Tag[] } = await response.json();
         setAllTags(data.results || []);
-      } catch (e: any) {
-        console.error("Error fetching tags:", e);
-        setError((prevError) =>
-          prevError ? `${prevError}; ${e.message}` : e.message,
-        );
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          console.error("Error fetching tags:", e);
+          setError((prevError) =>
+            prevError ? `${prevError}; ${e.message}` : e.message,
+          );
+        }
       }
     };
     if (user) {
@@ -173,10 +199,7 @@ const CreatePostPage = () => {
     );
   };
 
-  const performSaveOrPublish: (
-    data: PostFormData,
-    isPublished: boolean,
-  ) => Promise<void> = async (data, isPublished) => {
+  const performSaveOrPublish: SubmitHandler<PostFormData> = async (data: PostFormData) => {
     if (!editorContent || !user) {
       setError(
         "Невозможно сохранить пост: пользователь не аутентифицирован или нет основного контента.",
@@ -198,26 +221,25 @@ const CreatePostPage = () => {
     if (successMessageTimerRef.current)
       clearTimeout(successMessageTimerRef.current);
 
-    const postDataToSave: any = {
+    const postDataToSave: Record<string, unknown> = {
       title: data.title,
       slug: data.slug,
       description: data.description,
       body: editorContent,
 
-      is_published: isPublished,
+      is_published: data.is_published,
 
       first_published_at:
-        isPublished && post.first_published_at
+        data.is_published && post.first_published_at
           ? new Date(post.first_published_at).toISOString()
           : null,
 
-      sitemap_priority: post.sitemap_priority
-        ? parseFloat(post.sitemap_priority as any)
+      sitemap_priority: (post.sitemap_priority ?? 0.5)
+        ? parseFloat(String(post.sitemap_priority ?? 0.5))
         : 0.5,
-      sitemap_include: post.sitemap_include,
-      sitemap_changefreq: post.sitemap_changefreq,
-      meta_title: data.meta_title || "",
-      meta_description: data.meta_description || "",
+      sitemap_include: (post.sitemap_include ?? true),
+      sitemap_changefreq: (post.sitemap_changefreq ?? "monthly"),
+      
 
       tags: selectedTagIds,
       image: post.image,
@@ -274,7 +296,7 @@ const CreatePostPage = () => {
       }
 
       const newPostData: Post = await response.json();
-      console.log("Данные нового поста от бэкенда:", newPostData);
+      
       setSaveSuccessMessage("Пост успешно создан! Запуск ревалидации кэша...");
       successMessageTimerRef.current = setTimeout(
         () => setSaveSuccessMessage(null),
@@ -291,23 +313,19 @@ const CreatePostPage = () => {
         );
         // Редирект даже если нет секрета
         setTimeout(() => {
-          if (newPostData?.slug) {
-            if (newPostData.is_published) {
-              router.push(`/posts/${newPostData.slug}`);
+          if ((newPostData as Partial<PostExtended>)?.slug) {
+            if ((newPostData as Partial<PostExtended>)?.is_published) {
+              router.push(`/posts/${(newPostData as Partial<PostExtended>)?.slug}`);
             } else {
               router.push(`/admin/drafts`);
             }
           }
         }, 1500);
       } else {
-        console.log(
-          "Запуск ревалидации после создания поста (используя revalidatePath)...",
-        );
-        const pathsToRevalidate = ["/blog", "/"]; // <--- Добавлен путь '/' (главная страница)
-        if (newPostData && newPostData.slug && newPostData.is_published) {
-          pathsToRevalidate.push(`/posts/${newPostData.slug}`);
+        const pathsToRevalidate = ["/blog", "/"]; 
+        if (newPostData && (newPostData as Partial<PostExtended>).slug && (newPostData as Partial<PostExtended>).is_published) {
+          pathsToRevalidate.push(`/posts/${(newPostData as Partial<PostExtended>).slug}`);
         }
-        // Дополнительно можно ревалидировать главную, если там тоже есть посты
         // pathsToRevalidate.push('/');
 
         const revalidationPromises = pathsToRevalidate.map((path) =>
@@ -339,8 +357,8 @@ const CreatePostPage = () => {
             // Редирект после завершения всех запросов на ревалидацию
             setTimeout(() => {
               if (newPostData?.slug) {
-                if (newPostData.is_published) {
-                  router.push(`/posts/${newPostData.slug}`);
+                if ((newPostData as Partial<PostExtended>).is_published) {
+                  router.push(`/posts/${(newPostData as Partial<PostExtended>).slug}`);
                 } else {
                   router.push(`/admin/drafts`);
                 }
@@ -349,43 +367,17 @@ const CreatePostPage = () => {
           });
       }
       // --- КОНЕЦ: Обновленный блок ревалидации ---
-    } catch (e: any) {
-      console.error("Error creating post:", e);
-      setError(e.message);
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        console.error("Error creating post:", e);
+        setError(e.message);
+      } else {
+        setError("Unknown error");
+      }
     } finally {
       setIsLoadingPageContent(false);
     }
   };
-
-  // Helper для форматирования даты (можно вынести в utils, если используется еще где-то)
-  const formatDate = (dateString: string | null | undefined): string => {
-    if (!dateString) return "-";
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return "Invalid Date";
-      return date.toLocaleString("ru-RU", {
-        /* ... опции ... */
-      });
-    } catch (e) {
-      return "Invalid Date";
-    }
-  };
-
-  // Функция для обработки выбора файла
-  const handleFileSelect = useCallback((file: File | null) => {
-    if (file) {
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      console.log("Выбранный файл:", file);
-    } else {
-      setSelectedFile(null);
-      setImagePreview(null);
-    }
-  }, []);
 
   // Функция для обработки завершения загрузки изображения
   const handleImageUploadComplete = useCallback((uploadedUrl: string) => {
@@ -538,14 +530,10 @@ const CreatePostPage = () => {
               Основное изображение (анонс)
             </label>
             <ImageUploader
-              onFileSelect={handleFileSelect}
-              initialPreview={imagePreview}
+              label="Загрузить изображение"
+              initialImageUrl={imagePreview}
               onUploadComplete={handleImageUploadComplete}
             />
-            <p className="mt-1 text-xs text-gray-500">
-              Изображение будет автоматически обрезано до соотношения сторон
-              ~3:1 (например, 1200x400 пикселей).
-            </p>
           </div>
         </section>
 
@@ -598,11 +586,11 @@ const CreatePostPage = () => {
                   }))
                 }
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-base py-2 px-3 transition-colors duration-150 ease-in-out bg-white text-gray-900 leading-normal"
-                disabled={!post.is_published}
+                disabled={!(post.is_published ?? false)}
               />
-              {!post.is_published && (
+              {!(post.is_published ?? false) && (
                 <p className="text-xs text-gray-500 mt-1">
-                  Установится автоматически при установке флага "Опубликовано" и
+                  Установится автоматически при установке флага &quot;Опубликовано&quot; и
                   сохранении, если не задано.
                 </p>
               )}
@@ -620,7 +608,7 @@ const CreatePostPage = () => {
                 type="checkbox"
                 name="sitemap_include"
                 id="sitemap_include"
-                checked={!!post.sitemap_include}
+                checked={!!(post.sitemap_include ?? true)}
                 onChange={(e) =>
                   setPost((prev) => ({
                     ...prev,
@@ -647,8 +635,8 @@ const CreatePostPage = () => {
                 max="1"
                 name="sitemap_priority"
                 id="sitemap_priority"
-                value={post.sitemap_priority ?? 0.5}
-                onChange={(e) =>
+                value={(post.sitemap_priority ?? 0.5) ?? 0.5}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setPost((prev) => ({
                     ...prev,
                     sitemap_priority: parseFloat(e.target.value),
@@ -664,11 +652,11 @@ const CreatePostPage = () => {
               <select
                 name="sitemap_changefreq"
                 id="sitemap_changefreq"
-                value={post.sitemap_changefreq || "monthly"}
-                onChange={(e) =>
+                value={(post.sitemap_changefreq ?? "monthly") || "monthly"}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                   setPost((prev) => ({
                     ...prev,
-                    sitemap_changefreq: e.target.value as any,
+                    sitemap_changefreq: e.target.value as string,
                   }))
                 }
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-base py-2 px-3 transition-colors duration-150 ease-in-out bg-white text-gray-900 leading-normal"
@@ -691,16 +679,14 @@ const CreatePostPage = () => {
           </h2>
           <TiptapEditor
             content={editorContent}
-            onChange={(newContent) => setEditorContent(newContent)}
+            onChange={(content) => setEditorContent(content as JSONContent)}
           />
         </section>
 
         <div className="mt-8 flex justify-end space-x-4">
           <button
             type="button"
-            onClick={handleSubmit((formData) =>
-              performSaveOrPublish(formData, false),
-            )}
+            onClick={handleSubmit(performSaveOrPublish)}
             disabled={isLoadingPageContent}
             className="px-6 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -708,9 +694,7 @@ const CreatePostPage = () => {
           </button>
           <button
             type="button"
-            onClick={handleSubmit((formData) =>
-              performSaveOrPublish(formData, true),
-            )}
+            onClick={handleSubmit(performSaveOrPublish)}
             disabled={isLoadingPageContent}
             className="px-6 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >

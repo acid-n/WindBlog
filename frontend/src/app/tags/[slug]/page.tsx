@@ -36,7 +36,6 @@ const TagPage = async ({ params: initialParams, searchParams: initialSearchParam
     ? Number(Array.isArray(pageQuery) ? pageQuery[0] : pageQuery) 
     : 1;
   
-  let posts: Post[] = [];
   let tag: Tag | null = null;
   let error = "";
   let allPostsForTag: Post[] = []; // Будем хранить все посты для тега для ручной пагинации
@@ -80,7 +79,7 @@ const TagPage = async ({ params: initialParams, searchParams: initialSearchParam
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-2xl font-bold text-red-600">Ошибка загрузки тега</h1>
-        <p className="text-gray-700">Не удалось получить информацию для тега "{decodeURIComponent(params.slug)}".</p>
+        <p className="text-gray-700">Не удалось получить информацию для тега &quot;{decodeURIComponent(params.slug)}&quot;.</p>
         {/* <p className="text-sm text-gray-500">Детали: {error}</p> */}
       </div>
     );

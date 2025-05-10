@@ -1,4 +1,114 @@
-# Musson Blog — Backend
+# MUSSON Blog — Backend (Django 5, DRF)
+
+[⬅️ Назад к корневому README](../README.md)
+
+---
+
+## Описание
+
+Бэкенд-приложение для MUSSON Blog реализовано на **Django 5** с использованием **Django REST Framework** для API и **PostgreSQL** в качестве базы данных. Архитектура модульная, покрытие тестами Pytest >80%, поддержка Docker, OpenAPI/Swagger, кастомная модель пользователя, SEO, JWT.
+
+---
+
+## Основные технологии
+
+- **Framework:** Django 5, Django REST Framework
+- **База данных:** PostgreSQL (настраивается через переменные окружения)
+- **Аутентификация:** JWT (`djangorestframework-simplejwt`)
+- **Документация API:** OpenAPI 3.0 (`drf-spectacular`)
+- **Тестирование:** Pytest, pytest-django, factory_boy
+- **Линтинг и форматирование:** Black, isort, Flake8 (pre-commit)
+- **Развёртывание:** Dockerfile, поддержка gunicorn
+
+---
+
+## Структура проекта (`backend/`)
+
+- `blog/`: Основное приложение блога (модели Post, Tag, Rating, ShortLink, сериализаторы, API ViewSets)
+- `users/`: Кастомная модель пользователя (`CustomUser`), эндпоинты для регистрации/управления
+- `analytics/`: Модель AnalyticsEvent и API для сбора аналитики
+- `contact/`: Модель ContactMessage и API для формы обратной связи
+- `seo/`: SEO-функционал (robots.txt, sitemap.xml, OpenGraph)
+- `config/`: Настройки Django (`settings.py`), корневые URL, WSGI/ASGI
+- `management/commands/`: Кастомные manage.py команды (например, generate_test_data)
+- `requirements.txt`: Зависимости
+- `pytest.ini`: Конфиг Pytest
+- `manage.py`: Django CLI
+- `.env.example`: Пример переменных окружения
+- `Dockerfile`: Инструкция для сборки образа
+
+---
+
+## Быстрый старт
+
+### Локально (без Docker)
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+# venv\Scripts\activate    # Windows
+pip install -r requirements.txt
+cp .env.example .env  # Заполнить переменные
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
+
+- Сервер: http://localhost:8000
+- Swagger: http://localhost:8000/api/schema/
+
+### Через Docker
+
+```bash
+cd .. # корень репозитория
+docker-compose up --build
+```
+
+---
+
+## Переменные окружения
+
+- Все настройки вынесены в `.env` (см. `.env.example`)
+- Важно: настройте параметры БД, DJANGO_SECRET_KEY и другие
+
+---
+
+## Тесты и линтинг
+
+```bash
+pytest          # Все тесты
+pytest --cov    # Покрытие
+flake8          # Линтинг
+black .         # Форматирование
+```
+
+---
+
+## Документация API (OpenAPI/Swagger)
+
+- Swagger доступен по адресу http://localhost:8000/api/schema/
+- Пример curl-запроса:
+
+```bash
+curl http://localhost:8000/api/v1/posts/
+```
+
+---
+
+## FAQ
+- **Как сгенерировать тестовые данные?**  
+  `python manage.py generate_test_data`
+- **Как добавить новое приложение?**  
+  `python manage.py startapp <имя>` и зарегистрировать в settings.py
+- **Как добавить эндпоинт в OpenAPI?**  
+  Используйте DRF ViewSet + сериализатор, схема генерируется автоматически.
+
+---
+
+## Контакты
+- Issues: [github.com/your-org/your-repo/issues](https://github.com/your-org/your-repo/issues)
+
 
 ## Описание
 

@@ -1,4 +1,4 @@
-import { jwtDecode, InvalidTokenError } from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 // Утилита для проверки времени жизни токена (с небольшим запасом)
 const isTokenExpired = (token: string | null, bufferSeconds = 60): boolean => {

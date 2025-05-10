@@ -7,23 +7,51 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('blog', '0003_post_body_text_for_search'),
+        ("blog", "0003_post_body_text_for_search"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='post',
-            name='sitemap_changefreq',
-            field=models.CharField(blank=True, choices=[('always', 'Always'), ('hourly', 'Hourly'), ('daily', 'Daily'), ('weekly', 'Weekly'), ('monthly', 'Monthly'), ('yearly', 'Yearly'), ('never', 'Never')], help_text='Укажите частоту обновления. Оставьте пустым для использования значения по умолчанию.', max_length=20, null=True, verbose_name='Частота обновления в sitemap'),
+            model_name="post",
+            name="sitemap_changefreq",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("always", "Always"),
+                    ("hourly", "Hourly"),
+                    ("daily", "Daily"),
+                    ("weekly", "Weekly"),
+                    ("monthly", "Monthly"),
+                    ("yearly", "Yearly"),
+                    ("never", "Never"),
+                ],
+                help_text="Укажите частоту обновления. Оставьте пустым для использования значения по умолчанию.",
+                max_length=20,
+                null=True,
+                verbose_name="Частота обновления в sitemap",
+            ),
         ),
         migrations.AddField(
-            model_name='post',
-            name='sitemap_include',
-            field=models.BooleanField(default=True, help_text='Включить этот пост в автоматически генерируемый sitemap.xml?', verbose_name='Включить в sitemap.xml'),
+            model_name="post",
+            name="sitemap_include",
+            field=models.BooleanField(
+                default=True,
+                help_text="Включить этот пост в автоматически генерируемый sitemap.xml?",
+                verbose_name="Включить в sitemap.xml",
+            ),
         ),
         migrations.AddField(
-            model_name='post',
-            name='sitemap_priority',
-            field=models.FloatField(blank=True, help_text='Укажите приоритет от 0.0 до 1.0. Оставьте пустым для использования значения по умолчанию.', null=True, validators=[django.core.validators.MinValueValidator(0.0), django.core.validators.MaxValueValidator(1.0)], verbose_name='Приоритет в sitemap (0.0-1.0)'),
+            model_name="post",
+            name="sitemap_priority",
+            field=models.FloatField(
+                blank=True,
+                help_text="Укажите приоритет от 0.0 до 1.0. Оставьте пустым для использования значения по умолчанию.",
+                null=True,
+                validators=[
+                    django.core.validators.MinValueValidator(0.0),
+                    django.core.validators.MaxValueValidator(1.0),
+                ],
+                verbose_name="Приоритет в sitemap (0.0-1.0)",
+            ),
         ),
     ]

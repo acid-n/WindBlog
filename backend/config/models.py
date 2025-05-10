@@ -6,8 +6,8 @@ class SiteSettings(models.Model):
     site_description = models.CharField(max_length=256, blank=True, default="")
 
     class Meta:
-        verbose_name = "Site settings"
-        verbose_name_plural = "Site settings"
+        verbose_name = "Настройка сайта"
+        verbose_name_plural = "Настройки сайта"
 
     def __str__(self):
         return self.site_title

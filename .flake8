@@ -1,4 +1,5 @@
 [flake8]
+ignore = E203, W503, F541, E501
 max-line-length = 88
 exclude = venv, migrations
 per-file-ignores =
@@ -9,4 +10,5 @@ per-file-ignores =
     backend/config/settings.py:E501
     backend/config/urls.py:E501
     backend/users/admin.py:E501
-    backend/users/migrations/0001_initial.py:E501 
+    backend/users/migrations/0001_initial.py:E501
+    ./backend/blog/management/commands/convert_images_to_webp.py:E501 

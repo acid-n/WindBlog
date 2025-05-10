@@ -1,0 +1,1 @@
+Couldn't find the requested file /dist/tiptap-starter-kit.umd.js in @tiptap/starter-kit.

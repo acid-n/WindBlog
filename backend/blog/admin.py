@@ -3,6 +3,14 @@ from django.contrib import admin
 from .models import AnalyticsEvent, ContactMessage, Post, Rating, ShortLink, Tag
 
 
+class ShortLinkInline(admin.TabularInline):
+    model = ShortLink
+    extra = 0
+    readonly_fields = ("code", "id")
+    can_delete = False
+    max_num = 1
+
+
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     """Админка для постов блога."""
@@ -17,27 +25,40 @@ class PostAdmin(admin.ModelAdmin):
         "sitemap_include",
     )
     list_filter = ("is_published", "tags", "first_published_at")
-    search_fields = ("title", "description", "body")
+    search_fields = ("title", "description", "body_text_for_search")
     prepopulated_fields = {"slug": ("title",)}
-    raw_id_fields = ('tags',)
-    readonly_fields = ('created_at', 'updated_at')
+    filter_horizontal = ("tags",)
+    readonly_fields = ("created_at", "updated_at", "body_text_for_search")
 
     fieldsets = (
-        (None, {
-            'fields': ('title', 'slug', 'is_published', 'first_published_at')
-        }),
-        ('Контент', {
-            'fields': ('description', 'body', 'image', 'tags')
-        }),
-        ('SEO для Sitemap', {
-            'fields': ('sitemap_include', 'sitemap_priority', 'sitemap_changefreq'),
-            'classes': ('collapse',),
-        }),
-        ('Даты', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
+        (None, {"fields": ("title", "slug")}),
+        ("Статус и Дата", {"fields": ("is_published", "first_published_at")}),
+        ("Контент", {"fields": ("image", "description", "body", "tags")}),
+        (
+            "SEO и Sitemap",
+            {
+                "classes": ("collapse",),
+                "fields": ("sitemap_include", "sitemap_priority", "sitemap_changefreq"),
+            },
+        ),
+        (
+            "Служебная информация",
+            {
+                "classes": ("collapse",),
+                "fields": ("created_at", "updated_at", "body_text_for_search"),
+            },
+        ),
     )
+
+    inlines = [ShortLinkInline]
+
+    # Подключаем наш кастомный JS для инициализации Tiptap
+    # class Media:
+    #     js = ('blog/js/admin_tiptap_init.js',)
+    #     # Возможно, позже понадобится CSS для контейнера редактора
+    #     # css = {
+    #     #     'all': ('blog/css/admin_tiptap_styles.css',)
+    #     # }
 
 
 @admin.register(Tag)
@@ -51,26 +72,40 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Rating)
 class RatingAdmin(admin.ModelAdmin):
-    list_display = ("post", "score", "user_hash", "created_at")
+    list_display = ("post_title", "score", "user_hash", "created_at")
     list_filter = ("score", "created_at")
     search_fields = ("post__title", "user_hash")
+    readonly_fields = ("created_at",)
+
+    def post_title(self, obj):
+        return obj.post.title
+
+    post_title.short_description = "Пост"
+    post_title.admin_order_field = "post__title"
 
 
 @admin.register(ShortLink)
 class ShortLinkAdmin(admin.ModelAdmin):
-    list_display = ("post", "code")
-    search_fields = ("code", "post__title")
+    list_display = ("post_title", "code", "get_redirect_url")
+    readonly_fields = ("code",)
+    search_fields = ("post__title", "code")
+
+    def post_title(self, obj):
+        return obj.post.title
+
+    post_title.short_description = "Пост"
 
 
 @admin.register(AnalyticsEvent)
 class AnalyticsEventAdmin(admin.ModelAdmin):
-    list_display = ("path", "ip", "created_at")
-    search_fields = ("path", "ip", "user_agent")
+    list_display = ("path", "ip", "referrer", "created_at")
     list_filter = ("created_at",)
+    search_fields = ("path", "ip", "user_agent", "referrer")
+    readonly_fields = ("created_at", "updated_at")
 
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ("name", "email", "created_at")
     search_fields = ("name", "email", "message")
-    list_filter = ("created_at",)
+    readonly_fields = ("created_at", "updated_at")

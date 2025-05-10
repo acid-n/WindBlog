@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.3, pytest-8.3.5, pluggy-1.5.0
+django: version: 5.2, settings: config.settings (from ini)
+rootdir: /Users/nickshapov/Documents/nextjs-django-Blog/nextjs-django-blog/backend
+configfile: pytest.ini
+plugins: Faker-37.1.0, django-4.11.1
+collected 16 items
+
+blog/tests/test_analytics.py .                                           [  6%]
+blog/tests/test_contact.py .                                             [ 12%]
+blog/tests/test_errors.py ..                                             [ 25%]
+blog/tests/test_posts.py .....                                           [ 56%]
+blog/tests/test_ratings.py .                                             [ 62%]
+blog/tests/test_serializers.py ..                                        [ 75%]
+blog/tests/test_shortlinks.py ..                                         [ 87%]
+seo/tests.py ..                                                          [100%]
+
+============================== 16 passed in 0.57s ==============================

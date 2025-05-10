@@ -1,0 +1,1 @@
+Couldn't find the requested file /dist/tiptap-core.umd.js in @tiptap/core.

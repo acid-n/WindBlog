@@ -1,0 +1,58 @@
+/* frontend/src/components/image-uploader/styles.module.css */
+.uploaderContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* 12px */
+  font-family: inherit;
+  margin-bottom: 1rem;
+}
+
+.uploadButton {
+  padding: 0.5rem 1rem; /* 8px 16px */
+  font-size: 0.875rem; /* 14px */
+  color: white;
+  background-color: #3b82f6; /* Tailwind\'s blue-500 */
+  border: none;
+  border-radius: 0.375rem; /* 6px */
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.uploadButton:hover {
+  background-color: #2563eb; /* Tailwind\'s blue-600 */
+}
+
+.uploadButton:disabled {
+  background-color: #9ca3af; /* Tailwind\'s gray-400 */
+  cursor: not-allowed;
+}
+
+.previewContainer {
+  margin-top: 0.75rem;
+  border: 1px solid #e5e7eb; /* Tailwind\'s gray-200 */
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.previewText {
+  font-size: 0.875rem;
+  color: #4b5563; /* Tailwind\'s gray-600 */
+  margin: 0;
+}
+
+.previewImage {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 0.25rem; /* 4px */
+  object-fit: contain;
+}
+
+.errorText {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #ef4444; /* Tailwind\'s red-500 */
+}

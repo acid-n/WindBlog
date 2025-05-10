@@ -46,20 +46,27 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework",
-    "drf_spectacular",
+    "django.contrib.sites",  # Для sitemap
+    "django.contrib.sitemaps",  # Для sitemap
+    # Third-party apps
     "corsheaders",
-    "blog",
-    "users",
-    "analytics",
-    "contact",
-    "seo",
-    "config",
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "drf_spectacular",  # API schema
+    "django_ckeditor_5",  # Будет удален позже
+    # Local apps
+    "users.apps.UsersConfig",
+    "blog.apps.BlogConfig",
+    "contact.apps.ContactConfig",
+    "config.apps.ConfigConfig",
+    "seo.apps.SeoConfig",
+    "analytics.apps.AnalyticsConfig",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -133,6 +140,16 @@ USE_I18N = True
 
 USE_TZ = True
 
+LANGUAGES = [
+    ("ru", "Русский"),
+    ("en", "English"),
+]
+
+# Пути к файлам локализации (если у вас есть свои файлы .mo/.po)
+# LOCALE_PATHS = [
+#     BASE_DIR / 'locale',
+# ]
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -172,3 +189,106 @@ APPEND_SLASH = False
 
 # URL фронтенд-приложения для редиректов (например, для коротких ссылок)
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+
+CKEDITOR_5_CONFIGS = {
+    "default": {
+        "toolbar": {
+            "items": [
+                "heading",
+                "|",
+                "bold",
+                "italic",
+                "underline",
+                "strikethrough",
+                "|",
+                "link",
+                "bulletedList",
+                "numberedList",
+                "todoList",
+                "|",
+                "outdent",
+                "indent",
+                "|",
+                "imageUpload",
+                "blockQuote",
+                "insertTable",
+                "mediaEmbed",
+                "|",
+                "fontSize",
+                "fontFamily",
+                "fontColor",
+                "fontBackgroundColor",
+                "|",
+                "code",
+                "codeBlock",
+                "sourceEditing",
+                "|",
+                "alignment",
+                "horizontalLine",
+                "removeFormat",
+                "undo",
+                "redo",
+            ],
+            "shouldNotGroupWhenFull": True,
+        },
+        "image": {
+            "toolbar": [
+                "imageTextAlternative",
+                "|",
+                "imageStyle:alignLeft",
+                "imageStyle:alignRight",
+                "imageStyle:alignCenter",
+                "imageStyle:side",
+                "|",
+            ],
+            "styles": [
+                "full",
+                "side",
+                "alignLeft",
+                "alignRight",
+                "alignCenter",
+            ],
+        },
+        "table": {
+            "contentToolbar": [
+                "tableColumn",
+                "tableRow",
+                "mergeTableCells",
+                "tableProperties",
+                "tableCellProperties",
+            ]
+        },
+        "heading": {
+            "options": [
+                {
+                    "model": "paragraph",
+                    "title": "Paragraph",
+                    "class": "ck-heading_paragraph",
+                },
+                {
+                    "model": "heading1",
+                    "view": "h1",
+                    "title": "Heading 1",
+                    "class": "ck-heading_heading1",
+                },
+                {
+                    "model": "heading2",
+                    "view": "h2",
+                    "title": "Heading 2",
+                    "class": "ck-heading_heading2",
+                },
+                {
+                    "model": "heading3",
+                    "view": "h3",
+                    "title": "Heading 3",
+                    "class": "ck-heading_heading3",
+                },
+            ]
+        },
+        # Укажите язык интерфейса редактора, если нужно (например, 'ru')
+        "language": "ru",
+    }
+}
+
+# Кастомные CSS для CKEditor 5 (чтобы текст был виден)
+CKEDITOR_5_CUSTOM_CSS = "blog/css/ckeditor_custom.css"  # Путь относительно STATIC_URL

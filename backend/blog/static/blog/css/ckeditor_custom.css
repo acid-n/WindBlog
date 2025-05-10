@@ -1,0 +1,16 @@
+.ck-editor__editable_inline,
+.ck-editor__editable {
+  color: #212529; /* Типичный цвет текста Bootstrap, можно заменить на ваш */
+  background-color: #ffffff; /* Белый фон по умолчанию */
+}
+
+.ck-content p,
+.ck-content li,
+.ck-content h1,
+.ck-content h2,
+.ck-content h3,
+.ck-content h4,
+.ck-content h5,
+.ck-content h6 {
+  color: #212529; /* Применяем ко всем основным текстовым элементам */
+}

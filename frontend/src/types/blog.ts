@@ -30,7 +30,8 @@ export interface Post {
   created_at: string;
   updated_at: string;
   first_published_at: string;
-  tags: Tag[];
+  tags?: number[];
+  tags_details?: Tag[];
   image?: string;
   short_description?: string;
   average_rating?: number;

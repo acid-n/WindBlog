@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('blog', '0002_remove_contactmessage_short_url'),
+        ("blog", "0002_remove_contactmessage_short_url"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='post',
-            name='body_text_for_search',
+            model_name="post",
+            name="body_text_for_search",
             field=models.TextField(blank=True, editable=False, null=True),
         ),
     ]

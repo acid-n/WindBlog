@@ -1,0 +1,1 @@
+Couldn't find the requested file /dist/tiptap-extension-image.umd.js in @tiptap/extension-image.

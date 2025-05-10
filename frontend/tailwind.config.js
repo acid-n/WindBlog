@@ -5,7 +5,7 @@ module.exports = {
   content: [
     "./src/**/*.{js,ts,jsx,tsx}",
     "./src/components/**/*.{js,ts,jsx,tsx}",
-    "./src/app/**/*.{js,ts,jsx,tsx}"
+    "./src/app/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
@@ -31,13 +31,20 @@ module.exports = {
       maxWidth: {
         content: "720px",
       },
+      typography: (theme) => ({
+        DEFAULT: {
+          css: {
+            figure: null,
+          },
+        },
+        lg: {
+          css: {
+            figure: null,
+          },
+        },
+      }),
     },
   },
-  safelist: [
-    "fa",
-    "fa-book-open",
-    "fa-chevron-left",
-    "fa-chevron-right"
-  ],
-  plugins: [],
-}; 
+  safelist: ["fa", "fa-book-open", "fa-chevron-left", "fa-chevron-right"],
+  plugins: [require("@tailwindcss/typography")],
+};

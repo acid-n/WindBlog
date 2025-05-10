@@ -7,10 +7,10 @@
 
 /* Кастомные шрифты для Tailwind */
 .font-coustard {
-  font-family: 'Coustard', serif;
+  font-family: "Coustard", serif;
 }
 .font-lora {
-  font-family: 'Lora', serif;
+  font-family: "Lora", serif;
 }
 
 @theme inline {
@@ -29,9 +29,11 @@
 
 body {
   @apply bg-white text-[#444] font-serif min-h-screen selection:bg-[#FFFFCF];
-  font-feature-settings: "liga" 1, "kern" 1;
+  font-feature-settings:
+    "liga" 1,
+    "kern" 1;
   word-break: break-word;
-  letter-spacing: .02em;
+  letter-spacing: 0.02em;
   line-height: 1.8;
 }
 
@@ -39,14 +41,19 @@ a {
   @apply transition-colors;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   @apply font-serif text-[#333];
-  letter-spacing: .04em;
+  letter-spacing: 0.04em;
   line-height: 1.1;
 }
 
 ::selection {
-  background: #FFFFCF;
+  background: #ffffcf;
   color: #333;
 }
 
@@ -59,7 +66,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Возвращаем стили для хедера */
-.site-title, .site-title a {
+.site-title,
+.site-title a {
   font-family: "UnifrakturMaguntia", Georgia, serif;
   font-size: 2em;
   line-height: 1.3;
@@ -70,7 +78,9 @@ h1, h2, h3, h4, h5, h6 {
   text-decoration: none;
   display: block;
 }
-.site-title a:hover, .site-title a:active, .site-title a:focus {
+.site-title a:hover,
+.site-title a:active,
+.site-title a:focus {
   color: #222;
   text-decoration: none;
 }
@@ -85,7 +95,7 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0.2em auto 0.7em auto;
 }
 .site-description {
-  font-family: 'Coustard', Georgia, serif;
+  font-family: "Coustard", Georgia, serif;
   font-size: 1em;
   font-weight: 500;
   letter-spacing: 0.01em;
@@ -94,7 +104,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 2em;
 }
 .main-navigation {
-  font-family: 'Coustard', Georgia, serif;
+  font-family: "Coustard", Georgia, serif;
   font-size: 1.15em;
   font-weight: 400;
   text-align: center;
@@ -122,3 +132,73 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0.7em auto;
   border-bottom: 1px solid #ededed;
 }
+
+/* globals.css */
+
+/* --- Стили для контента Tiptap внутри .prose --- */
+
+/* Базовые стили для изображений внутри .prose */
+/* Tailwind CSS @tailwindcss/typography (класс .prose) уже применяет 
+   хорошие базовые стили к img, включая max-width: 100%; height: auto; 
+   и вертикальные отступы. Мы их дополним/переопределим при необходимости. */
+
+.prose img {
+  /* display: block; уже должен быть от .prose, но для явности */
+  /* margin-left: auto; и margin-right: auto; для центрирования по умолчанию также от .prose */
+  box-sizing: border-box;
+}
+
+/* Стили для изображений, вставленных через Tiptap (если им присвоен класс tiptap-image) */
+.prose img.tiptap-image {
+  /* Здесь могут быть общие стили, например, если нужно убрать стандартные отступы .prose для этих img */
+  /* margin-top: 0; */
+  /* margin-bottom: 0; */
+}
+
+/* Обтекание для изображений с классом float-left */
+.prose img.float-left {
+  float: left;
+  margin-right: 1em; /* Отступ справа от изображения */
+  margin-left: 0; /* Сброс левого отступа, если он был для центрирования */
+  margin-top: 0.25em; /* Небольшой вертикальный отступ */
+  margin-bottom: 0.5em; /* Отступ снизу, чтобы текст под изображением не прилипал */
+}
+
+/* Обтекание для изображений с классом float-right */
+.prose img.float-right {
+  float: right;
+  margin-left: 1em; /* Отступ слева от изображения */
+  margin-right: 0; /* Сброс правого отступа */
+  margin-top: 0.25em;
+  margin-bottom: 0.5em;
+}
+
+/* Центрирование изображения с классом mx-auto (если float не применен) */
+/* Класс .mx-auto от Tailwind должен работать, если .prose img это display: block */
+/* .prose img.mx-auto { 
+    margin-left: auto; 
+    margin-right: auto; 
+    float: none; 
+} */
+
+/* Clearfix для абзацев <p>, содержащих плавающие изображения. */
+/* Это гарантирует, что абзац растянется на высоту плавающего изображения. */
+.prose p:has(img.float-left)::after,
+.prose p:has(img.float-right)::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Стили для <mark> (подсветка текста) */
+.prose mark {
+  background-color: #faf594; /* или Tailwind класс, например bg-yellow-200 */
+  padding: 0.1em 0.2em;
+  border-radius: 0.2em;
+}
+
+/* Если есть специфичные стили для изображений в figure от CKEditor, и они конфликтуют, */
+/* их можно либо удалить, либо адаптировать. Пока предполагаем, что Tiptap не создает figure.image */
+/* Старые стили для .prose figure.image img и .tiptap-content-area img... удалены или закомментированы ниже, если были */
+
+/* ---- Удалены старые правила для .tiptap-content-area img... и .prose figure.image ---- */

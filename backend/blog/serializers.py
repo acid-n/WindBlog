@@ -23,56 +23,22 @@ class CustomImageField(serializers.ImageField):
         # Если 'data' это строка и ( (нет 'image' в files) или (есть 'image' в files и data не является ключом в files['image']) )
         # Это условие сложное. По сути, если data - это строка, и она не является именем загруженного файла, то это путь.
 
-        # ---- Начало Отладки ----
-        # print("\n[CustomImageField DEBUG] === to_internal_value START ===")
-        # print(
-        #     "[CustomImageField DEBUG] Original data received: " + str(data) + " (type: " + str(type(data)) + ")"
-        # )
-        # print("[CustomImageField DEBUG] self.field_name: '" + str(self.field_name) + "'")
-        # print("[CustomImageField DEBUG] context request FILES: " + str(files))
-        # ---- Конец Отладки ----
 
         if isinstance(data, str) and (
             not files or data not in files.get(self.field_name, [])
         ):
-            # Мы ожидаем относительный путь типа "posts/uploads/image.webp"
-
-            # Если data пустая строка, это может означать "удалить изображение"
             if not data:
-                # print(
-                #     "[CustomImageField DEBUG] Data is empty string, returning False (instructs Django to clear ImageField)."
-                # )
-                # print(
-                #     "[CustomImageField DEBUG] === to_internal_value END (returned False) ===\n"
-                # )
                 return False
 
-            # Если data - это строка (предположительно путь), вернем ее.
-            # Модель Post при сохранении должна будет это обработать, т.к. ImageField модели хранит путь.
-            # print(
-            #     "[CustomImageField DEBUG] Data is a string path: " + str(data) + ". Returning it as is."
-            # )
-            # print(
-            #     "[CustomImageField DEBUG] === to_internal_value END (returned string path) ===\n"
-            # )
             return data
 
-        # print(
-        #     "[CustomImageField DEBUG] Data is not a simple string path OR it's a file upload key. Passing to super().to_internal_value."
-        # )
+
         try:
             processed_data = super().to_internal_value(data)
-            # print(
-            #     "[CustomImageField DEBUG] super().to_internal_value successfully processed. Result: " + str(processed_data) + " (type: " + str(type(processed_data)) + ")"
-            # )
-            # print(
-            #     "[CustomImageField DEBUG] === to_internal_value END (returned from super) ===\n"
-            # )
+
             return processed_data
         except serializers.ValidationError as e:
-            # print(
-            #     "[CustomImageField DEBUG] ValidationError from super().to_internal_value: " + str(e.detail)
-            # )
+
             # Попытка вернуть строку, если стандартный обработчик не смог принять ее как файл
             if isinstance(data, str) and any(
                 "The submitted data was not a file." in str(detail)

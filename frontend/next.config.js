@@ -19,6 +19,14 @@ const nextConfig = {
       // например, для статики на CDN или объектного хранилища
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/media/:path*',
+        destination: 'http://localhost:8000/media/:path*',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

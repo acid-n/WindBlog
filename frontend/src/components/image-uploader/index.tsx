@@ -14,11 +14,12 @@ export type CropMode = "content" | "preview";
 
 interface ImageUploaderProps {
   label?: string; // Заголовок для поля загрузки
-  onUploadComplete: (url: string) => void; // Колбэк при успешном подтверждении WEBP
+  onUploadComplete: (url: string | string[]) => void; // Колбэк при успешном подтверждении WEBP (один или несколько url)
   initialImageUrl?: string | null; // URL для отображения существующего изображения
   uploadFieldName?: string; // Имя поля для файла в POST запросе (по умолчанию 'upload')
   apiEndpoint?: string; // Эндпоинт для загрузки (по умолчанию '/api/v1/image-upload/')
   cropMode?: CropMode; // preview (default) | content
+  multiple?: boolean; // Новый проп: можно выбрать несколько файлов
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
@@ -28,6 +29,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   uploadFieldName = "upload",
   apiEndpoint = "/api/v1/image-upload/",
   cropMode = "preview",
+  multiple = false,
 }) => {
   const [originalFile, setOriginalFile] = useState<File | null>(null);
   const [originalPreview, setOriginalPreview] = useState<string | null>(null);
@@ -53,6 +55,46 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     initialImageUrl,
   );
   // --- КОНЕЦ ОТЛАДКИ ---
+
+  // --- Множественная загрузка файлов ---
+  const handleMultiFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    setIsLoading(true);
+    setIsConverting(true);
+    setError(null);
+    const uploadedUrls: string[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      try {
+        const webpFile = await convertToWebPWithCropMode(file, cropMode);
+        if (!webpFile) throw new Error("Ошибка конвертации файла " + file.name);
+        // Загружаем webpFile
+        const formData = new FormData();
+        formData.append(uploadFieldName, webpFile);
+        const response = await fetchWithAuth(fullApiEndpoint, {
+          method: "POST",
+          body: formData,
+        });
+        if (!response.ok) {
+          let errorText = await response.text();
+          throw new Error(`Ошибка загрузки файла ${file.name} (status ${response.status}): ${errorText}`);
+        }
+        const data = await response.json();
+        uploadedUrls.push(data.url || data.image || "");
+      } catch (err) {
+        setError("Ошибка загрузки одного из файлов: " + (err instanceof Error ? err.message : String(err)));
+      }
+    }
+    setIsLoading(false);
+    setIsConverting(false);
+    if (uploadedUrls.length > 0) {
+      onUploadComplete(uploadedUrls);
+    }
+    // Сбросить value input, чтобы повторно можно было выбрать те же файлы
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
 
   let currentRelativeWebpPath: string = "";
   if (webpUrl) {
@@ -378,14 +420,15 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           disabled={isConverting || isLoading} // Блокируем во время конвертации или загрузки
           className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
         >
-          Выбрать файл...
+          Выбрать файл{multiple ? 'ы' : ''}...
         </button>
         <input
-          type="file"
           ref={fileInputRef}
-          onChange={handleFileChange}
+          type="file"
           accept="image/*"
+          onChange={multiple ? handleMultiFileChange : handleFileChange}
           className="hidden"
+          multiple={multiple}
         />
         {/* Индикатор конвертации или загрузки */}
         {(isConverting || isLoading) && (
@@ -394,29 +437,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             title={isConverting ? "Конвертация..." : "Загрузка..."}
           />
         )}
-
-        {/* Показываем текущее выбранное изображение (если оно было передано как initialImageUrl) */}
-        {initialImageUrl &&
-          fullWebpPreviewUrl &&
-          !originalFile &&
-          !convertedWebpFile && (
-            <div className="flex items-center space-x-2 border p-1 rounded ml-auto">
-              <Image
-                src={fullWebpPreviewUrl}
-                alt="Текущее изображение"
-                width={40}
-                height={40}
-                className="object-cover rounded"
-              />
-              <span className="text-xs text-gray-500 truncate max-w-[150px]">
-                {initialImageUrl}
-              </span>
-              <FaCheckCircle
-                className="text-green-500"
-                title="Изображение уже загружено"
-              />
-            </div>
-          )}
       </div>
 
       {/* Контейнер для отображения оригинала и результата WEBP рядом */}

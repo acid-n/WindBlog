@@ -2,3 +2,10 @@ venv/
 *.env
 __pycache__/
 .DS_Store
+
+# Игнорировать все медиа-файлы и папки
+media/
+backend/media/
+backend/backend/media/
+media/posts/uploads/
+media/uploads/

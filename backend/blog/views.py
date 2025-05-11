@@ -83,6 +83,8 @@ class PostViewSet(viewsets.ModelViewSet):
         elif self.action == "list":
             queryset = queryset.order_by("-first_published_at")
 
+        # Оптимизация: подгружаем связанные объекты
+        queryset = queryset.prefetch_related("tags", "ratings", "shortlinks")
         return queryset
 
     def paginate_queryset(self, queryset):
@@ -128,13 +130,13 @@ class PostViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ModelViewSet):
     """API для тегов."""
 
-    queryset = Tag.objects.all().order_by("name")
+    queryset = Tag.objects.all().order_by("name").prefetch_related("posts")
     serializer_class = TagSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = "slug"
 
     def get_queryset(self):
-        qs = Tag.objects.all().order_by("name")
+        qs = Tag.objects.all().order_by("name").prefetch_related("posts")
         if self.action == "list":
             return qs.annotate(
                 posts_count=Count("posts", filter=Q(posts__is_published=True))
@@ -408,14 +410,6 @@ def custom_ckeditor_upload_file_view(request):
         return JsonResponse({"error": {"message": "Метод не разрешен."}}, status=405)
 
 
-# # Старый код, вызывавший оригинальный view (можно удалить):
-# def старый_custom_ckeditor_upload_file_view(request):
-#     ...
-#     try:
-#         validate_webp_for_ckeditor(uploaded_file)
-#     ...
-#     return ckeditor_original_upload_file(request)
-#     ...
 
 
 # --- Новый View для загрузки изображений ---
@@ -545,8 +539,6 @@ class ImageUploadView(APIView):
             )
 
 
-# ... (Старый код CKEditor upload view можно удалить или закомментировать, если он больше не нужен) ...
-# def custom_ckeditor_upload_file_view(request): ...
 
 
 class ShortLinkRedirectView(View):

@@ -15,6 +15,8 @@ import { Color } from "@tiptap/extension-color";
 import TextStyle from "@tiptap/extension-text-style";
 import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
+
+import { GalleryNode } from "@/lib/tiptapGalleryExtension"; // NEW
 import {
   FaBold,
   FaItalic,
@@ -59,6 +61,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   editable = true,
 }) => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
 
   console.log('[TiptapEditor] content:', content);
   const editor = useEditor({
@@ -67,6 +70,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         heading: { levels: [1, 2, 3, 4] },
       }),
       extendedImage,
+      GalleryNode, // NEW
       TextAlign.configure({ types: ["heading", "paragraph", "image"] }),
       TextStyle,
       Color.configure({ types: ["textStyle"] }),
@@ -101,27 +105,36 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   });
 
   const handleImageInsert = useCallback(
-    (imageUrl: string) => {
+    (url: string | string[]) => {
       if (!editor) return;
-
       const djangoMediaUrl =
         process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL ||
         process.env.NEXT_PUBLIC_DJANGO_API_URL ||
         "http://localhost:8000";
-      const absoluteUrl =
-        typeof imageUrl === "string" && imageUrl.startsWith("http")
-          ? imageUrl
-          : `${djangoMediaUrl}${imageUrl}`;
-
-      editor
-        .chain()
-        .focus()
-        .setImage({
-          src: absoluteUrl,
-          alt: "image",
-        })
-        .run();
+      if (Array.isArray(url)) {
+        // Если массив, вставляем gallery node
+        const images = url.map((src) => ({ src, alt: "" }));
+        editor.chain().focus().insertContent({
+          type: 'gallery',
+          attrs: { images },
+        }).run();
+      } else {
+        // Обычная картинка
+        const absoluteUrl =
+          typeof url === "string" && url.startsWith("http")
+            ? url
+            : `${djangoMediaUrl}${url}`;
+        editor
+          .chain()
+          .focus()
+          .setImage({
+            src: absoluteUrl,
+            alt: "image",
+          })
+          .run();
+      }
       setIsImageModalOpen(false);
+      setIsGalleryModalOpen(false);
     },
     [editor],
   );
@@ -491,6 +504,45 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
       <EditorContent editor={editor} className="prose prose-lg max-w-none tiptap-content p-3" />
 
+      {/* Временная кнопка для вставки gallery node для теста */}
+      {editor && (
+        <button
+          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          onClick={() => {
+            editor.chain().focus().insertContent({
+              type: 'gallery',
+              attrs: {
+                images: [
+                  { src: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb', alt: 'Demo 1' },
+                  { src: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca', alt: 'Demo 2' },
+                  { src: 'https://images.unsplash.com/photo-1454023492550-5696f8ff10e1', alt: 'Demo 3' },
+                ],
+              },
+            });
+          }}
+        >
+          + Галерея (тест)
+        </button>
+      )}
+
+      {/* Кнопки для вставки изображения и галереи */}
+      <div className="flex gap-2 mt-4">
+
+        <button
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          onClick={() => setIsImageModalOpen(true)}
+        >
+          + Картинка
+        </button>
+        <button
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          onClick={() => setIsGalleryModalOpen(true)}
+        >
+          + Галерея
+        </button>
+      </div>
+
+      {/* Модалка для одиночной картинки */}
       {isImageModalOpen && (
         <div className="image-upload-modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-lg shadow-xl max-w-lg w-full">
@@ -504,6 +556,52 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
             />
             <button
               onClick={() => setIsImageModalOpen(false)}
+              className="mt-4 px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 text-sm"
+            >
+              Отмена
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Модалка для галереи */}
+      {isGalleryModalOpen && (
+        <div className="image-upload-modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-lg w-full">
+            <h3 className="text-lg font-medium mb-4">
+              Загрузить изображения для галереи
+            </h3>
+            <ImageUploader
+              label="Выберите или перетащите файлы"
+              cropMode="content"
+              onUploadComplete={(urls) => {
+                if (!editor) return;
+                let images: { src: string, alt: string }[] = [];
+                const djangoMediaUrl = process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL || process.env.NEXT_PUBLIC_DJANGO_API_URL || "http://localhost:8000";
+                if (Array.isArray(urls)) {
+                  images = urls.map((src) => ({
+                    src: src.startsWith("http") ? src : `${djangoMediaUrl}${src}`,
+                    alt: ""
+                  }));
+                } else if (typeof urls === "string") {
+                  images = [{ src: urls.startsWith("http") ? urls : `${djangoMediaUrl}${urls}`, alt: "" }];
+                }
+                if (images.length === 1) {
+                  // Вставляем как обычное изображение
+                  editor.chain().focus().setImage({ src: images[0].src, alt: "image" }).run();
+                } else if (images.length > 1) {
+                  editor.chain().focus().insertContent({
+                    type: 'gallery',
+                    attrs: { images },
+                  }).run();
+                }
+                setIsGalleryModalOpen(false);
+              }}
+              cropMode="content"
+              multiple={true}
+            />
+            <button
+              onClick={() => setIsGalleryModalOpen(false)}
               className="mt-4 px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 text-sm"
             >
               Отмена

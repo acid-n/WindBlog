@@ -155,6 +155,32 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 4.  Откройте [http://localhost:3000](http://localhost:3000).
 5.  Сгенерируйте тестовые данные: `docker-compose exec backend python manage.py generate_test_data`.
 
+---
+
+### Инициализация backend после первого запуска
+
+1. **Выполните миграции (если не применились автоматически):**
+   ```bash
+   docker-compose exec backend python manage.py migrate
+   ```
+
+2. **Создайте суперпользователя Django:**
+   ```bash
+   docker-compose exec backend python manage.py createsuperuser
+   ```
+   Следуйте инструкциям в терминале (логин, email, пароль).
+
+3. **Добавьте Site для локального домена (если используется django.contrib.sites и возникает ошибка "Site matching query does not exist"):**
+   ```bash
+   docker-compose exec backend python manage.py shell -c "from django.contrib.sites.models import Site; Site.objects.create(domain='localhost:8000', name='localhost')"
+   ```
+   Если используете другой порт/домен — замените на нужный.
+
+4. **Проверьте доступность админки:**
+   - http://localhost:8000/admin/
+
+---
+
 ## Структура кода (ключевые точки)
 
 - `frontend/src/app/` — страницы Next.js App Router.

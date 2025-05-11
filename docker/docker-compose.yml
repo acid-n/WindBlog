@@ -77,10 +77,6 @@ services:
     networks:
       - blog_network
     # Для разработки: запускается npm run dev (см. Dockerfile.dev)
-    depends_on:
-      - backend
-    networks:
-      - blog_network
 
 volumes:
   postgres_data:

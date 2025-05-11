@@ -13,6 +13,7 @@ import TableHeader from '@tiptap/extension-table-header';
 import CodeBlock from '@tiptap/extension-code-block';
 // import Highlight from '@tiptap/extension-highlight';
 import Typography from '@tiptap/extension-typography';
+import { GalleryNode } from "@/lib/tiptapGalleryExtension";
 
 /**
  * Компонент для рендеринга HTML-контента поста.
@@ -115,6 +116,7 @@ const PostBody: React.FC<PostBodyProps> = ({ content }) => {
         languageClassPrefix: 'language-',
       }),
       Typography,
+      GalleryNode,
     ],
     content: processedContent,
     editable: false,

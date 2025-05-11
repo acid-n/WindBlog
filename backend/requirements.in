@@ -4,8 +4,8 @@ psycopg2-binary
 pytest
 pytest-django
 python-dotenv
-# drf-spectacular # Удаляем старую версию
-# pillow # Удаляем старую версию
+requests
+faker
 djangorestframework-simplejwt
 gunicorn
 drf-spectacular[validation]>=0.28.0,<0.29.0 # OpenAPI schema generation

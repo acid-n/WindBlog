@@ -4,7 +4,8 @@ import type { Post } from "@/types/blog";
 import { motion } from "framer-motion";
 import PostRating from "@/components/post-rating";
 import { format } from "date-fns";
-import Image from "next/image";
+import ClientImage from "@/components/client-image";
+import { getClientMediaUrl } from "@/components/tiptap-editor/getClientMediaUrl";
 
 /**
  * Карточка поста для главной страницы (MUSSON STYLE GUIDE).
@@ -13,20 +14,7 @@ interface PostCardProps {
   post: Post;
 }
 
-const getAbsoluteImageUrl = (imagePath?: string) => {
-  if (!imagePath) return null;
-  if (imagePath.startsWith("http")) return imagePath;
-  const djangoMediaUrl =
-    process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL || "http://localhost:8000/media/";
-  let cleanPath = imagePath;
-  if (cleanPath.startsWith("/media/")) {
-    cleanPath = cleanPath.substring("/media/".length);
-  }
-  const base = djangoMediaUrl.endsWith("/")
-    ? djangoMediaUrl
-    : `${djangoMediaUrl}/`;
-  return `${base}${cleanPath}`;
-};
+// getAbsoluteImageUrl больше не нужен, обработка пути только на клиенте через ClientImage.
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
   return (
@@ -43,12 +31,12 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           className="block relative w-full h-48 mb-2"
           aria-label={`Открыть пост: ${post.title}`}
         >
-          <Image
-            src={getAbsoluteImageUrl(post.image) || ""}
+          <ClientImage
+            src={getClientMediaUrl(post.image)}
             alt={post.title}
-            fill
-            className="object-cover rounded"
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            width={400}
+            height={225}
+            className="w-full h-auto object-cover rounded mb-4"
             loading="lazy"
           />
         </a>

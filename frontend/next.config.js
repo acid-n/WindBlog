@@ -2,12 +2,14 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    domains: ['localhost'],
     remotePatterns: [
+      // Для локальной разработки
       {
         protocol: "http",
         hostname: "localhost",
         port: "8000",
-        pathname: "/**", // ИЗМЕНЕНО: Разрешаем все пути на localhost:8000
+        pathname: "/**",
       },
       {
         protocol: "http",
@@ -15,8 +17,20 @@ const nextConfig = {
         port: "8000",
         pathname: "/media/**",
       },
-      // Если в будущем изображения будут на другом хосте в продакшене, его нужно будет добавить сюда
-      // например, для статики на CDN или объектного хранилища
+      // Для работы внутри Docker (SSR и клиент)
+      {
+        protocol: "http",
+        hostname: "backend",
+        port: "8000",
+        pathname: "/media/**",
+      },
+      // Для production - добавить сюда свой домен и путь
+      // {
+      //   protocol: "https",
+      //   hostname: "your-production-domain.com",
+      //   port: "",
+      //   pathname: "/media/**",
+      // },
     ],
   },
   async rewrites() {

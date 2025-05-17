@@ -1,4 +1,6 @@
 import os
+import sys
+sys.path.append('/app')
 import django
 from django.utils import timezone
 

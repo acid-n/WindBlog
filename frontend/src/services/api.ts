@@ -2,7 +2,9 @@
  * API-сервис для работы с backend (REST, JWT, обработка ошибок).
  */
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+  typeof window === "undefined"
+    ? process.env.API_URL_SSR || "http://backend:8000/api/v1"
+    : process.env.NEXT_PUBLIC_API_URL_FE || "http://localhost:8000/api/v1";
 
 export interface ApiErrorFormat {
   error: string; // Обычно строка-ключ ошибки, например, "valation_error" или "not_found"

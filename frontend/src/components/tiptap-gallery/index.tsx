@@ -5,6 +5,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
 import { Navigation, Pagination, Thumbs, Autoplay } from 'swiper/modules';
+import { getClientMediaUrl } from "../tiptap-editor/getClientMediaUrl";
 import ImageUploader from '../image-uploader';
 
 const TiptapGallery: React.FC<NodeViewProps> = (props) => {
@@ -46,33 +47,36 @@ const TiptapGallery: React.FC<NodeViewProps> = (props) => {
 
   // Приведение src к корректному виду
   const normalizeSrc = (src: string) => {
-    if (/^https?:\/\//.test(src)) return src;
-    if (src.startsWith('/media/')) return src;
-    // Если путь без /media/, добавить его
-    return '/media/' + src.replace(/^\/?posts\//, 'posts/');
+    return getClientMediaUrl(src);
   };
 
-  const handleAddImages = (urls: string | string[]) => {
-    let newImages = [...images];
-    if (Array.isArray(urls)) {
-      // Если элементы уже объекты {src, alt} — не преобразовывать
-      if (typeof urls[0] === 'object' && urls[0] !== null && 'src' in urls[0]) {
-        newImages = newImages.concat((urls as {src: string, alt?: string}[]).map(img => ({
-          ...img,
-          src: normalizeSrc(img.src),
-        })));
-      } else {
-        newImages = newImages.concat((urls as string[]).map((src) => ({ src: normalizeSrc(src), alt: '' })));
-      }
-    } else if (typeof urls === 'object' && urls !== null && 'src' in urls) {
-      const img = urls as {src: string, alt?: string};
-      newImages.push({ ...img, src: normalizeSrc(img.src) });
+
+// Тип для изображений галереи
+
+
+const isImageObjectArray = (arr: unknown[]): arr is GalleryImage[] =>
+  arr.length > 0 && typeof arr[0] === 'object' && arr[0] !== null && 'src' in arr[0];
+
+const handleAddImages = (urls: string | {src: string, alt?: string} | Array<string | {src: string, alt?: string}>) => {
+  let newImages = [...images];
+  if (Array.isArray(urls)) {
+    if (isImageObjectArray(urls)) {
+      newImages = newImages.concat(urls.map(img => ({
+        ...img,
+        src: normalizeSrc(img.src),
+      })));
     } else {
-      newImages.push({ src: normalizeSrc(urls as string), alt: '' });
+      newImages = newImages.concat((urls as string[]).map((src) => ({ src: normalizeSrc(src), alt: '' })));
     }
-    props.updateAttributes({ ...props.node.attrs, images: newImages });
-    setShowUploader(false);
-  };
+  } else if (typeof urls === 'object' && urls !== null && 'src' in urls) {
+    const img = urls as {src: string, alt?: string};
+    newImages.push({ ...img, src: normalizeSrc(img.src) });
+  } else {
+    newImages.push({ src: normalizeSrc(urls as string), alt: '' });
+  }
+  props.updateAttributes({ ...props.node.attrs, images: newImages });
+  setShowUploader(false);
+};
 
   const handleRemove = (idx: number) => {
     const next = images.slice();
@@ -89,7 +93,9 @@ const TiptapGallery: React.FC<NodeViewProps> = (props) => {
           onClick={() => {
             if (window.confirm('Удалить галерею?')) {
               props.editor.commands.command(({ tr, state, dispatch }) => {
-                dispatch(tr.deleteSelection());
+                if (dispatch) {
+                  dispatch(tr.deleteSelection());
+                }
                 return true;
               });
             }

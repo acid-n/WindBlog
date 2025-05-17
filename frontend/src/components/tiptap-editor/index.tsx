@@ -47,6 +47,8 @@ import {
 } from "react-icons/fa";
 import ImageUploader from "../image-uploader";
 import { extendedImage } from "@/lib/tiptapExtensions";
+import { getClientMediaUrl } from "./getClientMediaUrl";
+import { processImageUrlsInJson } from "./processImageUrlsInJson";
 // import './styles.css'; // Если нужны будут специфичные стили для редактора
 
 interface TiptapEditorProps {
@@ -88,7 +90,9 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         languageClassPrefix: 'language-',
       }),
     ],
-    content: content as import("@tiptap/react").Content,
+    content: (Array.isArray(content) || typeof content === 'object')
+      ? processImageUrlsInJson(content)
+      : content as import("@tiptap/react").Content,
     editable: editable,
     immediatelyRender: false,
     onUpdate: ({ editor: currentEditor }) => {
@@ -112,18 +116,15 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         process.env.NEXT_PUBLIC_DJANGO_API_URL ||
         "http://localhost:8000";
       if (Array.isArray(url)) {
-        // Если массив, вставляем gallery node
-        const images = url.map((src) => ({ src, alt: "" }));
+        // Если массив, вставляем gallery node (обрабатываем src)
+        const images = url.map((src) => ({ src: getClientMediaUrl(src), alt: "" }));
         editor.chain().focus().insertContent({
           type: 'gallery',
           attrs: { images },
         }).run();
       } else {
         // Обычная картинка
-        const absoluteUrl =
-          typeof url === "string" && url.startsWith("http")
-            ? url
-            : `${djangoMediaUrl}${url}`;
+        const absoluteUrl = getClientMediaUrl(url);
         editor
           .chain()
           .focus()
@@ -138,6 +139,8 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     },
     [editor],
   );
+
+  // --- ВСЕ функции, хуки и переменные должны быть выше ---
 
   const setImageAlignment = (align: string | null) => {
     if (!editor || !editor.isActive("image")) return;
@@ -207,9 +210,9 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   if (!editor) {
     return null;
   }
-
   return (
     <div className="tiptap-container border rounded-md">
+      {/* Весь JSX редактора должен быть внутри этого <div> */}
       <div className="toolbar flex flex-wrap items-center gap-1 p-2 border-b bg-gray-50 rounded-t-md">
         <MenuButton
           title="Bold"
@@ -573,30 +576,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
             </h3>
             <ImageUploader
               label="Выберите или перетащите файлы"
-              cropMode="content"
-              onUploadComplete={(urls) => {
-                if (!editor) return;
-                let images: { src: string, alt: string }[] = [];
-                const djangoMediaUrl = process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL || process.env.NEXT_PUBLIC_DJANGO_API_URL || "http://localhost:8000";
-                if (Array.isArray(urls)) {
-                  images = urls.map((src) => ({
-                    src: src.startsWith("http") ? src : `${djangoMediaUrl}${src}`,
-                    alt: ""
-                  }));
-                } else if (typeof urls === "string") {
-                  images = [{ src: urls.startsWith("http") ? urls : `${djangoMediaUrl}${urls}`, alt: "" }];
-                }
-                if (images.length === 1) {
-                  // Вставляем как обычное изображение
-                  editor.chain().focus().setImage({ src: images[0].src, alt: "image" }).run();
-                } else if (images.length > 1) {
-                  editor.chain().focus().insertContent({
-                    type: 'gallery',
-                    attrs: { images },
-                  }).run();
-                }
-                setIsGalleryModalOpen(false);
-              }}
+              onUploadComplete={handleImageInsert}
               cropMode="content"
               multiple={true}
             />
@@ -617,9 +597,9 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       `}</style>
     </div>
   );
-};
+}
 
-const headingLevels: unknown[] = [1, 2, 3];
+const headingLevels: number[] = [1, 2, 3];
 
 const MenuButton: React.FC<{
   onClick: () => void;
@@ -633,9 +613,7 @@ const MenuButton: React.FC<{
     onClick={onClick}
     disabled={disabled}
     title={title}
-    className={`p-2 rounded hover:bg-gray-200 ${
-      isActive ? "bg-gray-200" : "bg-transparent"
-    } disabled:opacity-50`}
+    className={`p-2 rounded hover:bg-gray-200 ${isActive ? "bg-gray-200" : "bg-transparent"} disabled:opacity-50`}
   >
     {children}
   </button>

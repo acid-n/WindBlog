@@ -380,7 +380,8 @@ const initialPostState: Partial<PostExtended> = {
   };
 
   // Функция для обработки завершения загрузки изображения
-  const handleImageUploadComplete = useCallback((uploadedUrl: string) => {
+  const handleImageUploadComplete = useCallback((url: string | string[]) => {
+    const uploadedUrl = Array.isArray(url) ? url[0] : url;
     console.log("Изображение успешно загружено, URL:", uploadedUrl);
     setPost((prevPost) => ({
       ...prevPost,

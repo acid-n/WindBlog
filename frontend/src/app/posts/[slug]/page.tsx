@@ -1,6 +1,6 @@
 import React from "react";
 import type { Post, Tag } from "@/types/blog";
-import Image from "next/image";
+import ClientImage from "@/components/client-image";
 import { fetchPost } from "@/services/api";
 
 import PostRating from "@/components/post-rating";
@@ -21,16 +21,16 @@ import EditPostLink from "@/components/edit-post-link";
 const getAbsoluteImageUrl = (imagePath?: string) => {
   if (!imagePath) return null;
   if (imagePath.startsWith("http")) return imagePath;
-  const djangoMediaUrl =
-    process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL || "http://localhost:8000/media/";
+  const isSSR = typeof window === "undefined";
+  const djangoMediaUrl = isSSR
+    ? process.env.DJANGO_MEDIA_URL_SSR || "http://backend:8000/media/"
+    : process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL || "http://localhost:8000/media/";
   let cleanPath = imagePath;
   if (cleanPath.startsWith("/media/")) {
     cleanPath = cleanPath.substring("/media/".length);
   }
-  const base = djangoMediaUrl.endsWith("/")
-    ? djangoMediaUrl
-    : `${djangoMediaUrl}/`;
-  return `${base}${cleanPath}`;
+  const base = djangoMediaUrl.endsWith("/") ? djangoMediaUrl : `${djangoMediaUrl}/`;
+  return `${base}${cleanPath.replace(/^\//, "")}`;
 };
 
 // Метаданные страницы поста
@@ -128,8 +128,8 @@ const PostPage = async ({
       <article className="flex flex-col items-center max-w-4xl w-full mx-auto">
         {post.image && (
           <div className="w-full max-w-[800px] px-4 md:px-0">
-            <Image
-              src={getAbsoluteImageUrl(post.image) || ""}
+            <ClientImage
+              src={post.image}
               alt={post.title}
               width={800}
               height={400}

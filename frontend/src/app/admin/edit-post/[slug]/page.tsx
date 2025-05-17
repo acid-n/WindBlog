@@ -586,7 +586,8 @@ const EditPostPage = () => {
             <ImageUploader
               label="Основное изображение (анонс)"
               initialImageUrl={post?.image}
-              onUploadComplete={(uploadedUrl) => {
+              onUploadComplete={(url) => {
+                const uploadedUrl = Array.isArray(url) ? url[0] : url;
                 if (post) {
                   console.log(
                     "[EditPostPage DEBUG] ImageUploader onUploadComplete. Uploaded URL:",

@@ -26,80 +26,22 @@ interface PostBodyProps {
   content: JSONContent;
 }
 
-// Вспомогательная функция для рекурсивной обработки URL изображений в JSON Tiptap
-const processImageUrlsInJson = (node: JSONContent, mediaUrlBase: string): JSONContent | JSONContent[] => {
-  if (typeof node === "object" && node !== null && 'type' in node) {
-    // Здесь node гарантированно JSONContent
-    // console.log(`[PostBody] Processing node type: ${node.type}`, JSON.stringify((node as unknown).attrs));
-  }
-
-  if (Array.isArray(node)) {
-    return node.map((child) => processImageUrlsInJson(child, mediaUrlBase)) as JSONContent[];
-  }
-
-  if (typeof node === "object" && node !== null && 'content' in node && Array.isArray((node as any).content)) {
-    return {
-      ...node,
-      content: (node as any).content.map((child: JSONContent) => processImageUrlsInJson(child, mediaUrlBase)),
-    } as JSONContent;
-  }
-
-  if (typeof node === "object" && node !== null) {
-    const newNode = { ...node };
-    if (node.type === "image") {
-      // Нашли узел типа 'image'
-      // ОТЛАДКА: Логируем весь узел image, чтобы увидеть его структуру
-      console.log(
-        "[PostBody] Found image node structure:",
-        JSON.stringify(node, null, 2),
-      );
-      if (newNode.attrs?.src && typeof newNode.attrs?.src === "string") {
-        console.log("[PostBody] Image node original src:", newNode.attrs?.src);
-        if (newNode.attrs?.src && newNode.attrs.src.startsWith("/media/")) {
-          if (newNode.attrs) newNode.attrs.src = `${mediaUrlBase}${newNode.attrs.src.substring(1)}`;
-          console.log("[PostBody] Modified image src to:", newNode.attrs?.src);
-        } else {
-          console.log(
-            "[PostBody] Image src does not start with /media/, not modified:",
-            node.attrs?.src,
-          );
-        }
-      } else {
-        console.log(
-          "[PostBody] Image node attrs.src is not a string or is missing. Attrs:",
-          node.attrs,
-        );
-      }
-    }
-    if (node.content) {
-      const processed = processImageUrlsInJson(node.content, mediaUrlBase);
-      newNode.content = Array.isArray(processed) ? processed : [processed];
-    }
-    return newNode;
-  }
-  return node;
-};
+import { processImageUrlsInJson } from "@/components/tiptap-editor/processImageUrlsInJson";
 
 const PostBody: React.FC<PostBodyProps> = ({ content }) => {
+  // Отладка: выводим переменную окружения
+  console.log('[DEBUG] NEXT_PUBLIC_DJANGO_MEDIA_URL:', process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL);
   console.log(
     "CONTENT PROP RECEIVED BY PostBody:",
     JSON.stringify(content, null, 2),
   );
 
-  // Получаем base URL для медиа
-  const djangoMediaUrl =
-    process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL || "http://localhost:8000/media/";
-  // Удаляем завершающий слэш для корректной склейки
-  const mediaUrlBase = djangoMediaUrl.endsWith("/")
-    ? djangoMediaUrl
-    : `${djangoMediaUrl}/`;
-
-  // Обрабатываем src у изображений
+  // Обрабатываем src у изображений только на клиенте
   const processedContent = React.useMemo(() => {
-    const result = processImageUrlsInJson(content, mediaUrlBase);
+    const result = processImageUrlsInJson(content);
     // TipTap Editor ожидает объект, а не массив
     return Array.isArray(result) ? { type: 'doc', content: result } : result;
-  }, [content, mediaUrlBase]);
+  }, [content]);
 
   // Инициализируем редактор только для чтения
   const editor = useEditor({

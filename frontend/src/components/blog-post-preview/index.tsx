@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import type { Post } from "@/types/blog";
 import { format } from "date-fns";
@@ -5,7 +6,8 @@ import { ru } from "date-fns/locale";
 import styles from "./styles.module.css";
 import PostRating from "@/components/post-rating";
 import Link from "next/link";
-import Image from "next/image";
+import ClientImage from "@/components/client-image";
+import { getClientMediaUrl } from "@/components/tiptap-editor/getClientMediaUrl";
 
 /**
  * Превью поста для главной страницы (стиль Read WP, RU).
@@ -40,31 +42,15 @@ const highlightText = (text: string, query: string) => {
 };
 
 // Универсальная функция для абсолютного URL
-const getAbsoluteImageUrl = (imagePath?: string) => {
-  if (!imagePath) return null;
-  if (imagePath.startsWith("http")) return imagePath;
-  const djangoMediaUrl =
-    process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL || "http://localhost:8000/media/";
-  let cleanPath = imagePath;
-  if (cleanPath.startsWith("/media/")) {
-    cleanPath = cleanPath.substring("/media/".length);
-  }
-  const base = djangoMediaUrl.endsWith("/")
-    ? djangoMediaUrl
-    : `${djangoMediaUrl}/`;
-  return `${base}${cleanPath}`;
-};
+// getAbsoluteImageUrl больше не нужен, обработка пути теперь только на клиенте через ClientImage
 
 const BlogPostPreview: React.FC<BlogPostPreviewProps> = ({
   post,
   searchQuery,
 }) => {
-  const finalImageUrl = getAbsoluteImageUrl(
-    typeof post.image === "string" ? post.image : undefined,
-  );
-  // --- ОТЛАДКА ---
-  console.log("[BlogPostPreview DEBUG] post.image received:", post?.image);
-  // --- КОНЕЦ ОТЛАДКИ ---
+  const finalImageUrl = React.useMemo(() =>
+    typeof post.image === "string" ? getClientMediaUrl(post.image) : undefined,
+  [post.image]);
 
   // Формат даты: 2 мая 2025 года
   const date = post.first_published_at
@@ -123,23 +109,17 @@ const BlogPostPreview: React.FC<BlogPostPreviewProps> = ({
           <PostRating value={post.average_rating} />
         )}
       </div>
-      {finalImageUrl && (
-        <Link
-          href={`/posts/${post.slug}`}
-          className="block w-full max-w-[800px] mx-auto mb-4 group"
-          aria-label={`Читать статью: ${post.title}`}
-        >
-          <Image
-            src={finalImageUrl}
+      {post.image && (
+        <div className={styles.imageWrapper}>
+          <ClientImage
+            src={post.image}
             alt={post.title}
             width={800}
-            height={266}
-            className="w-full h-auto object-cover rounded shadow group-hover:opacity-90 transition-opacity duration-200"
-            priority={false}
+            height={400}
+            className="w-full h-auto object-cover rounded mb-6"
             loading="lazy"
-            unoptimized={true}
           />
-        </Link>
+        </div>
       )}
       {rawExcerpt && (
         <div className="text-center text-base text-text mb-4 font-serif">

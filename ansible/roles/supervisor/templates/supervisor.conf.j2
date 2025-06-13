@@ -1,0 +1,7 @@
+[program:blog]
+command=/home/deploy/app/start.sh
+user=deploy
+autostart=true
+autorestart=true
+stderr_logfile=/var/log/blog.err.log
+stdout_logfile=/var/log/blog.out.log

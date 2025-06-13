@@ -1,0 +1,73 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.dev
+#1 transferring dockerfile: 372B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/node:18
+#2 DONE 0.8s
+
+#3 [1/6] FROM docker.io/library/node:18@sha256:c6ae79e38498325db67193d391e6ec1d224d96c693a8a4d943498556716d3783
+#3 resolve docker.io/library/node:18@sha256:c6ae79e38498325db67193d391e6ec1d224d96c693a8a4d943498556716d3783 0.0s done
+#3 sha256:1f4f297e4f699ae0f384d5cc1ea42065f58a115aa0a634d427cbb186f91cb4d0 64.36MB / 64.36MB 11.2s done
+#3 sha256:1a12b4ea7c0ce04aa0e98be0a8c9942162bac71426f734fe6d3bf988bc9e2627 48.33MB / 48.33MB 13.3s done
+#3 extracting sha256:1a12b4ea7c0ce04aa0e98be0a8c9942162bac71426f734fe6d3bf988bc9e2627 0.8s done
+#3 sha256:280bbe393e788ced1dcb033580604b24de083601624337be66b3ec31781dae40 23.55MB / 23.55MB 16.2s done
+#3 extracting sha256:280bbe393e788ced1dcb033580604b24de083601624337be66b3ec31781dae40 0.2s done
+#3 extracting sha256:1f4f297e4f699ae0f384d5cc1ea42065f58a115aa0a634d427cbb186f91cb4d0 0.9s done
+#3 sha256:b58ee5cb7152015437e4a9b3066ae9e25a26a3bef6617d0b7f25368511c2d954 202.76MB / 202.76MB 17.5s done
+#3 extracting sha256:b58ee5cb7152015437e4a9b3066ae9e25a26a3bef6617d0b7f25368511c2d954 2.2s done
+#3 extracting sha256:4c4eb3d16508b3a9f96749a2d76662a53ec4f171cfaeb7732dc6efb0f9cdbb77 done
+#3 extracting sha256:d757d01e4983550a8a8861a19fe0a4356d8f3be6255059f6466b6c026c6f0816 0.7s done
+#3 extracting sha256:354ffb7f5514f32472b48da285613641ab5a84079687c376169b97cfdadaaef1 0.0s done
+#3 extracting sha256:28b4958639f99536cfbcb306d031319fd840236d205945a62e94db1600abd591 done
+#3 DONE 20.4s
+
+#4 [2/6] WORKDIR /app
+#4 DONE 0.2s
+
+#5 [3/6] COPY package.json package-lock.json* ./
+#5 DONE 0.0s
+
+#6 [4/6] RUN npm install
+#6 33.02 npm warn deprecated domexception@4.0.0: Use your platform's native DOMException instead
+#6 33.03 npm warn deprecated abab@2.0.6: Use your platform's native atob() and btoa() methods instead
+#6 33.97 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+#6 34.48 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+#6 34.96 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+#6 36.11 npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+#6 36.27 npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+#6 38.25 npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+#6 43.54 
+#6 43.54 added 763 packages, and audited 764 packages in 43s
+#6 43.54 
+#6 43.54 201 packages are looking for funding
+#6 43.54   run `npm fund` for details
+#6 43.54 
+#6 43.54 found 0 vulnerabilities
+#6 43.54 npm notice
+#6 43.54 npm notice New major version of npm available! 10.8.2 -> 11.4.1
+#6 43.54 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.4.1
+#6 43.54 npm notice To update run: npm install -g npm@11.4.1
+#6 43.54 npm notice
+#6 DONE 43.8s
+
+#7 [internal] load .dockerignore
+#7 transferring context: 120B done
+#7 DONE 0.0s
+
+#8 [internal] load build context
+#8 transferring context: 71B done
+#8 DONE 0.0s
+
+#9 exporting to image
+#9 exporting layers
+#9 exporting layers 10.3s done
+#9 exporting manifest sha256:16268276edd2384624f9e4a348d5d3544b2e563ba653890f93a64b159566ce0b done
+#9 exporting config sha256:554ab11ea1b5ed986af19d7b2495aa1cbfdd25176be8a5cef685427518ca9eb6 done
+#9 exporting attestation manifest sha256:a367e2e0beb40d2ec9323ad7a4320cfb884435ff157343e0988e8d8f0dc8f142 done
+#9 exporting manifest list sha256:ff59f30c004631137fdfffdf02955bc71ee463af31f7067c8571e4800e700ad4 done
+#9 naming to moby-dangling@sha256:ff59f30c004631137fdfffdf02955bc71ee463af31f7067c8571e4800e700ad4 done
+#9 unpacking to moby-dangling@sha256:ff59f30c004631137fdfffdf02955bc71ee463af31f7067c8571e4800e700ad4
+#9 unpacking to moby-dangling@sha256:ff59f30c004631137fdfffdf02955bc71ee463af31f7067c8571e4800e700ad4 5.9s done
+#9 DONE 16.3s

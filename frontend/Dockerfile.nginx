@@ -1,0 +1,17 @@
+# Используем легковесный образ nginx
+FROM nginx:alpine
+
+# Устанавливаем необходимые инструменты
+RUN apk add --no-cache bash curl
+
+# Копируем конфигурацию nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Копируем статическую HTML-страницу с документацией API
+COPY api-docs.html /usr/share/nginx/html/index.html
+
+# Экспортируем порт
+EXPOSE 3000
+
+# Запускаем nginx на переднем плане
+CMD ["nginx", "-g", "daemon off;"]

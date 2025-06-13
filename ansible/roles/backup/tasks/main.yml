@@ -1,0 +1,8 @@
+---
+- name: Копировать скрипт бэкапа
+  template:
+    src: backup.sh.j2
+    dest: /home/deploy/scripts/backup.sh
+    owner: deploy
+    group: deploy
+    mode: 0750

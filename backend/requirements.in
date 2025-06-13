@@ -1,4 +1,6 @@
 django~=5.0
+python-slugify
+unidecode
 djangorestframework
 psycopg2-binary
 pytest
@@ -11,3 +13,6 @@ gunicorn
 drf-spectacular[validation]>=0.28.0,<0.29.0 # OpenAPI schema generation
 Pillow>=10.3.0,<11.0.0 # Image processing
 django-ckeditor-5>=0.2.17 # WYSIWYG editor
+django-ratelimit>=4.1.0 # Ограничение частоты запросов
+django-redis>=5.4.0 # Кеширование Redis
+redis>=5.0.0 # Клиент Redis

@@ -1,0 +1,16 @@
+- hosts: all
+  become: yes
+  vars_files:
+    - group_vars/all/vault.yml
+  roles:
+    - common
+    - security
+    - monitoring
+    - docker
+    - postgresql
+    - redis
+    - nginx
+    - supervisor
+    - celery
+    - app
+    - backup

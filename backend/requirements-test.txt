@@ -1,0 +1,6 @@
+# Дополнительные зависимости для тестирования
+django-ratelimit==4.1.0
+pytest-django==4.11.1
+pytest-cov==4.1.0
+coverage==7.2.7
+faker==37.3.0

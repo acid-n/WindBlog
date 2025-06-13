@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image, { ImageProps } from "next/image";
-import { getClientMediaUrl } from "@/components/tiptap-editor/getClientMediaUrl";
+import { getClientMediaUrl } from "@/utils/media";
 
 interface ClientImageProps extends Omit<ImageProps, "src"> {
   src: string | undefined;

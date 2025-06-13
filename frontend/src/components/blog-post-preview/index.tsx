@@ -7,7 +7,7 @@ import styles from "./styles.module.css";
 import PostRating from "@/components/post-rating";
 import Link from "next/link";
 import ClientImage from "@/components/client-image";
-import { getClientMediaUrl } from "@/components/tiptap-editor/getClientMediaUrl";
+import { getClientMediaUrl } from "@/utils/media";
 
 /**
  * Превью поста для главной страницы (стиль Read WP, RU).
@@ -117,7 +117,7 @@ const BlogPostPreview: React.FC<BlogPostPreviewProps> = ({
             width={800}
             height={400}
             className="w-full h-auto object-cover rounded mb-6"
-            loading="lazy"
+            priority
           />
         </div>
       )}

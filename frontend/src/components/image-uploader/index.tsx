@@ -3,6 +3,7 @@
 import React, { useState, useRef } from "react";
 import { fetchWithAuth } from "@/services/apiClient"; // Для отправки файла
 import Image from "next/image"; // Для превью
+import { getClientMediaUrl } from "@/utils/media";
 import {
   FaUpload,
   FaCheckCircle,
@@ -89,7 +90,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     setIsLoading(false);
     setIsConverting(false);
     if (uploadedUrls.length > 0) {
-      onUploadComplete(uploadedUrls);
+      // Прогоняем каждый url через getClientMediaUrl
+      const safeUrls = uploadedUrls.map(getClientMediaUrl);
+      onUploadComplete(safeUrls);
     }
     // Сбросить value input, чтобы повторно можно было выбрать те же файлы
     if (fileInputRef.current) fileInputRef.current.value = "";

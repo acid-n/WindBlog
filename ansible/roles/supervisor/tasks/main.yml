@@ -1,0 +1,11 @@
+---
+- name: Установить Supervisor
+  apt:
+    name: supervisor
+    state: present
+
+- name: Копировать конфиг Supervisor
+  template:
+    src: supervisor.conf.j2
+    dest: /etc/supervisor/conf.d/blog.conf
+  notify: Reload supervisor

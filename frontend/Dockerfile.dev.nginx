@@ -1,0 +1,58 @@
+# Используем готовый образ nginx для быстрого запуска
+FROM nginx:alpine
+
+# Копируем конфигурацию nginx
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/
+
+# Создаем директорию для статических файлов
+RUN mkdir -p /usr/share/nginx/html
+
+# Создаем простую HTML-страницу с информацией
+RUN echo '<!DOCTYPE html>\
+<html lang="ru">\
+<head>\
+    <meta charset="UTF-8">\
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">\
+    <title>WindBlog - Бэкенд API</title>\
+    <style>\
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; color: #333; }\
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }\
+        h1 { color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px; }\
+        h2 { color: #3498db; margin-top: 20px; }\
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; }\
+        a { color: #3498db; text-decoration: none; }\
+        a:hover { text-decoration: underline; }\
+        .alert { background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-bottom: 20px; }\
+    </style>\
+</head>\
+<body>\
+    <div class="container">\
+        <h1>WindBlog - Backend API</h1>\
+        <div class="alert">Фронтенд временно недоступен из-за проблем с совместимостью Docker/ARM64.</div>\
+        <p>Однако, вы можете взаимодействовать с бэкенд API напрямую через следующие эндпоинты:</p>\
+        \
+        <h2>Доступные API эндпоинты:</h2>\
+        <ul>\
+            <li><a href="http://localhost:8000/api/v1/posts/" target="_blank">GET /api/v1/posts/</a> - Список всех постов</li>\
+            <li><a href="http://localhost:8000/api/v1/tags/" target="_blank">GET /api/v1/tags/</a> - Список всех тегов</li>\
+            <li><a href="http://localhost:8000/api/v1/archive/years/" target="_blank">GET /api/v1/archive/years/</a> - Архив по годам</li>\
+            <li><a href="http://localhost:8000/admin/" target="_blank">Административный интерфейс Django</a></li>\
+        </ul>\
+        \
+        <h2>Тестирование API с помощью curl:</h2>\
+        <pre>curl -X GET http://localhost:8000/api/v1/posts/ -H "Content-Type: application/json"</pre>\
+        \
+        <h2>Тестирование с помощью Python:</h2>\
+        <pre>import requests\nresponse = requests.get("http://localhost:8000/api/v1/posts/")\nprint(response.json())</pre>\
+        \
+        <p><small>© WindBlog 2025</small></p>\
+    </div>\
+</body>\
+</html>' > /usr/share/nginx/html/index.html
+
+# Экспортируем порт
+EXPOSE 3000
+
+# Запускаем nginx на переднем плане
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,118 +1,53 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffect, useState } from "react";
+import LoginForm from "@/components/login/LoginForm";
 
-const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+/**
+ * Клиентский компонент страницы авторизации 
+ * защищенный от циклических редиректов
+ */
+function LoginPage() {
+  const { user, isLoading } = useAuth();
   const router = useRouter();
-
-  const djangoApiBaseUrl =
-    process.env.NEXT_PUBLIC_DJANGO_API_URL || "http://localhost:8000/api/v1";
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsLoading(true);
-
-    try {
-      const response = await fetch(
-        `${djangoApiBaseUrl.replace("/v1", "")}/token/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.detail || "Ошибка аутентификации. Проверьте email и пароль.",
-        );
-      }
-
-      if (data.access && data.refresh) {
-        await login(data.access, data.refresh);
-        router.push("/");
-      } else {
-        throw new Error("Токены не получены от сервера.");
-      }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setIsLoading(false);
+  const searchParams = useSearchParams();
+  const [redirectAttempted, setRedirectAttempted] = useState(false);
+  
+  // Получаем параметр next для перенаправления после авторизации
+  let nextPath = searchParams?.get('next') || '/';
+  
+  // Если next содержит /admin/login, исправляем на /admin
+  if (nextPath.includes('/admin/login')) {
+    nextPath = '/admin';
+  }
+  
+  // Если пользователь уже авторизован, сразу перенаправляем на запрошенную страницу
+  useEffect(() => {
+    if (!isLoading && user && !redirectAttempted) {
+      setRedirectAttempted(true);
+      console.log(`Пользователь уже авторизован, перенаправление на: ${nextPath}`);
+      
+      // Используем нативный редирект вместо router.replace для более надежного перенаправления
+      window.location.href = nextPath;
     }
-  };
+  }, [user, isLoading, nextPath, redirectAttempted]);
 
-  return (
-    <div className="flex flex-col items-center justify-start pt-10 pb-6 min-h-0">
-      <form
-        onSubmit={handleSubmit}
-        className="p-6 mt-4 bg-white shadow-md rounded-lg w-full max-w-sm border border-gray-200"
-      >
-        <h1 className="text-2xl font-bold text-center text-gray-900 mb-6">
-          Вход в систему
-        </h1>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
-          </div>
-        )}
-
-        <div className="mb-4">
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-gray-900"
-          />
+  // Показываем индикатор загрузки во время проверки авторизации
+  if (isLoading || redirectAttempted) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Проверка авторизации...</p>
         </div>
-
-        <div className="mb-6">
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Пароль
-          </label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-gray-900"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400"
-        >
-          {isLoading ? "Вход..." : "Войти"}
-        </button>
-      </form>
-    </div>
-  );
-};
+      </div>
+    );
+  }
+  
+  // Если пользователь не авторизован, показываем форму входа
+  return <LoginForm nextPath={nextPath} />;
+}
 
 export default LoginPage;

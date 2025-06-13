@@ -1,0 +1,62 @@
+# Многоэтапная сборка для оптимизации размера образа
+FROM python:3.11-slim AS builder
+
+# Установка зависимостей для компиляции пакетов
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Настройка рабочей директории
+WORKDIR /app
+
+# Копирование файлов зависимостей
+COPY requirements.txt .
+
+# Установка зависимостей в отдельный слой
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Финальный образ
+FROM python:3.11-slim
+
+# Настройка переменных окружения
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DJANGO_SETTINGS_MODULE=config.settings
+
+# Установка необходимых пакетов
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Создание непривилегированного пользователя
+RUN addgroup --system app && adduser --system --group app
+
+# Настройка рабочей директории
+WORKDIR /app
+
+# Копирование зависимостей из этапа сборки
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Копирование кода приложения
+COPY . .
+
+# Создание директории для логов
+RUN mkdir -p /app/logs && chmod -R 755 /app/logs
+
+# Настройка прав доступа
+RUN chown -R app:app /app
+
+# Переключение на непривилегированного пользователя
+USER app
+
+# Сборка статических файлов
+RUN python manage.py collectstatic --noinput
+
+# Открытие порта
+EXPOSE 8000
+
+# Команда по умолчанию
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2"]

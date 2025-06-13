@@ -1,0 +1,16 @@
+---
+- name: Копировать .env
+  template:
+    src: env.j2
+    dest: /home/deploy/app/.env
+    owner: deploy
+    group: deploy
+    mode: 0600
+
+- name: Копировать docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: /home/deploy/docker-compose.yml
+    owner: deploy
+    group: deploy
+    mode: 0644

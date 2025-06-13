@@ -1,0 +1,61 @@
+# Универсальный Dockerfile для фронтенда на базе Next.js с поддержкой SSR
+# Работает на любой архитектуре, включая ARM64
+# Использует многоэтапную сборку для оптимизации размера образа
+
+# Этап 1: Установка зависимостей
+FROM node:18-alpine AS deps
+WORKDIR /app
+
+# Установка системных зависимостей
+RUN apk add --no-cache python3 make g++ libc6-compat bash
+
+# Копирование файлов зависимостей
+COPY package.json package-lock.json* ./
+
+# Установка зависимостей
+RUN npm ci
+
+# Этап 2: Сборка приложения
+FROM node:18-alpine AS builder
+WORKDIR /app
+
+# Переменные среды для отключения телеметрии и проблемных функций
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NEXT_PRIVATE_IGNORE_LIGHTNINGCSS=1
+ENV NEXT_DISABLE_LIGHTNINGCSS=1
+
+# Копирование зависимостей с предыдущего этапа
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Делаем скрипт сборки исполняемым
+RUN chmod +x ./scripts/universal-build-ssr.sh
+
+# Запускаем универсальный скрипт сборки для SSR
+RUN ./scripts/universal-build-ssr.sh
+
+# Этап 3: Запуск с поддержкой SSR
+FROM node:18-alpine AS runner
+WORKDIR /app
+
+# Переменные среды для продакшена
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_PRIVATE_IGNORE_LIGHTNINGCSS 1
+ENV NEXT_DISABLE_LIGHTNINGCSS 1
+
+# Копируем только необходимые файлы для запуска
+COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/noop-module.js ./
+COPY --from=builder /app/postcss.config.js ./
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+
+# Экспозиция порта
+EXPOSE 3000
+
+# Запуск Next.js в режиме производства
+CMD ["npm", "run", "start"]

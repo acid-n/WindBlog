@@ -14,7 +14,7 @@
 
 - **Framework:** Django 5, Django REST Framework
 - **База данных:** PostgreSQL (настраивается через переменные окружения)
-- **Аутентификация:** JWT (`djangorestframework-simplejwt`)
+- **Аутентификация:** JWT (`djangorestframework-simplejwt`), расширенная защита от брутфорс-атак, детальное логирование попыток авторизации
 - **Документация API:** OpenAPI 3.0 (`drf-spectacular`)
 - **Тестирование:** Pytest, pytest-django, factory_boy
 - **Линтинг и форматирование:** Black, isort, Flake8 (pre-commit)
@@ -25,7 +25,7 @@
 ## Структура проекта (`backend/`)
 
 - `blog/`: Основное приложение блога (модели Post, Tag, Rating, ShortLink, сериализаторы, API ViewSets)
-- `users/`: Кастомная модель пользователя (`CustomUser`), эндпоинты для регистрации/управления
+- `users/`: Кастомная модель пользователя (`CustomUser`), эндпоинты для регистрации/управления, middleware для защиты от брутфорс-атак
 - `analytics/`: Модель AnalyticsEvent и API для сбора аналитики
 - `contact/`: Модель ContactMessage и API для формы обратной связи
 - `seo/`: SEO-функционал (robots.txt, sitemap.xml, OpenGraph)
@@ -110,87 +110,47 @@ curl http://localhost:8000/api/v1/posts/
 - Issues: [github.com/your-org/your-repo/issues](https://github.com/your-org/your-repo/issues)
 
 
-## Описание
+## Безопасность
 
-Бэкенд-приложение для MUSSON Blog, реализованное на Django 5 с использованием Django REST Framework для предоставления API и PostgreSQL в качестве базы данных. Архитектура — модульная, с разделением на приложения по функциональным областям.
+### Защита от брутфорс-атак
 
-## Основные технологии
+Реализован специальный middleware (`users.middleware.AuthRateLimitMiddleware`), который обеспечивает:
+- **Rate limiting:** ограничение количества запросов к эндпоинтам авторизации (5 запросов в минуту)
+- **Блокировка по IP:** временная блокировка IP-адреса после 5 неудачных попыток входа (на 15 минут)
+- **Детальное логирование:** все попытки авторизации (успешные и неудачные) записываются в лог-файл `auth.log`
+- **Защита конфиденциальности:** маскирование email-адресов в логах для соблюдения требований безопасности
 
-- **Framework:** Django 5, Django REST Framework
-- **База данных:** PostgreSQL (настраивается через переменные окружения)
-- **Аутентификация:** JWT (`djangorestframework-simplejwt`)
-- **Документация API:** OpenAPI 3.0 (`drf-spectacular`)
-- **Тестирование:** Pytest, pytest-django, factory_boy
-- **Линтинг и форматирование:** Black, isort, Flake8 (интегрированы с pre-commit хуками)
-- **Развертывание:** Подготовлен Dockerfile для контейнеризации.
+Настройки защиты от брутфорс-атак (определены в `users/middleware.py`):
+```python
+MAX_FAILED_ATTEMPTS = 5  # Максимальное количество неудачных попыток
+BLOCK_TIME = 15 * 60     # Время блокировки в секундах (15 минут)
+```
 
-## Структура проекта (`backend/`)
+### Аутентификация
 
-- `blog/`: Основное приложение блога (модели Post, Tag, Rating, ShortLink (с автогенерацией уникального `code` и логикой редиректа для `/s/<code>/`); сериализаторы (включая поле `code` из `ShortLink` в `PostSerializer`); API ViewSets (включая поддержку `?for_sitemap=true` для эндпоинта постов); тесты).
-- `users/`: Кастомная модель пользователя (`CustomUser`) и эндпоинты для регистрации/управления пользователями.
-- `analytics/`: Модель `AnalyticsEvent` и API для сбора простой аналитики.
-- `contact/`: Модель `ContactMessage` и API для формы обратной связи.
-- `seo/`: Новое приложение для SEO-функциональности (модели `RobotsRule`, `GlobalSEOSettings`); модель `Post` расширена SEO-полями; Django генерирует `/robots.txt`.
-- `config/`: Основные настройки Django (`settings.py`), корневые URL (`urls.py`), WSGI/ASGI конфигурации. Включает модель `SiteSettings`.
-- `management/commands/`: Директория для кастомных manage.py команд (например, `generate_test_data`).
-- `requirements.txt`: Список Python зависимостей.
-- `pytest.ini`: Конфигурация Pytest.
-- `manage.py`: Утилита управления Django.
-- `.env.example`: Пример файла переменных окружения.
-- `Dockerfile`: Инструкции для сборки Docker-образа приложения.
+- **Для получения/обновления JWT токенов:** `/api/token/`, `/api/token/refresh/`.
+- **Защищенные эндпоинты** (например, создание/изменение постов и тегов) требуют `Bearer <JWT>` в заголовке `Authorization`.
+- **Публичные эндпоинты** (например, чтение постов, тегов, архива) доступны без аутентификации (`IsAuthenticatedOrReadOnly` для ViewSet-ов).
 
-## Установка и запуск (локально, без Docker)
+### Логирование авторизации
 
-1.  **Клонируйте репозиторий** (если еще не сделали).
-2.  **Перейдите в директорию `backend/`**.
-3.  **Создайте и активируйте виртуальное окружение** (рекомендуется Python 3.11+):
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # Linux/macOS
-    # venv\Scripts\activate    # Windows
-    ```
-4.  **Установите зависимости:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-5.  **Настройте переменные окружения:**
-    Скопируйте `.env.example` в `.env` и заполните необходимые значения (параметры БД, `DJANGO_SECRET_KEY` и т.д.).
-    ```bash
-    cp .env.example .env
-    ```
-6.  **Примените миграции базы данных:**
-    ```bash
-    python manage.py migrate
-    ```
-7.  **Создайте суперпользователя** (для доступа к админ-панели Django):
-    ```bash
-    python manage.py createsuperuser
-    ```
-8.  **(Опционально) Сгенерируйте тестовые данные:**
-    ```bash
-    python manage.py generate_test_data
-    ```
-9.  **Запустите сервер разработки Django:**
-    ```bash
-    python manage.py runserver
-    ```
-    Сервер будет доступен по адресу [http://localhost:8000](http://localhost:8000).
+Настроен специальный логгер `auth`, который записывает все попытки авторизации в отдельный файл `logs/auth.log`.
+Примеры записей в логе:
+- `INFO - Попытка авторизации: IP=192.168.1.1, Email=u****r@example.com`
+- `INFO - Успешная авторизация: IP=192.168.1.1, Email=u****r@example.com`
+- `WARNING - Неудачная авторизация: IP=192.168.1.2, Email=a****r@example.com, Код=401`
+- `WARNING - Запрос заблокирован из-за превышения лимита попыток. IP: 192.168.1.2`
 
-## Docker
+### Рекомендации по мониторингу
 
-Бэкенд-приложение может быть запущено в Docker-контейнере. Смотрите глобальный `README.md` и `docker/docker-compose.yml` для инструкций по запуску всего стека (включая PostgreSQL, Frontend и Backend) с помощью Docker Compose.
-
-- `backend/Dockerfile` содержит инструкции для сборки образа, включая шаг `RUN python manage.py collectstatic --noinput` для сбора статики.
-- Для продакшен-сборки и запуска используется `gunicorn`. Команда запуска в Dockerfile: `CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]`. `gunicorn` добавлен в зависимости проекта.
+- Регулярно проверяйте файл `logs/auth.log` на наличие подозрительной активности
+- Настройте внешнюю систему мониторинга для анализа логов и оповещения о множественных неудачных попытках входа
+- Рассмотрите возможность добавления двухфакторной аутентификации для критически важных аккаунтов
 
 ## API
 
 - **Базовый URL:** Все эндпоинты API доступны по префиксу `/api/v1/`.
 - **Версионирование:** Используется версионирование v1.
-- **Аутентификация:**
-  - Для получения/обновления JWT токенов: `/api/token/`, `/api/token/refresh/`.
-  - Защищенные эндпоинты (например, создание/изменение постов и тегов) требуют `Bearer <JWT>` в заголовке `Authorization`.
-  - Публичные эндпоинты (например, чтение постов, тегов, архива) доступны без аутентификации (`IsAuthenticatedOrReadOnly` для ViewSet-ов).
 - **Документация API (OpenAPI/Swagger):**
   - Интерактивная документация (Swagger UI): `/api/docs/`
   - Схема OpenAPI (JSON): `/api/schema/`

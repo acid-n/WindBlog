@@ -47,7 +47,7 @@ import {
 } from "react-icons/fa";
 import ImageUploader from "../image-uploader";
 import { extendedImage } from "@/lib/tiptapExtensions";
-import { getClientMediaUrl } from "./getClientMediaUrl";
+import { getClientMediaUrl } from "@/utils/media";
 import { processImageUrlsInJson } from "./processImageUrlsInJson";
 // import './styles.css'; // Если нужны будут специфичные стили для редактора
 

@@ -135,6 +135,28 @@ class TagViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = "slug"
 
+    # AI-MODIFICATION-START: Создание нового тега через API
+    def create(self, request, *args, **kwargs):
+        name = request.data.get('name')
+        if not name:
+            return Response({'error': 'Поле "name" обязательно.'}, status=400)
+        from slugify import slugify as slugify_unicode
+        from unidecode import unidecode
+        slug = slugify_unicode(unidecode(name))
+        tag_qs = Tag.objects.filter(slug=slug)
+        if tag_qs.exists():
+            tag = tag_qs.first()
+            serializer = self.get_serializer(tag)
+            if tag.name == name:
+                return Response({'detail': 'Tag already exists', **serializer.data}, status=409)
+            else:
+                return Response({'error': 'Slug collision: тег с таким slug уже существует, но с другим именем.', 'slug': slug, 'existing_tag': serializer.data}, status=400)
+        tag = Tag.objects.create(name=name)
+        serializer = self.get_serializer(tag)
+        return Response(serializer.data, status=201)
+
+    # AI-MODIFICATION-END
+
     def get_queryset(self):
         qs = Tag.objects.all().order_by("name").prefetch_related("posts")
         if self.action == "list":

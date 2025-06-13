@@ -42,6 +42,8 @@ logger = logging.getLogger(__name__)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include("blog.urls")),
+    # Маршруты для Prometheus-метрик - временно отключено для анализа
+    # path('', include('django_prometheus.urls')),
     path(
         "api/schema/",
         SpectacularAPIView.as_view(),
@@ -121,7 +123,18 @@ urlpatterns += [
     path("ckeditor5/", include(ckeditor_custom_urlpatterns)),
 ]
 
-# Статические и медиа-файлы
+# Добавляем статические файлы и инструменты отладки в режиме разработки
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    
+    # Debug Toolbar - временно отключено для анализа
+    # import debug_toolbar
+    # urlpatterns += [
+    #     path('__debug__/', include(debug_toolbar.urls)),
+    # ]
+    
+    # # Silk profiler - временно отключено для анализа
+    # urlpatterns += [
+    #     path('silk/', include('silk.urls', namespace='silk')),
+    # ]

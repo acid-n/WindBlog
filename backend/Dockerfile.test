@@ -1,0 +1,38 @@
+# Dockerfile для тестового окружения
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Установка зависимостей системы (убрали postgresql-client, т.к. используем SQLite)
+RUN apt-get update && apt-get install -y \
+    gcc \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Копирование файлов зависимостей
+COPY requirements.txt requirements-test.txt ./
+
+# Установка зависимостей Python
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir -r requirements-test.txt \
+    && pip install --no-cache-dir factory_boy django-ratelimit pytest-cov
+
+# Проверка установки зависимостей
+RUN pip list | grep -E 'factory|pytest|coverage|ratelimit'
+
+# Создание директории для отчетов о покрытии
+RUN mkdir -p /app/coverage_data/html
+
+# Настройка переменных окружения для тестов
+ENV DJANGO_SETTINGS_MODULE=config.settings_test
+ENV PYTHONPATH=/app
+ENV DB_ENGINE=sqlite
+
+# Копирование проекта
+COPY . .
+
+# Создание директории для логов
+RUN mkdir -p /app/logs
+
+# Команда по умолчанию - запуск тестов с покрытием
+CMD ["pytest", "--cov=blog", "--cov-report=xml:/app/coverage_data/coverage.xml", "--cov-report=html:/app/coverage_data/html", "--cov-report=term-missing"]

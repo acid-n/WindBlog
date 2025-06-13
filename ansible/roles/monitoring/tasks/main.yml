@@ -1,0 +1,10 @@
+---
+- name: Установить Netdata
+  apt:
+    name: netdata
+    state: present
+
+- name: Установить logrotate
+  apt:
+    name: logrotate
+    state: present

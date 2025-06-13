@@ -1,0 +1,4 @@
+ERROR 2025-05-24 13:52:47,220 rating_service 1 281473750982688 [RatingService] Ошибка валидации данных: {'error': 'Отсутствуют обязательные поля (post, user_hash, score)', 'status': 400}
+ERROR 2025-05-24 13:52:47,222 rating_service 1 281473750982688 [RatingService] Пост с ID 9999999 не найден
+ERROR 2025-05-24 13:52:47,227 rating_service 1 281473750982688 [RatingService] Пост с ID 9999999 не найден
+ERROR 2025-05-24 13:52:47,231 rating_service 1 281473750982688 [RatingService] Пост с ID 9999999 не найден

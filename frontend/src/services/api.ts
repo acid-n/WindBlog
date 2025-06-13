@@ -1,10 +1,30 @@
 /**
  * API-сервис для работы с backend (REST, JWT, обработка ошибок).
+ * 
+ * Централизованная точка доступа к API с поддержкой JWT-аутентификации,
+ * кэширования Next.js и унифицированной обработкой ошибок.
  */
-export const API_BASE_URL =
-  typeof window === "undefined"
-    ? process.env.API_URL_SSR || "http://backend:8000/api/v1"
-    : process.env.NEXT_PUBLIC_API_URL_FE || "http://localhost:8000/api/v1";
+
+import { getAuthHeaders } from "@/utils/auth";
+
+// Определение базового URL с учетом контекста выполнения
+// В Docker контейнерах нужно использовать имя сервиса вместо localhost
+export const API_BASE_URL = (() => {
+  // Для запросов из браузера
+  if (typeof window !== "undefined") {
+    // Используем origin для запросов из браузера - так работает прокси
+    return `${window.location.origin}/api/v1`;
+  }
+  // Для SSR запросов из Next.js
+  return "http://backend:8000/api/v1";
+})();
+
+// Функция для построения корректных URL API
+export const buildApiUrl = (path: string): string => {
+  // Удаляем лишние слеши в начале пути
+  const normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+  return `${API_BASE_URL}/${normalizedPath}`;
+};
 
 export interface ApiErrorFormat {
   error: string; // Обычно строка-ключ ошибки, например, "valation_error" или "not_found"
@@ -32,11 +52,11 @@ async function fetchService<T>(
     ...(fetchOptions.headers as Record<string, string>),
   };
 
+  // Добавляем заголовки авторизации для защищенных запросов
   if (!isPublic && typeof window !== "undefined") {
-    const token = localStorage.getItem("token");
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
+    // Используем общую логику аутентификации из utils/auth
+    const authHeaders = await getAuthHeaders();
+    Object.assign(headers, authHeaders);
   }
 
   const nextOptions: { revalate?: number | false; tags?: string[] } = {};
@@ -53,7 +73,8 @@ async function fetchService<T>(
     next: nextOptions,
   };
 
-  const url = `${API_BASE_URL}/${endpoint.startsWith("/") ? endpoint.substring(1) : endpoint}`;
+  // Используем функцию buildApiUrl для формирования корректного URL
+  const url = buildApiUrl(endpoint);
   // console.log(`Fetching API: ${url}`, requestOptions);
 
   try {
@@ -154,8 +175,26 @@ export async function fetchTags(
  * Получить список постов по тегу (slug).
  */
 export async function fetchPostsByTag(slug: string): Promise<Post[]> {
-  return fetchService<Post[]>(`tags/${slug}/posts/`, { isPublic: true });
+  // Всегда возвращаем свежие данные (без кеша)
+  return fetchService<Post[]>(`tags/${slug}/posts/`, { isPublic: true, revalate: 0, cache: 'no-store' } as any);
 }
+
+/**
+ * Универсальный fetcher для SWR (использует fetchService).
+ * Пример использования: useSWR(['/api/tags', slug], fetcher)
+ */
+export const fetcher = async <T>(...args: any[]): Promise<T> => {
+  // args: [endpoint, ...params]
+  if (typeof args[0] === 'string' && args.length === 1) {
+    return fetchService<T>(args[0]);
+  }
+  // Если ключ массив: ['/api/tags', slug] -> endpoint = `/api/tags/${slug}`
+  if (Array.isArray(args[0])) {
+    const [base, param] = args[0];
+    return fetchService<T>(`${base}/${param}`);
+  }
+  throw new Error('Некорректный ключ для fetcher');
+};
 
 /**
  * Получить пост по ID (для коротких ссылок).
@@ -248,17 +287,9 @@ export async function searchPosts(
   );
 }
 
-// Пример функции, требующей аутентификации (если появится такая необходимость)
-// export async function submitPost(postId: number, score: number): Promise<> {
-//   return fetchService<>(`posts/${postId}/rate/`, {
-//     method: 'POST',
-//     body: JSON.stringify({ score }),
-//     isPublic: false, // Этот запрос требует JWT
-//     revalate: 0, // Не кешировать ответ на POST запрос (или false)
-//   });
-// }
-
-// Для получения настроек сайта (используется в Header, данные не чувствительные)
+/**
+ * Интерфейс для настроек сайта, получаемых из API
+ */
 export interface SiteSettingsData {
   site_title: string;
   site_description: string;

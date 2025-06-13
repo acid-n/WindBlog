@@ -46,6 +46,9 @@ def validate_webp(value):
     #         raise ValidationError('Неверный MIME тип. Разрешены только WEBP изображения (image/webp).')
 
 
+from slugify import slugify as slugify_unicode
+from unidecode import unidecode
+
 class Tag(AbstractBaseModel):
     """Модель тега для классификации постов."""
 
@@ -55,6 +58,17 @@ class Tag(AbstractBaseModel):
     class Meta:
         verbose_name = "Тег"
         verbose_name_plural = "Теги"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify_unicode(unidecode(self.name))
+            slug = base_slug
+            i = 1
+            while Tag.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{i}"
+                i += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -181,20 +195,24 @@ class Rating(models.Model):
     score = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
-    user_hash = models.CharField(max_length=64)
-    created_at = models.DateTimeField(auto_now_add=True)
+    user_hash = models.CharField(max_length=64, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
         unique_together = ("post", "user_hash")
         verbose_name = "Рейтинг"
         verbose_name_plural = "Рейтинги"
+        indexes = [
+            models.Index(fields=['post', 'created_at']),
+            models.Index(fields=['post', 'score']),
+        ]
 
 
 class ShortLink(models.Model):
     """Короткая ссылка на пост."""
 
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="shortlinks")
-    code = models.CharField(max_length=8, unique=True, blank=True, editable=False)
+    code = models.CharField(max_length=8, unique=True, blank=True, editable=False, db_index=True)
 
     def __str__(self):
         return f"Shortlink {self.code} for {self.post.title[:30]}..."
@@ -224,22 +242,36 @@ class ShortLink(models.Model):
 class AnalyticsEvent(AbstractBaseModel):
     """Событие аналитики: посещение, ip, user_agent, referrer."""
 
-    path = models.CharField(max_length=255)
-    ip = models.GenericIPAddressField()
+    path = models.CharField(max_length=255, db_index=True)
+    ip = models.GenericIPAddressField(db_index=True)
     user_agent = models.TextField()
-    referrer = models.URLField(blank=True, null=True)
+    referrer = models.URLField(blank=True, null=True, db_index=True)
 
     class Meta:
         verbose_name = "Событие аналитики"
         verbose_name_plural = "События аналитики"
+        indexes = [
+            models.Index(fields=['created_at', 'path']),
+            models.Index(fields=['created_at', 'ip']),
+        ]
 
 
 class ContactMessage(AbstractBaseModel):
     """Сообщение из формы обратной связи."""
 
-    name = models.CharField(max_length=100)
-    email = models.EmailField()
-    message = models.TextField()
+    name = models.CharField(max_length=100, help_text="Имя отправителя сообщения")
+    email = models.EmailField(help_text="Email адрес для обратной связи")
+    message = models.TextField(help_text="Текст сообщения")
+    subject = models.CharField(
+        max_length=200, 
+        blank=True, 
+        default="", 
+        help_text="Тема сообщения, может быть сгенерирована автоматически"
+    )
+    is_processed = models.BooleanField(
+        default=False, 
+        help_text="Флаг, показывающий, было ли сообщение обработано"
+    )
 
     class Meta:
         verbose_name = "Сообщение (контакты)"

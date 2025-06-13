@@ -63,8 +63,22 @@ pytest==8.3.5
     # via
     #   -r requirements.in
     #   pytest-django
+factory_boy==3.3.3
+    # via -r requirements.in
+Faker>=0.7.0
+    # для factory_boy и создания тестовых данных
+coverage==7.4.0
+    # для измерения покрытия кода тестами
+django-prometheus==2.3.1
+    # для мониторинга приложения
+django-debug-toolbar==4.3.0
+    # для анализа производительности и отладки
+django-silk==5.1.0
+    # для профилирования запросов
 pytest-django==4.11.1
     # via -r requirements.in
+python-slugify==8.0.4
+unidecode==1.3.7
 python-dotenv==1.1.0
     # via -r requirements.in
 pyyaml==6.0.2

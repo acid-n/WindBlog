@@ -3,11 +3,8 @@ import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  fetchSiteSettings,
-  SiteSettingsData,
-  ApiErrorFormat,
-} from "@/services/api";
+import { fetchSiteSettings } from "@/services/api";
+import { SiteSettingsData, ApiErrorFormat } from "@/services/api.types";
 import { useAuth } from "@/contexts/AuthContext";
 import { FaPlus, FaFileAlt, FaSignOutAlt } from "react-icons/fa";
 
@@ -198,12 +195,8 @@ const Header: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <Link
-                href="/login"
-                className="text-blue-600 hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400 font-medium"
-              >
-                Войти / Зарегистрироваться
-              </Link>
+              // Ссылка на вход удалена по требованию безопасности
+              <div></div>
             ))}
           {authLoading && (
             <p className="text-gray-500 dark:text-gray-400">

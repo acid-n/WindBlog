@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+// Удаляем импорт Inter из next/font/google, который вызывает ошибку
+// import { Inter } from "next/font/google";
 import "./globals.css";
+// Импортируем CSS с реализацией шрифтов через стандартный CSS
+import "./fonts.css";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { AuthProvider } from "@/contexts/AuthContext";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Muggn Техноблог про ИИ",
@@ -30,7 +31,7 @@ export default function RootLayout({
         /> */}
       </head>
       <body
-        className={`${inter.className} bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col min-h-screen`}
+        className="font-sans bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col min-h-screen"
       >
         <AuthProvider>
           <Header />

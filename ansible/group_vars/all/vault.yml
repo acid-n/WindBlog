@@ -1,0 +1,7 @@
+# Секреты для Ansible Vault (пример)
+# ansible-vault encrypt group_vars/all/vault.yml
+
+postgres_password: "YOUR_POSTGRES_PASSWORD"
+redis_password: "YOUR_REDIS_PASSWORD"
+django_secret_key: "YOUR_DJANGO_SECRET_KEY"
+sentry_dsn: "YOUR_SENTRY_DSN"

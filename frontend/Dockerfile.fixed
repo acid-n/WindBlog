@@ -1,0 +1,65 @@
+# Универсальный Dockerfile для запуска Next.js с SSR на ARM64
+# Корректный запуск с обходом проблем нативных модулей
+
+# Этап 1: Установка зависимостей
+FROM node:18-alpine AS deps
+WORKDIR /app
+
+# Установка системных зависимостей для сборки нативных модулей
+RUN apk add --no-cache python3 make g++ libc6-compat bash
+
+# Копирование файлов зависимостей
+COPY package.json package-lock.json* ./
+
+# Установка зависимостей
+RUN npm ci
+
+# Этап 2: Сборка приложения Next.js
+FROM node:18-alpine AS builder
+WORKDIR /app
+
+# Переменные среды для отключения проблемных функций
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NEXT_PRIVATE_IGNORE_LIGHTNINGCSS=1
+ENV NEXT_DISABLE_LIGHTNINGCSS=1
+
+# Копирование всех файлов приложения
+COPY . .
+COPY --from=deps /app/node_modules ./node_modules
+
+# Создаем заглушку для нативных модулей
+RUN echo 'const noopHandler = {get: (target, prop) => {if (typeof prop === "string") {return (...args) => {if (["transform", "bundle", "compile"].includes(prop)) {return { code: "", map: null, warnings: [] };}return {};};}return undefined;}};module.exports = new Proxy({}, noopHandler);' > noop-module.js
+
+# Создаем специальную конфигурацию для ARM64
+RUN echo 'module.exports = {reactStrictMode: true,images: {domains: ["localhost"],remotePatterns: [{protocol: "http",hostname: "localhost",port: "8000",pathname: "/**"},{protocol: "http",hostname: "127.0.0.1",port: "8000",pathname: "/media/**"},{protocol: "http",hostname: "backend",port: "8000",pathname: "/media/**"}]},async rewrites() {return [{source: "/api/:path*",destination: "http://backend:8000/api/:path*"},{source: "/media/:path*",destination: "http://backend:8000/media/:path*"}]},swcMinify: false,optimizeFonts: false,experimental: {serverActions: false,serverComponentsExternalPackages: [],optimizeCss: false,forceSwcTransforms: false},webpack: (config, { isServer, dev }) => {config.resolve.alias = {...config.resolve.alias,"lightningcss": require.resolve("./noop-module.js")};return config;}}' > next.config.js
+
+# Настраиваем PostCSS
+RUN echo 'module.exports = {plugins: {"tailwindcss/nesting": {},tailwindcss: {},autoprefixer: {}}}' > postcss.config.js
+
+# Сборка приложения
+RUN npm run build
+
+# Этап 3: Запуск приложения
+FROM node:18-alpine AS runner
+WORKDIR /app
+
+# Переменные среды для продакшена
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_PRIVATE_IGNORE_LIGHTNINGCSS=1
+ENV NEXT_DISABLE_LIGHTNINGCSS=1
+
+# Копируем только необходимые файлы для запуска
+COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/noop-module.js ./
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+
+# Экспозиция порта
+EXPOSE 3000
+
+# Запуск Next.js в режиме продакшена
+CMD ["npm", "run", "start"]

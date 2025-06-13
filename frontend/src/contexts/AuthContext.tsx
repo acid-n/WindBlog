@@ -47,33 +47,87 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     // При загрузке приложения пытаемся загрузить токены из localStorage
+    console.log('[AuthContext] Начало загрузки аутентификации из localStorage');
     setIsLoading(true);
-    try {
-      const storedAccessToken = localStorage.getItem("accessToken");
-       // Пока не используем, но храним
+    
+    const initAuth = async () => {
+      try {
+        const storedAccessToken = localStorage.getItem("accessToken");
+        const storedRefreshToken = localStorage.getItem("refreshToken");
+        
+        console.log(`[AuthContext] Токены в localStorage: accessToken=${Boolean(storedAccessToken)}, refreshToken=${Boolean(storedRefreshToken)}`);
 
-      if (storedAccessToken) {
-        const decodedToken = jwtDecode<DecodedJwt>(storedAccessToken); // Декодируем токен
-        // Проверка на истечение срока действия токена (опционально здесь, т.к. сервер все равно проверит)
-        // const currentTime = Date.now() / 1000;
-        // if (decodedToken.exp < currentTime) { ... }
-        setAccessToken(storedAccessToken);
-        setUser({
-          id: decodedToken.user_id,
-          email: decodedToken.email,
-          username: decodedToken.username,
-        });
+        // Проверяем наличие токенов
+        if (!storedAccessToken || !storedRefreshToken) {
+          console.log('[AuthContext] Отсутствуют необходимые токены');
+          setAccessToken(null);
+          setUser(null);
+          return;
+        }
+        
+        // Проверяем валидность токена
+        try {
+          const currentTime = Math.floor(Date.now() / 1000);
+          const decodedToken = jwtDecode<DecodedJwt>(storedAccessToken);
+          
+          // Если токен истек или скоро истечет
+          if (decodedToken.exp && decodedToken.exp < currentTime + 300) { // 5 минут запаса
+            console.log('[AuthContext] Токен истек или скоро истечет, пытаемся обновить');
+            
+            // Выполняем обновление токена
+            await refreshToken();
+            // После обновления проверяем, есть ли новый токен
+            const newAccessToken = localStorage.getItem("accessToken");
+            if (newAccessToken) {
+              const newDecodedToken = jwtDecode<DecodedJwt>(newAccessToken);
+              setAccessToken(newAccessToken);
+              setUser({
+                id: newDecodedToken.user_id,
+                email: newDecodedToken.email,
+                username: newDecodedToken.username,
+              });
+              console.log('[AuthContext] Токен успешно обновлен');
+            }
+          } else {
+            // Токен еще действителен
+            console.log('[AuthContext] Токен действителен, устанавливаем пользователя');
+            setAccessToken(storedAccessToken);
+            setUser({
+              id: decodedToken.user_id,
+              email: decodedToken.email,
+              username: decodedToken.username,
+            });
+          }
+        } catch (decodeError) {
+          console.error('[AuthContext] Ошибка при декодировании токена:', decodeError);
+          // Токен невалидный, пробуем его обновить
+          try {
+            await refreshToken();
+          } catch (refreshError) {
+            console.error('[AuthContext] Не удалось обновить токен:', refreshError);
+            // В случае ошибки обновления очищаем все токены
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            setAccessToken(null);
+            setUser(null);
+          }
+        }
+      } catch (error) {
+        console.error('[AuthContext] Ошибка при инициализации аутентификации:', error);
+        // Очищаем токены при любой ошибке
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        setAccessToken(null);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+        console.log('[AuthContext] Завершена инициализация аутентификации');
       }
-    } catch (error) {
-      console.error("Error loading auth state from localStorage:", error);
-      // Если ошибка (например, невалидный токен), очищаем хранилище
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      setAccessToken(null);
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
+    };
+    
+    // Вызываем функцию initAuth для инициализации авторизации
+    initAuth();
+    
   }, []);
 
   const login = async (access: string, refresh: string) => {
@@ -110,42 +164,100 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     // router.push('/login');
   };
 
-  // Логика обновления токена
+  // Логика обновления токена с улучшенной обработкой ошибок
   const refreshToken = async () => {
     setIsLoading(true);
     try {
+      console.log("[AuthContext] Начало процесса обновления токена...");
+      
       const storedRefreshToken = localStorage.getItem("refreshToken");
       if (!storedRefreshToken) {
+        console.error("[AuthContext] Refresh токен не найден в localStorage");
         throw new Error("No refresh token found");
       }
-      // Эндпоинт обновления токена (замените на ваш путь, если отличается)
-      const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_API_URL}/api/token/refresh/`, {
+      
+      // Используем текущий origin для обновления токена
+      // Это гарантирует, что запрос будет направлен к тому же серверу, откуда была загружена страница
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://backend:8000';
+      const refreshUrl = `${baseUrl}/api/token/refresh/`;
+      console.log(`[AuthContext] URL для обновления токена: ${refreshUrl}`);
+      
+      // Проверяем длину токена перед запросом
+      if (storedRefreshToken.length < 10) {
+        console.error("[AuthContext] Refresh токен недействителен или слишком короткий");
+        throw new Error("Invalid refresh token");
+      }
+      
+      const response = await fetch(refreshUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ refresh: storedRefreshToken }),
+        // Отключаем кеширование
+        cache: "no-store",
       });
-      if (!response.ok) {
-        throw new Error("Failed to refresh token");
+      
+      console.log(`[AuthContext] Ответ на запрос обновления: ${response.status} ${response.statusText}`);
+      
+      // Получаем тело ответа в текстовом формате
+      const responseText = await response.text();
+      let data;
+      
+      try {
+        // Пытаемся распарсить JSON
+        data = JSON.parse(responseText);
+        console.log("[AuthContext] Успешно получены данные:", {
+          hasAccess: Boolean(data.access),
+          hasRefresh: Boolean(data.refresh)
+        });
+      } catch (jsonError) {
+        console.error(`[AuthContext] Ошибка парсинга JSON: ${responseText.substring(0, 100)}...`, jsonError);
+        throw new Error("Invalid JSON response");
       }
-      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error("[AuthContext] Ошибка обновления токена:", data);
+        throw new Error(`Failed to refresh token: ${response.status}`);
+      }
+      
       if (data.access) {
+        console.log("[AuthContext] Получен новый access токен, сохраняем");
         localStorage.setItem("accessToken", data.access);
         setAccessToken(data.access);
-        const decodedToken = jwtDecode<DecodedJwt>(data.access);
-        setUser({
-          id: decodedToken.user_id,
-          email: decodedToken.email,
-          username: decodedToken.username,
-        });
+        
+        try {
+          const decodedToken = jwtDecode<DecodedJwt>(data.access);
+          setUser({
+            id: decodedToken.user_id,
+            email: decodedToken.email,
+            username: decodedToken.username,
+          });
+          console.log(`[AuthContext] Токен успешно декодирован для пользователя: ${decodedToken.username || decodedToken.user_id}`);
+        } catch (decodeError) {
+          console.error("[AuthContext] Ошибка при декодировании токена:", decodeError);
+          // Даже если не смогли декодировать, сохраняем токен
+        }
+      } else {
+        console.error("[AuthContext] Сервер не вернул новый access токен");
+        throw new Error("No access token in response");
       }
+      
       if (data.refresh) {
+        console.log("[AuthContext] Получен новый refresh токен, обновляем");
         localStorage.setItem("refreshToken", data.refresh);
       }
+      
+      console.log("[AuthContext] Токен успешно обновлен");
     } catch (error) {
-      console.error("Error refreshing token:", error);
-      logout(); // Если не удалось обновить — выходим из аккаунта
+      console.error("[AuthContext] Ошибка при обновлении токена:", error);
+      // Выполняем выход только при определенных ошибках
+      if (error instanceof Error && 
+         (error.message.includes("No refresh token found") || 
+          error.message.includes("Failed to refresh token"))) {
+        console.log("[AuthContext] Выполняем выход из системы из-за ошибки токена");
+        logout();
+      }
     } finally {
       setIsLoading(false);
     }

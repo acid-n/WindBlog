@@ -5,8 +5,16 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
 import { Navigation, Pagination, Thumbs, Autoplay } from 'swiper/modules';
-import { getClientMediaUrl } from "../tiptap-editor/getClientMediaUrl";
+import { getClientMediaUrl } from "@/utils/media";
 import ImageUploader from '../image-uploader';
+
+/**
+ * Интерфейс для изображения в галерее
+ */
+interface GalleryImage {
+  src: string;
+  alt?: string;
+}
 
 const TiptapGallery: React.FC<NodeViewProps> = (props) => {
   const images = props.node.attrs.images || [];

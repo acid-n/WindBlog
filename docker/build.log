@@ -1,0 +1,72 @@
+time="2025-05-24T09:44:58+03:00" level=warning msg="/Users/nickshapov/Documents/windBlog/docker/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+Compose can now delegate builds to bake for better performance.
+ To do so, set COMPOSE_BAKE=true.
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [frontend internal] load build definition from Dockerfile.dev
+#1 transferring dockerfile: 602B done
+#1 DONE 0.0s
+
+#2 [frontend internal] load metadata for docker.io/library/node:18
+#2 DONE 0.7s
+
+#3 [frontend internal] load .dockerignore
+#3 transferring context: 120B done
+#3 DONE 0.0s
+
+#4 [frontend  1/10] FROM docker.io/library/node:18@sha256:c6ae79e38498325db67193d391e6ec1d224d96c693a8a4d943498556716d3783
+#4 resolve docker.io/library/node:18@sha256:c6ae79e38498325db67193d391e6ec1d224d96c693a8a4d943498556716d3783 done
+#4 DONE 0.0s
+
+#5 [frontend  2/10] WORKDIR /app
+#5 CACHED
+
+#6 [frontend internal] load build context
+#6 transferring context: 10.99kB done
+#6 DONE 0.0s
+
+#7 [frontend  3/10] COPY package.json package-lock.json* ./
+#7 DONE 0.0s
+
+#8 [frontend  4/10] RUN npm install
+#8 14.17 npm error code ERESOLVE
+#8 14.17 npm error ERESOLVE unable to resolve dependency tree
+#8 14.17 npm error
+#8 14.17 npm error While resolving: frontend@0.1.0
+#8 14.17 npm error Found: @types/react@19.1.5
+#8 14.17 npm error node_modules/@types/react
+#8 14.17 npm error   dev @types/react@"19.1.5" from the root project
+#8 14.17 npm error
+#8 14.17 npm error Could not resolve dependency:
+#8 14.17 npm error peer @types/react@"^18.0.0" from @types/react-dom@18.3.7
+#8 14.17 npm error node_modules/@types/react-dom
+#8 14.17 npm error   dev @types/react-dom@"^18.2.0" from the root project
+#8 14.17 npm error
+#8 14.17 npm error Fix the upstream dependency conflict, or retry
+#8 14.17 npm error this command with --force or --legacy-peer-deps
+#8 14.17 npm error to accept an incorrect (and potentially broken) dependency resolution.
+#8 14.17 npm error
+#8 14.17 npm error
+#8 14.17 npm error For a full report see:
+#8 14.17 npm error /root/.npm/_logs/2025-05-24T06_44_59_837Z-eresolve-report.txt
+#8 14.17 npm notice
+#8 14.17 npm notice New major version of npm available! 10.8.2 -> 11.4.1
+#8 14.17 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.4.1
+#8 14.17 npm notice To update run: npm install -g npm@11.4.1
+#8 14.17 npm notice
+#8 14.17 npm error A complete log of this run can be found in: /root/.npm/_logs/2025-05-24T06_44_59_837Z-debug-0.log
+#8 ERROR: process "/bin/sh -c npm install" did not complete successfully: exit code: 1
+------
+ > [frontend  4/10] RUN npm install:
+14.17 npm error
+14.17 npm error
+14.17 npm error For a full report see:
+14.17 npm error /root/.npm/_logs/2025-05-24T06_44_59_837Z-eresolve-report.txt
+14.17 npm notice
+14.17 npm notice New major version of npm available! 10.8.2 -> 11.4.1
+14.17 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.4.1
+14.17 npm notice To update run: npm install -g npm@11.4.1
+14.17 npm notice
+14.17 npm error A complete log of this run can be found in: /root/.npm/_logs/2025-05-24T06_44_59_837Z-debug-0.log
+------
+failed to solve: process "/bin/sh -c npm install" did not complete successfully: exit code: 1

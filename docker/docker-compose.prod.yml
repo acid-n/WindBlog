@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: blog_db_prod
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-windblog_prod}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - blog_network_prod
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.prod
+    container_name: blog_backend_prod
+    restart: always
+    env_file:
+      - .env.prod
+    environment:
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_DEBUG=False
+      - POSTGRES_DB=${POSTGRES_DB:-windblog_prod}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost}
+    ports:
+      - "8000:8000"
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - blog_network_prod
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        - API_URL=${API_URL:-http://localhost:8000/api}
+    container_name: blog_frontend_prod
+    restart: always
+    ports:
+      - "80:3000"
+    depends_on:
+      - backend
+    networks:
+      - blog_network_prod
+
+networks:
+  blog_network_prod:
+    driver: bridge
+
+volumes:
+  postgres_data_prod:
+  static_volume:
+  media_volume:

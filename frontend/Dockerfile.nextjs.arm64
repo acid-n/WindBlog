@@ -1,0 +1,95 @@
+# Оптимизированный Dockerfile для Next.js на ARM64
+# Использует многоэтапную сборку и передовые практики для решения проблемы с нативными модулями
+
+# Этап 1: Базовые зависимости
+FROM --platform=linux/arm64 node:18-alpine AS base
+
+# Установка необходимых пакетов
+RUN apk add --no-cache libc6-compat
+
+# Этап 2: Зависимости
+FROM base AS deps
+
+WORKDIR /app
+
+# Установка зависимостей для сборки нативных модулей
+RUN apk add --no-cache python3 make g++ gcc git
+
+# Копирование файлов для управления зависимостями
+COPY package.json package-lock.json* ./
+COPY next.config.arm64.js ./next.config.js
+COPY postcss.arm64.js ./postcss.config.js
+COPY noop-module.js ./noop-module.js
+
+# Настройка переменных окружения для нативных модулей
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=development
+ENV NEXT_PRIVATE_IGNORE_LIGHTNINGCSS=1
+ENV NEXT_DISABLE_LIGHTNINGCSS=1
+
+# Установка зависимостей без нативных модулей
+RUN npm ci --omit=optional --no-fund --legacy-peer-deps
+
+# Этап 3: Сборка
+FROM base AS builder
+
+WORKDIR /app
+
+# Копирование зависимостей
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/next.config.js ./next.config.js
+COPY --from=deps /app/postcss.config.js ./postcss.config.js
+COPY --from=deps /app/noop-module.js ./noop-module.js
+
+# Копирование исходного кода
+COPY . .
+
+# Модификация кода для работы без модуля next/font (совместимо с Alpine)
+RUN find ./src -name "*.tsx" -type f -exec grep -l "Inter" {} \; | xargs -r sed -i 's/import { Inter } from "next\/font\/google";/\/\/ import { Inter } from "next\/font\/google";/g' 
+
+# Удаление строки с определением Inter
+RUN find ./src -name "*.tsx" -type f -exec grep -l "Inter(" {} \; | xargs -r sed -i 's/const inter = Inter(.*);//g'
+
+# Удаление ссылок на классы Inter
+RUN find ./src -name "*.tsx" -type f -exec grep -l "inter.className" {} \; | xargs -r sed -i 's/\${inter.className}//g'
+
+# Создание папки и файла со шрифтами
+RUN mkdir -p ./src/app
+RUN printf '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");\nbody { font-family: "Inter", sans-serif; }\n' > ./src/app/fonts.css
+
+# Используем более совместимый метод для добавления импорта
+RUN if [ -f "./src/app/layout.tsx" ]; then \
+    grep -q "import \"./fonts.css\"" ./src/app/layout.tsx || \
+    sed -i "/import \".\/globals.css\";/s/$/\nimport \".\/fonts.css\";/" ./src/app/layout.tsx; \
+fi
+
+# Этап 4: Рабочая среда
+FROM base AS runner
+
+WORKDIR /app
+
+# Настройка рабочей среды
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_PRIVATE_IGNORE_LIGHTNINGCSS=1
+ENV NEXT_DISABLE_LIGHTNINGCSS=1
+ENV NODE_OPTIONS='--max_old_space_size=4096 --no-warnings'
+
+# Копирование необходимых файлов
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/next.config.js ./next.config.js
+COPY --from=builder /app/postcss.config.js ./postcss.config.js
+COPY --from=builder /app/noop-module.js ./noop-module.js
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/package.json ./package.json
+
+# Создание директории для кэша и блокировка обновлений
+RUN mkdir -p .next/cache
+RUN mkdir -p node_modules/.cache
+
+# Открываем порт для Next.js
+EXPOSE 3000
+
+# Запускаем Next.js в режиме разработки
+CMD ["npm", "run", "dev"]

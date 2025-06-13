@@ -1,0 +1,29 @@
+---
+- name: Настроить UFW
+  ufw:
+    state: enabled
+    policy: allow
+    rules:
+      - { port: 22, proto: tcp }
+      - { port: 80, proto: tcp }
+      - { port: 443, proto: tcp }
+
+- name: Установить Fail2Ban
+  apt:
+    name: fail2ban
+    state: present
+
+- name: Установить chkrootkit
+  apt:
+    name: chkrootkit
+    state: present
+
+- name: Включить автоматические обновления
+  apt:
+    name: unattended-upgrades
+    state: present
+
+- name: Установить Certbot
+  apt:
+    name: certbot
+    state: present

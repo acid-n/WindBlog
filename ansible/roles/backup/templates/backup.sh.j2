@@ -1,0 +1,3 @@
+#!/bin/bash
+# Пример скрипта бэкапа
+pg_dump -U blog blog | gzip > /home/deploy/backups/backup_$(date +%F).sql.gz

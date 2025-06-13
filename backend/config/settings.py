@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "insecure-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
+DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = [
     "localhost",
@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",  # API schema
+    # "django_prometheus",  # Мониторинг приложения - временно отключен для анализа
     "django_ckeditor_5",  # Будет удален позже
     # Local apps
     "users.apps.UsersConfig",
@@ -65,6 +66,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # "django_prometheus.middleware.PrometheusBeforeMiddleware",  # Временно отключено для анализа
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -73,8 +76,33 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
+    "blog.middleware.SecurityHeadersMiddleware",  # Добавляем наш middleware для безопасности
+    "users.middleware.AuthRateLimitMiddleware",  # Защита от брутфорс-атак и логирование авторизации
+    # "django_prometheus.middleware.PrometheusAfterMiddleware",  # Временно отключено для анализа
 ]
+
+# Настройка инструментов отладки в режиме разработки
+# Временно отключено для создания миграций
+# if DEBUG:
+#     # Добавляем инструменты отладки только в режиме разработки
+#     INSTALLED_APPS += [
+#         'debug_toolbar',
+#         'silk',
+#     ]
+#     
+#     # Добавляем middleware для отладки в начало списка
+#     MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+#     MIDDLEWARE.insert(1, 'silk.middleware.SilkyMiddleware')
+#     
+#     # Настройки Debug Toolbar
+#     INTERNAL_IPS = ['127.0.0.1']
+#     DEBUG_TOOLBAR_CONFIG = {
+#         'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+#     }
+#     
+#     # Настройки Silk
+#     SILKY_PYTHON_PROFILER = True
+#     SILKY_PYTHON_PROFILER_BINARY = True
 
 ROOT_URLCONF = "config.urls"
 
@@ -132,6 +160,76 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
+
+# Logging
+# https://docs.djangoproject.com/en/5.0/topics/logging/
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+        'auth_verbose': {
+            'format': '{levelname} {asctime} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+            'maxBytes': 10485760,  # 10 MB
+            'backupCount': 10,
+            'formatter': 'verbose',
+        },
+        'blog_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'blog.log'),
+            'maxBytes': 10485760,  # 10 MB
+            'backupCount': 10,
+            'formatter': 'verbose',
+        },
+        'auth_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'auth.log'),
+            'maxBytes': 10485760,  # 10 MB
+            'backupCount': 10,
+            'formatter': 'auth_verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'blog': {
+            'handlers': ['console', 'blog_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'auth': {
+            'handlers': ['console', 'auth_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
 
 LANGUAGE_CODE = "ru-ru"
 
@@ -293,3 +391,83 @@ CKEDITOR_5_CONFIGS = {
 
 # Кастомные CSS для CKEditor 5 (чтобы текст был виден)
 CKEDITOR_5_CUSTOM_CSS = "blog/css/ckeditor_custom.css"  # Путь относительно STATIC_URL
+
+# Настройки кэширования - временно используем локальный кэш для тестирования
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+        "TIMEOUT": 300,  # 5 минут по умолчанию
+    }
+}
+
+# Использовать локальный кэш для сессий в режиме тестирования
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
+# Примечание: в продакшене используется Redis с такими настройками:
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": os.getenv("REDIS_URL", "redis://redis:6379/0"),
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#             "PARSER_CLASS": "redis.connection.HiredisParser",
+#             "CONNECTION_POOL_KWARGS": {"max_connections": 100},
+#             "SOCKET_CONNECT_TIMEOUT": 5,
+#             "SOCKET_TIMEOUT": 5,
+#         },
+#         "KEY_PREFIX": "blog_cache",
+#         "TIMEOUT": 300,
+#     }
+# }
+
+# Настройки Rate Limiting
+RATELIMIT_USE_CACHE = "default"
+RATELIMIT_VIEW_ATTR = "_ratelimit_config"  # Атрибут для хранения конфигурации rate limit
+RATELIMIT_ENABLE = True  # Глобальное включение rate limiting
+
+# Настройки для различных групп эндпоинтов
+RATELIMIT_RATE_GROUPS = {
+    # Общие API endpoints
+    "api": "100/h",  # 100 запросов в час
+    # Эндпоинты аутентификации (более строгие ограничения)
+    "auth": "5/m",    # 5 запросов в минуту
+    # Эндпоинты для комментариев/рейтингов
+    "user_content": "20/m",  # 20 запросов в минуту
+}
+
+# Настройки CORS для разрешения запросов с фронтенда
+# Разрешаем запросы с указанных источников
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://frontend:3000",
+    "http://localhost",
+]
+
+# Разрешаем все методы HTTP для CORS
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
+# Разрешаем все заголовки для CORS
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+# Разрешаем куки в CORS-запросах
+CORS_ALLOW_CREDENTIALS = True

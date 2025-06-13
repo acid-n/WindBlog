@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { fetchSiteSettings } from "@/services/api";
 
 
 /**
@@ -9,27 +10,14 @@ const Footer: React.FC = () => {
   const [siteTitle, setSiteTitle] = useState("MyBlog");
 
   useEffect(() => {
-    const djangoApiBaseUrl =
-      process.env.NEXT_PUBLIC_DJANGO_API_URL || "http://localhost:8000";
-    const siteSettingsUrl = new URL(
-      "/api/v1/site-settings",
-      djangoApiBaseUrl,
-    ).toString();
-
-    fetch(siteSettingsUrl)
-      .then((res) => {
-        if (!res.ok) {
-          console.error(
-            `Error fetching site settings for footer: ${res.status} ${res.statusText}`,
-          );
-          return { site_title: "MyBlog" };
-        }
-        return res.json();
+    // Используем централизованный API-сервис для получения настроек сайта
+    fetchSiteSettings()
+      .then((data) => {
+        setSiteTitle(data.site_title || "MyBlog");
       })
-      .then((data) => setSiteTitle(data.site_title || "MyBlog"))
       .catch((error) => {
-        console.error("Failed to process site title for footer:", error);
-        setSiteTitle("MyBlog");
+        console.error("Ошибка при загрузке настроек сайта для футера:", error);
+        setSiteTitle("MyBlog"); // Значение по умолчанию при ошибке
       });
   }, []);
 

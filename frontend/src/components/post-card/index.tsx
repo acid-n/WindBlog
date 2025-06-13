@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import PostRating from "@/components/post-rating";
 import { format } from "date-fns";
 import ClientImage from "@/components/client-image";
-import { getClientMediaUrl } from "@/components/tiptap-editor/getClientMediaUrl";
+import { getClientMediaUrl } from "@/utils/media";
 
 /**
  * Карточка поста для главной страницы (MUSSON STYLE GUIDE).
@@ -37,7 +37,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             width={400}
             height={225}
             className="w-full h-auto object-cover rounded mb-4"
-            loading="lazy"
+            priority
           />
         </a>
       )}

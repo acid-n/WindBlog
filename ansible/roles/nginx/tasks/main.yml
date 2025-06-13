@@ -1,0 +1,17 @@
+---
+- name: Установить nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Копировать конфиг nginx
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/blog
+  notify: Reload nginx
+
+- name: Включить сайт
+  file:
+    src: /etc/nginx/sites-available/blog
+    dest: /etc/nginx/sites-enabled/blog
+    state: link

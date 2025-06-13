@@ -9,6 +9,7 @@ from .views import (
     ArchiveYearSummaryView,
     ContactMessageViewSet,
     ImageUploadView,
+    LoggingView,
     PostViewSet,
     RatingViewSet,
     ShortLinkRedirectView,
@@ -60,5 +61,7 @@ urlpatterns = (
             ShortLinkRedirectView.as_view(),
             name="shortlink-redirect",
         ),
+        # Эндпоинт для логирования с фронтенда
+        path("api/v1/logs/", LoggingView.as_view(), name="frontend-logs"),
     ]
 )

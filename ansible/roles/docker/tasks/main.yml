@@ -1,0 +1,19 @@
+---
+- name: Установить Docker
+  apt:
+    name: docker.io
+    state: present
+    update_cache: yes
+
+- name: Установить Docker Compose
+  apt:
+    name: docker-compose
+    state: present
+
+- name: Копировать docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: /home/deploy/docker-compose.yml
+    owner: deploy
+    group: deploy
+    mode: 0644

@@ -24,6 +24,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - blog_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-musson_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
@@ -57,20 +62,19 @@ services:
     build:
       context: ../frontend
       dockerfile: Dockerfile.dev
-      args: # Передаем аргументы сборки, если они нужны Dockerfile
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL_FE:-http://backend:8000/api/v1} # URL бэкенда внутри Docker сети
+      # Используем режим разработки для прямого запуска Next.js
     container_name: blog_frontend
     restart: always
     env_file:
       - .env
     environment:
       - NODE_ENV=development
+      - DOCKER_ENV=true
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL_FE:-http://backend:8000/api/v1}
     ports:
       - "3000:3000"
     volumes:
       - ../frontend:/app
-      - /app/node_modules
       - /app/.next
     depends_on:
       - backend
@@ -78,11 +82,47 @@ services:
       - blog_network
     # Для разработки: запускается npm run dev (см. Dockerfile.dev)
 
+  tests:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.dev
+    container_name: blog_tests
+    environment:
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY_BE:-insecure-test-key}
+      - DJANGO_DEBUG=${DJANGO_DEBUG:-True}
+      - POSTGRES_DB=${POSTGRES_DB:-musson_db_test}
+      - POSTGRES_USER=${POSTGRES_USER:-musson_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-musson_pass}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    volumes:
+      - ../backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >-
+      bash -c "chmod +x ./run_coverage.sh && ./run_coverage.sh"
+      
+  redis:
+    image: redis:7-alpine
+    container_name: blog_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - blog_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   blog_network:
     driver: bridge
-
- 

@@ -1,13 +1,34 @@
-# DEV Dockerfile for Next.js frontend
-FROM node:18-alpine
+# DEV Dockerfile for Next.js frontend (optimized for ARM64 and cross-platform)
+FROM node:18-alpine AS base
+
+# Устанавливаем необходимые системные зависимости для компиляции нативных модулей
+RUN apk add --no-cache python3 make g++ gcc libc6-compat
+
+# Создаем рабочую директорию и настраиваем переменные окружения
 WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=development
 
-# Копируем только package.json и lock для ускорения install
+# Создаем стандартную конфигурацию PostCSS с @tailwindcss/postcss
+RUN echo 'module.exports = {plugins: {"postcss-nested": {}, "@tailwindcss/postcss": {}, autoprefixer: {}}}' > /tmp/postcss.config.js
+
+# Копирование файлов зависимостей
 COPY package.json package-lock.json* ./
-RUN npm install
 
-# Копируем исходники (но для hot-reload будет volume)
+# Установка зависимостей
+RUN npm ci --omit=optional --no-fund
+
+# Копирование всего кода проекта
 COPY . .
 
+# Применяем нашу стандартную конфигурацию PostCSS
+RUN cp /tmp/postcss.config.js ./postcss.config.js
+
+# Создаем кэш-директории для Next.js
+RUN mkdir -p .next/cache/webpack
+
+# Открываем порт для приложения
 EXPOSE 3000
-CMD ["npm", "run", "dev"]
+
+# Запускаем приложение в режиме разработки
+CMD ["sh", "-c", "NODE_OPTIONS='--max_old_space_size=4096' npx next dev"]

@@ -1,4 +1,4 @@
-import { getClientMediaUrl } from './getClientMediaUrl';
+import { getClientMediaUrl } from '@/utils/media';
 
 // Универсальная функция для рекурсивной обработки src у изображений в JSON Tiptap
 export function processImageUrlsInJson(node: any): any {

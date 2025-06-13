@@ -1,0 +1,26 @@
+---
+- name: Обновить apt и установить базовые пакеты
+  apt:
+    update_cache: yes
+    name:
+      - sudo
+      - git
+      - curl
+      - ufw
+      - fail2ban
+      - python3-pip
+    state: present
+
+- name: Создать пользователя для деплоя
+  user:
+    name: deploy
+    groups: sudo
+    shell: /bin/bash
+    state: present
+    create_home: yes
+
+- name: Копировать SSH ключи
+  authorized_key:
+    user: deploy
+    state: present
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"

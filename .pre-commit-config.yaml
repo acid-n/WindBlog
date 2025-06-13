@@ -29,6 +29,13 @@ repos:
     hooks:
       - id: eslint
         files: \.[jt]sx?$
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [django-stubs==4.2.7]
+        files: ^backend/
+        exclude: migrations/
         types: [javascript, tsx]
         args: [--fix]
         additional_dependencies:
@@ -53,6 +60,16 @@ repos:
         language: system
         types: [javascript, tsx] # Запускать при изменении JS/TSX файлов
         pass_filenames: false # Тесты запускаются для всего проекта
+        
+  # Локальный хук для проверки безопасности
+  - repo: local
+    hooks:
+      - id: security-check
+        name: Security Check
+        entry: ./security_check.sh
+        language: system
+        pass_filenames: false
+        stages: [commit]  # Запускать на этапе коммита
 
 
   # Другие полезные хуки (опционально):

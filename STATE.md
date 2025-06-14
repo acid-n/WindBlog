@@ -1,3 +1,4 @@
 - [x] Обновить README.md
 - [x] Обновить BUILD_REPORT.md
 - [x] Добавить flake8 в зависимости и CI
+- [x] Добавить django-cors-headers и обновить README

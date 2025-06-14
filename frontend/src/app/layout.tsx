@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+// Шрифт подключается локально, чтобы избежать загрузки из сети
+// При необходимости можно вернуть импорт из 'next/font/google'
+// import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header";
 import Footer from "@/components/footer";

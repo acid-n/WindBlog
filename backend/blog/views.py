@@ -410,8 +410,6 @@ def custom_ckeditor_upload_file_view(request):
         return JsonResponse({"error": {"message": "Метод не разрешен."}}, status=405)
 
 
-
-
 # --- Новый View для загрузки изображений ---
 class ImageUploadView(APIView):
     """
@@ -537,8 +535,6 @@ class ImageUploadView(APIView):
                 {"error": "Ошибка при сохранении файла на сервере.", "details": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
-
 
 
 class ShortLinkRedirectView(View):

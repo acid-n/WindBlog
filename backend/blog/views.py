@@ -328,7 +328,8 @@ def custom_ckeditor_upload_file_view(request):
         uploaded_file = request.FILES.get("upload")
         if not uploaded_file:
             logger.error("[Custom CKEditor Upload] No file uploaded.")
-            return JsonResponse({"error": {"message": "No file uploaded."}}, status=400)
+            # Возвращаем ошибку при неправильном методе
+        return JsonResponse({"error": {"message": "No file uploaded."}}, status=400)
 
         logger.info(
             f"[Custom CKEditor Upload] Received original file: {uploaded_file.name}, type: {uploaded_file.content_type}, size: {uploaded_file.size}"
@@ -408,9 +409,6 @@ def custom_ckeditor_upload_file_view(request):
     else:
         # Если метод не POST (хотя @require_POST должен это предотвратить в оригинальном view)
         return JsonResponse({"error": {"message": "Метод не разрешен."}}, status=405)
-
-
-
 
 # --- Новый View для загрузки изображений ---
 class ImageUploadView(APIView):
@@ -537,8 +535,6 @@ class ImageUploadView(APIView):
                 {"error": "Ошибка при сохранении файла на сервере.", "details": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
-
 
 
 class ShortLinkRedirectView(View):

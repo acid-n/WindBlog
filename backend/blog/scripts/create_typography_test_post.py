@@ -1,11 +1,10 @@
 import os
 import django
 from django.utils import timezone
+from blog.models import Post, Tag
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 django.setup()
-
-from blog.models import Post, Tag
 
 # Создаем или получаем тестовый тег
 TAG_NAME = "тест-типография"

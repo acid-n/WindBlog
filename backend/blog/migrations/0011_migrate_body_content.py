@@ -8,9 +8,7 @@ from django.db import migrations
 try:
     from bs4 import BeautifulSoup
 except ImportError:
-    raise ImportError(
-        "Please install beautifulsoup4 and lxml: pip install beautifulsoup4 lxml"
-    )
+    BeautifulSoup = None
 
 
 def html_tag_to_tiptap_node(tag):
@@ -114,6 +112,10 @@ def get_default_tiptap_json_for_comparison():  # Отдельная функци
 
 
 def convert_html_to_tiptap_json(apps, schema_editor):
+    if BeautifulSoup is None:
+        print("Skipping migration: BeautifulSoup not installed")
+        return
+
     Post = apps.get_model("blog", "Post")
     print("\nStarting HTML to Tiptap JSON migration (v2)...")
     converted_count = 0

@@ -66,6 +66,15 @@
 - `docker/` — `docker-compose.yml` для полного стека (frontend, backend, db), `.env.example` для конфигурации Docker.
 - `docs/UX_UI_STYLE_GUIDE.txt` — [UX/UI STYLE GUIDE](docs/UX_UI_STYLE_GUIDE.txt) (pixel-perfect, типографика, сетка, цвета, компоненты)
 
+## Зависимости
+
+Для корректной работы миграций и тестов требуются дополнительные пакеты:
+
+- `beautifulsoup4`
+- `lxml`
+
+Они устанавливаются вместе с остальными зависимостями через `pip install -r requirements.txt`. Без них часть функциональности (например, конвертация содержимого в миграциях) недоступна.
+
 ## Запуск проекта
 
 ### Локально (без Docker)

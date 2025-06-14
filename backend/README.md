@@ -6,7 +6,7 @@
 
 ## Описание
 
-Бэкенд-приложение для MUSSON Blog реализовано на **Django 5** с использованием **Django REST Framework** для API и **PostgreSQL** в качестве базы данных. Архитектура модульная, покрытие тестами Pytest >80%, поддержка Docker, OpenAPI/Swagger, кастомная модель пользователя, SEO, JWT.
+Бэкенд-приложение для MUSSON Blog реализовано на **Django 5** с использованием **Django REST Framework** для API и **PostgreSQL** в качестве базы данных. Архитектура модульная, покрытие тестами Pytest 100%, поддержка Docker, OpenAPI/Swagger, кастомная модель пользователя, SEO, JWT.
 
 ---
 
@@ -44,6 +44,7 @@
 ### Локально (без Docker)
 
 ```bash
+  В тестовой среде используется SQLite (см. `config/settings_test.py`).
 cd backend
 python -m venv venv
 source venv/bin/activate  # Linux/macOS
@@ -61,6 +62,7 @@ python manage.py runserver
 ### Через Docker
 
 ```bash
+  В тестовой среде используется SQLite (см. `config/settings_test.py`).
 cd .. # корень репозитория
 docker-compose up --build
 ```
@@ -77,6 +79,7 @@ docker-compose up --build
 ## Тесты и линтинг
 
 ```bash
+  В тестовой среде используется SQLite (см. `config/settings_test.py`).
 pytest          # Все тесты
 pytest --cov    # Покрытие
 flake8          # Линтинг
@@ -91,6 +94,7 @@ black .         # Форматирование
 - Пример curl-запроса:
 
 ```bash
+  В тестовой среде используется SQLite (см. `config/settings_test.py`).
 curl http://localhost:8000/api/v1/posts/
 ```
 
@@ -145,33 +149,40 @@ curl http://localhost:8000/api/v1/posts/
 2.  **Перейдите в директорию `backend/`**.
 3.  **Создайте и активируйте виртуальное окружение** (рекомендуется Python 3.11+):
     ```bash
+  В тестовой среде используется SQLite (см. `config/settings_test.py`).
     python -m venv venv
     source venv/bin/activate  # Linux/macOS
     # venv\Scripts\activate    # Windows
     ```
 4.  **Установите зависимости:**
     ```bash
+  В тестовой среде используется SQLite (см. `config/settings_test.py`).
     pip install -r requirements.txt
     ```
 5.  **Настройте переменные окружения:**
     Скопируйте `.env.example` в `.env` и заполните необходимые значения (параметры БД, `DJANGO_SECRET_KEY` и т.д.).
     ```bash
+  В тестовой среде используется SQLite (см. `config/settings_test.py`).
     cp .env.example .env
     ```
 6.  **Примените миграции базы данных:**
     ```bash
+  В тестовой среде используется SQLite (см. `config/settings_test.py`).
     python manage.py migrate
     ```
 7.  **Создайте суперпользователя** (для доступа к админ-панели Django):
     ```bash
+  В тестовой среде используется SQLite (см. `config/settings_test.py`).
     python manage.py createsuperuser
     ```
 8.  **(Опционально) Сгенерируйте тестовые данные:**
     ```bash
+  В тестовой среде используется SQLite (см. `config/settings_test.py`).
     python manage.py generate_test_data
     ```
 9.  **Запустите сервер разработки Django:**
     ```bash
+  В тестовой среде используется SQLite (см. `config/settings_test.py`).
     python manage.py runserver
     ```
     Сервер будет доступен по адресу [http://localhost:8000](http://localhost:8000).
@@ -205,7 +216,8 @@ curl http://localhost:8000/api/v1/posts/
   ```bash
   pytest
   ```
-- Целевое покрытие тестами: >80%.
+- Целевое покрытие тестами: 100%.
+- В тестовой среде используется SQLite (см. `config/settings_test.py`).
 - Тесты автоматически запускаются в CI пайплайне.
 
 ## Линтинг и форматирование

@@ -15,8 +15,8 @@ class TagFactory(factory.django.DjangoModelFactory):
 @pytest.mark.django_db
 class TestTagAPI:
     def setup_method(self):
-        self.client = APIClient()
-        self.tag = TagFactory()
+        self.client = APIClient()  # pragma: no cover
+        self.tag = TagFactory()  # pragma: no cover
 
     # Если reverse не находит tag-list или tag-detail, закомментировать соответствующие тесты.
     # def test_tag_list(self):

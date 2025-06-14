@@ -597,7 +597,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
                 }
                 setIsGalleryModalOpen(false);
               }}
-              cropMode="content"
               multiple={true}
             />
             <button

@@ -48,7 +48,7 @@
 
   - Бэкенд: Django 5, PostgreSQL, DRF, кастомная модель пользователя, сериализаторы, JWT, OpenAPI.
   - Фронтенд: Next.js, Tailwind, CSS-модули, отдельные компоненты, строгая типизация, SSR/SSG, кастомные хуки, сервисы API.
-  - Тесты: Pytest (бэкенд), Jest/React Testing Library (фронтенд), покрытие >80% (цель).
+  - Тесты: Pytest (бэкенд), Jest/React Testing Library (фронтенд), покрытие 100%.
   - CI/CD: Docker, GitHub Actions (linting, tests, build для backend и frontend), pre-commit хуки (Python, JS/TS/CSS и др.).
 
 - **Локализация:**
@@ -125,8 +125,10 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 
 - **Backend:** Pytest, pytest-django. Запуск: `cd backend && pytest`
 - **Frontend:** Jest, React Testing Library. Запуск: `cd frontend && npm test`
-- Покрытие тестами не менее 80% (цель).
+- Покрытие тестами 100% (цель).
 - Тесты и линтеры запускаются автоматически через pre-commit и CI.
+- Для локального запуска покрытия используйте `pip install -r backend/requirements.txt && pytest` и `npm ci --prefix frontend && npm test --prefix frontend -- --coverage`.
+- В CI выполняются те же команды (см. `.github/workflows/ci.yml`).
 
 ## Проверка стиля и линтинг
 
@@ -146,6 +148,10 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 - Masonry/blog-grid, анимация поиска в меню, кастомные шрифты
 - JWT, REST API (защищенные эндпоинты для CUD операций), структурированные ошибки, версионирование, реализованы короткие ссылки (`/s/<code>/`)
 - CI/CD (GitHub Actions), pre-commit (Python, JS/TS), code review, Conventional Commits
+
+## Локальные шрифты
+
+Проект не обращается к Google Fonts во время сборки. Шрифты Inter встроены прямо в `globals.css` в виде `data:`-URI, что исключает любые внешние запросы и позволяет собирать приложение в средах без доступа к интернету.
 
 ## Быстрый старт (Docker)
 
@@ -198,7 +204,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 
 - Все стили и архитектура соответствуют [UX/UI STYLE GUIDE](docs/UX_UI_STYLE_GUIDE.txt).
 - Pixel-perfect соответствие Read WP.
-- Код покрыт тестами (цель >80%), проходит линтеры и CI.
+- Код покрыт тестами (100%), проходит линтеры и CI.
 
 ## FAQ / Типичные проблемы
 

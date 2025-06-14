@@ -586,20 +586,21 @@ const EditPostPage = () => {
             <ImageUploader
               label="Основное изображение (анонс)"
               initialImageUrl={post?.image}
-              onUploadComplete={(uploadedUrl) => {
+              onUploadComplete={(uploadedUrl: string | string[]) => {
+                const url = Array.isArray(uploadedUrl) ? uploadedUrl[0] : uploadedUrl;
                 if (post) {
                   console.log(
                     "[EditPostPage DEBUG] ImageUploader onUploadComplete. Uploaded URL:",
-                    uploadedUrl,
+                    url,
                   );
                   console.log(
                     "[EditPostPage DEBUG] ImageUploader onUploadComplete. Current post.image BEFORE setPost:",
                     post.image,
                   );
                   setPost((prevPost) =>
-                    prevPost ? { ...prevPost, image: uploadedUrl } : null,
+                    prevPost ? { ...prevPost, image: url } : null,
                   );
-                  latestUploadedImagePathRef.current = uploadedUrl;
+                  latestUploadedImagePathRef.current = url;
                   console.log(
                     "[EditPostPage DEBUG] ImageUploader onUploadComplete. latestUploadedImagePathRef.current SET TO:",
                     latestUploadedImagePathRef.current,

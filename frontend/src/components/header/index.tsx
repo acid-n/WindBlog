@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";

@@ -81,3 +81,5 @@ sqlparse==0.5.3
     # via django
 uritemplate==4.1.1
     # via drf-spectacular
+factory_boy==3.3.3
+    # использован в тестах

@@ -28,6 +28,7 @@ jobs:
       POSTGRES_PORT: 5432
       DJANGO_SECRET_KEY: ci-test-secret-key
       DJANGO_DEBUG: 'True'
+      DJANGO_SETTINGS_MODULE: config.settings_test
       # Убедитесь, что .env файл не используется в CI или содержит тестовые значения
 
     steps:
@@ -46,6 +47,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           # pytest, pytest-django, black, isort, flake8 должны быть в requirements.txt или requirements-dev.txt
+
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h localhost -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB; do
+            sleep 1
+          done
 
       - name: Run backend linters
         working-directory: ./backend

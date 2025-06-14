@@ -124,6 +124,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 ## Тесты
 
 - **Backend:** Pytest, pytest-django. Запуск: `cd backend && pytest`
+- Перед запуском тестов загрузите переменные из `backend/.env.test`
 - **Frontend:** Jest, React Testing Library. Запуск: `cd frontend && npm test`
 - Покрытие тестами не менее 80% (цель).
 - Тесты и линтеры запускаются автоматически через pre-commit и CI.

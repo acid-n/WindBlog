@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Header from './index';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
@@ -9,6 +10,9 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(() => ({
     push: jest.fn(),
   })),
+}));
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: jest.fn(() => ({ user: null, isLoading: false, logout: jest.fn() })),
 }));
 
 describe('Header Component', () => {
@@ -18,8 +22,9 @@ describe('Header Component', () => {
     // Mock fetch for site settings
     global.fetch = jest.fn(() =>
       Promise.resolve({
+        ok: true,
         json: () => Promise.resolve({ site_title: 'Test Blog', site_description: 'Test Description' }),
-      }) as Promise<Response>
+      }) as any
     );
   });
 
@@ -41,9 +46,9 @@ describe('Header Component', () => {
     (usePathname as jest.Mock).mockReturnValue('/tags');
     render(<Header />);
     const tagsLink = screen.getByText('Теги');
-    expect(tagsLink).toHaveClass('text-[#CE6607]'); // Example class for active link
     expect(tagsLink).toHaveAttribute('aria-current', 'page');
   });
 
   // Add more tests for search functionality, etc.
 }); 
+

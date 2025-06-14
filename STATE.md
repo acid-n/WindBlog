@@ -2,3 +2,4 @@
 - [x] Добавлена установка flake8 для GitHub Actions
 - [x] Правки flake8 для backend
 - [x] Добавлен black и обновлены инструкции по стилю кода
+- [x] ESLint обновлён, добавлен скрипт lint:check

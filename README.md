@@ -135,6 +135,16 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 - **Python:** black, isort, flake8 (настроены в pre-commit и CI, запуск: `cd backend && flake8`).
 - **JS/TS/CSS и др.:** Prettier, ESLint (настроены в pre-commit и CI).
 
+## Проверка линтинга
+
+Перед коммитом запустите команду:
+
+```bash
+npm run lint:check
+```
+
+Если появятся ошибки или устаревшие опции, сначала обновите `.eslintrc`.
+
 ### Стиль кода
 
 Форматирование и проверки выполняются с помощью следующих команд:

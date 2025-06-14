@@ -2,6 +2,10 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Header from './index';
 import { usePathname } from 'next/navigation';
+// Мокаем контекст авторизации, чтобы не требовался AuthProvider
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({ user: null, isLoading: false, logout: jest.fn() }),
+}));
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
@@ -18,8 +22,15 @@ describe('Header Component', () => {
     // Mock fetch for site settings
     global.fetch = jest.fn(() =>
       Promise.resolve({
-        json: () => Promise.resolve({ site_title: 'Test Blog', site_description: 'Test Description' }),
-      }) as Promise<Response>
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        json: () =>
+          Promise.resolve({
+            site_title: 'Test Blog',
+            site_description: 'Test Description',
+          }),
+      }) as unknown as Promise<Response>
     );
   });
 
@@ -41,7 +52,8 @@ describe('Header Component', () => {
     (usePathname as jest.Mock).mockReturnValue('/tags');
     render(<Header />);
     const tagsLink = screen.getByText('Теги');
-    expect(tagsLink).toHaveClass('text-[#CE6607]'); // Example class for active link
+    const tagsLi = tagsLink.closest('li');
+    expect(tagsLi).toHaveClass('current-menu-item');
     expect(tagsLink).toHaveAttribute('aria-current', 'page');
   });
 

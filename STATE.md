@@ -1,0 +1,2 @@
+- [x] Обновить README.md
+- [x] Обновить BUILD_REPORT.md

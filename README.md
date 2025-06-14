@@ -78,6 +78,7 @@ cd backend
 python -m venv venv
 source venv/bin/activate # для Linux/macOS или venv\Scripts\activate для Windows
 pip install -r requirements.txt
+# Файл requirements.txt содержит dev-зависимости (flake8, black, isort, pytest-cov)
 cp .env.example .env  # заполнить переменные для локального запуска (не Docker)
 python manage.py migrate
 python manage.py createsuperuser

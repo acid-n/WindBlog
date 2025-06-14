@@ -160,7 +160,7 @@ class Command(BaseCommand):
                     g_path = f"/media/posts/{g_filename}"
                     with open(f"backend/media/posts/{g_filename}", "wb") as f:
                         f.write(g_file.read())
-                    gallery_imgs.append({"url": g_path, "alt": f"Галерея {j+1}"})
+                    gallery_imgs.append({"url": g_path, "alt": f"Галерея {j + 1}"})
             if gallery_imgs:
                 blocks.append({"type": "gallery", "data": {"images": gallery_imgs}})
             # Видео

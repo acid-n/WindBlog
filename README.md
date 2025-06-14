@@ -131,7 +131,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 
 ## Проверка стиля и линтинг
 
-- **Python:** black, isort, flake8 (настроены в pre-commit и CI).
+- **Python:** black, isort, flake8 (настроены в pre-commit и CI, запуск: `cd backend && flake8`).
 - **JS/TS/CSS и др.:** Prettier, ESLint (настроены в pre-commit и CI).
 
 ## Документация

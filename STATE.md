@@ -1,1 +1,2 @@
 - [x] Фикс CI для PostgreSQL и настройка тестовой БД
+- [x] Добавлена установка flake8 для GitHub Actions

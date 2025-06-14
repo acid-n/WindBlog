@@ -137,8 +137,15 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 - **Frontend:** Jest, React Testing Library. Запуск: `cd frontend && npm test -- --coverage`.
 - Цель покрытия — не менее 95%.
 - Тесты и линтеры запускаются автоматически через pre-commit и CI.
+ - Перед запуском убедитесь, что зависимости установлены:
+   - `pip install -r backend/requirements.txt`
+   - `npm ci --prefix frontend`
 
 ## Проверка стиля и линтинг
+
+- Запуск линтеров вручную:
+  - `flake8` и `black --check` в каталоге `backend`
+  - `npm run lint` в каталоге `frontend`
 
 - **Python:** black, isort, flake8 (настроены в pre-commit и CI).
 - **JS/TS/CSS и др.:** Prettier, ESLint (настроены в pre-commit и CI).

@@ -410,7 +410,10 @@ def custom_ckeditor_upload_file_view(request):
         # Если метод не POST (хотя @require_POST должен это предотвратить в оригинальном view)
         return JsonResponse({"error": {"message": "Метод не разрешен."}}, status=405)
 
+
 # --- Новый View для загрузки изображений ---
+
+
 class ImageUploadView(APIView):
     """
     Принимает POST запрос с файлом изображения ('upload'),

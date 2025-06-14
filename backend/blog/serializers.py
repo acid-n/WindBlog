@@ -22,8 +22,6 @@ class CustomImageField(serializers.ImageField):
         files = self.context["request"].FILES
         # Если 'data' это строка и ( (нет 'image' в files) или (есть 'image' в files и data не является ключом в files['image']) )
         # Это условие сложное. По сути, если data - это строка, и она не является именем загруженного файла, то это путь.
-
-
         if isinstance(data, str) and (
             not files or data not in files.get(self.field_name, [])
         ):
@@ -31,8 +29,6 @@ class CustomImageField(serializers.ImageField):
                 return False
 
             return data
-
-
         try:
             processed_data = super().to_internal_value(data)
 

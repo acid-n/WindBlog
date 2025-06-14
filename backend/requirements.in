@@ -1,5 +1,6 @@
 django~=5.0
 djangorestframework
+django-cors-headers
 psycopg2-binary
 pytest
 pytest-django
@@ -11,3 +12,11 @@ gunicorn
 drf-spectacular[validation]>=0.28.0,<0.29.0 # OpenAPI schema generation
 Pillow>=10.3.0,<11.0.0 # Image processing
 django-ckeditor-5>=0.2.17 # WYSIWYG editor
+beautifulsoup4
+lxml
+factory-boy
+black
+isort
+flake8
+
+pytest-cov

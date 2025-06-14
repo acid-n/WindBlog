@@ -45,7 +45,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # pytest, pytest-django, black, isort, flake8 должны быть в requirements.txt или requirements-dev.txt
+          # requirements.txt содержит flake8, pytest-cov и прочие dev-зависимости
 
       - name: Run backend linters
         working-directory: ./backend

@@ -66,6 +66,15 @@
 - `docker/` — `docker-compose.yml` для полного стека (frontend, backend, db), `.env.example` для конфигурации Docker.
 - `docs/UX_UI_STYLE_GUIDE.txt` — [UX/UI STYLE GUIDE](docs/UX_UI_STYLE_GUIDE.txt) (pixel-perfect, типографика, сетка, цвета, компоненты)
 
+## Зависимости
+
+Для корректной работы миграций и тестов требуются дополнительные пакеты:
+
+- `beautifulsoup4`
+- `lxml`
+
+Они устанавливаются вместе с остальными зависимостями через `pip install -r requirements.txt`. Без них часть функциональности (например, конвертация содержимого в миграциях) недоступна.
+
 ## Запуск проекта
 
 ### Локально (без Docker)
@@ -78,6 +87,7 @@ cd backend
 python -m venv venv
 source venv/bin/activate # для Linux/macOS или venv\Scripts\activate для Windows
 pip install -r requirements.txt
+# Файл requirements.txt содержит dev-зависимости (flake8, black, isort, pytest-cov)
 cp .env.example .env  # заполнить переменные для локального запуска (не Docker)
 python manage.py migrate
 python manage.py createsuperuser
@@ -123,12 +133,19 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 
 ## Тесты
 
-- **Backend:** Pytest, pytest-django. Запуск: `cd backend && pytest`
-- **Frontend:** Jest, React Testing Library. Запуск: `cd frontend && npm test`
-- Покрытие тестами не менее 80% (цель).
+- **Backend:** Pytest, pytest-django. Запуск: `cd backend && pytest --cov=. -q` для вывода покрытия.
+- **Frontend:** Jest, React Testing Library. Запуск: `cd frontend && npm test -- --coverage`.
+- Цель покрытия — не менее 95%.
 - Тесты и линтеры запускаются автоматически через pre-commit и CI.
+ - Перед запуском убедитесь, что зависимости установлены:
+   - `pip install -r backend/requirements.txt`
+   - `npm ci --prefix frontend`
 
 ## Проверка стиля и линтинг
+
+- Запуск линтеров вручную:
+  - `flake8` и `black --check` в каталоге `backend`
+  - `npm run lint` в каталоге `frontend`
 
 - **Python:** black, isort, flake8 (настроены в pre-commit и CI).
 - **JS/TS/CSS и др.:** Prettier, ESLint (настроены в pre-commit и CI).

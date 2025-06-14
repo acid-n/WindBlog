@@ -7,6 +7,11 @@ import 'swiper/css/thumbs';
 import { Navigation, Pagination, Thumbs, Autoplay } from 'swiper/modules';
 import ImageUploader from '../image-uploader';
 
+export interface GalleryImage {
+  src: string;
+  alt?: string;
+}
+
 const TiptapGallery: React.FC<NodeViewProps> = (props) => {
   const images = props.node.attrs.images || [];
   const editable = props.editor.isEditable;
@@ -57,7 +62,8 @@ const TiptapGallery: React.FC<NodeViewProps> = (props) => {
     if (Array.isArray(urls)) {
       // Если элементы уже объекты {src, alt} — не преобразовывать
       if (typeof urls[0] === 'object' && urls[0] !== null && 'src' in urls[0]) {
-        newImages = newImages.concat((urls as {src: string, alt?: string}[]).map(img => ({
+        const arr = urls as unknown as { src: string; alt?: string }[];
+        newImages = newImages.concat(arr.map(img => ({
           ...img,
           src: normalizeSrc(img.src),
         })));
@@ -88,8 +94,8 @@ const TiptapGallery: React.FC<NodeViewProps> = (props) => {
           aria-label="Удалить галерею"
           onClick={() => {
             if (window.confirm('Удалить галерею?')) {
-              props.editor.commands.command(({ tr, state, dispatch }) => {
-                dispatch(tr.deleteSelection());
+              props.editor?.commands.command(({ tr, dispatch }) => {
+                dispatch?.(tr.deleteSelection());
                 return true;
               });
             }

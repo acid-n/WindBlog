@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import slugify from "slugify";
 import { fetchWithAuth } from "@/services/apiClient";
 import ImageUploader from "@/components/image-uploader";
+import { normalizeUpload } from "@/utils/normalizeUpload";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -105,7 +106,7 @@ const initialPostState: Partial<PostExtended> = {
 
   // Состояния для загрузчика изображений
   
-  const [imagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const {
     control,
@@ -380,12 +381,14 @@ const initialPostState: Partial<PostExtended> = {
   };
 
   // Функция для обработки завершения загрузки изображения
-  const handleImageUploadComplete = useCallback((uploadedUrl: string) => {
+  const handleImageUploadComplete = useCallback((url: string | string[]) => {
+    const uploadedUrl = normalizeUpload(url);
     console.log("Изображение успешно загружено, URL:", uploadedUrl);
     setPost((prevPost) => ({
       ...prevPost,
       image: uploadedUrl,
     }));
+    setImagePreview(uploadedUrl);
   }, []);
 
   if (authLoading)

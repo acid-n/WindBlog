@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import slugify from "slugify";
 import { fetchWithAuth } from "@/services/apiClient";
 import ImageUploader from "@/components/image-uploader";
+import { normalizeUpload } from "@/utils/normalizeUpload";
 import { TrashIcon } from "@heroicons/react/24/outline";
 
 const processImageUrlsInJson = (node: unknown, mediaUrl: string): unknown => {
@@ -586,8 +587,9 @@ const EditPostPage = () => {
             <ImageUploader
               label="Основное изображение (анонс)"
               initialImageUrl={post?.image}
-              onUploadComplete={(uploadedUrl) => {
+              onUploadComplete={(url: string | string[]) => {
                 if (post) {
+                  const uploadedUrl = normalizeUpload(url);
                   console.log(
                     "[EditPostPage DEBUG] ImageUploader onUploadComplete. Uploaded URL:",
                     uploadedUrl,

@@ -17,8 +17,7 @@ DATABASES = {
     }
 }
 
-if (
-    DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3"
-    and isinstance(DATABASES["default"]["NAME"], Path)
+if DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3" and isinstance(
+    DATABASES["default"]["NAME"], Path
 ):
     DATABASES["default"]["NAME"] = str(DATABASES["default"]["NAME"])

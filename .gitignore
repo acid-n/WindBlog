@@ -1,22 +1,47 @@
+# Директории зависимостей и сборок
 venv/
 node_modules/
 .next/
+dist/
+build/
+
+# Кэш и временные файлы
 .pytest_cache/
+__pycache__/
+*.pyc
+
+# Логи и отчёты покрытия
 *.log
+coverage/
+.coverage
+
+# Файлы окружения
 .env.local
 *.env
 .env.*
 !.env.example
-coverage/
-.coverage
-__pycache__/
+
+# Бинарные файлы и медиаконтент
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.ico
+*.tar
+*.zip
+*.bak
+*.db
+*.sqlite3
+*.so
 .DS_Store
 
-# Игнорировать все медиа-файлы и папки
+# Локальные медиа для разработки
+media-dev/
 media/
 backend/media/
 backend/backend/media/
 media/posts/uploads/
 media/uploads/
-*.pyc
-backend/media/
+
+# Docker
+**/tmp/

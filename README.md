@@ -44,6 +44,8 @@
 
   - Название и описание сайта берутся из Django-модели SiteSettings (через API `/api/v1/site-settings`).
   - В Header и Footer всегда актуальное название из админки.
+  - Для запросов с сервера и из браузера используется утилита `getBaseUrl`,
+    которая подставляет `http://backend:8000` при SSR и `NEXT_PUBLIC_API_BASE` в браузере.
 
 - **Архитектура:**
 
@@ -235,6 +237,12 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 - **Проблемы с запуском фронтенда:** Убедитесь, что все зависимости установлены (`npm install`). Проверьте переменную `NEXT_PUBLIC_API_BASE` в `.env.local` при запуске в Docker. При проблемах со стилями Tailwind CSS удалите папки `.next` и `node_modules`, затем выполните `npm install`.
 - **ESLint/Prettier в pre-commit:** Убедитесь, что в `frontend/` установлены все зависимости (`npm install`), включая `eslint-config-next` и другие плагины ESLint, указанные в `additional_dependencies` в `.pre-commit-config.yaml`.
 - **Вопросы:** musson@support.ru
+
+## Git-гигиена
+
+- Бинарные файлы (изображения, архивы, логи) не хранятся в репозитории.
+- Для локальных ресурсов используйте папку `media-dev/` — она исключена из Git.
+- `.gitignore` содержит правила для `*.png`, `*.jpg`, `*.webp`, `__pycache__`, логов и временных файлов.
 
 ## Лицензия и контакты
 

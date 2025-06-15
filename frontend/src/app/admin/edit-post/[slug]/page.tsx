@@ -9,6 +9,7 @@ import slugify from "slugify";
 import { fetchWithAuth } from "@/services/apiClient";
 import ImageUploader from "@/components/image-uploader";
 import { TrashIcon } from "@heroicons/react/24/outline";
+import { getBackendOrigin } from "@/lib/apiBase";
 
 const processImageUrlsInJson = (node: unknown, mediaUrl: string): unknown => {
   if (Array.isArray(node)) {
@@ -73,10 +74,9 @@ const EditPostPage = () => {
 
     const fetchAllTags = async () => {
       try {
-        const djangoApiUrl =
-          process.env.NEXT_PUBLIC_DJANGO_API_URL ||
-          "http://localhost:8000/api/v1";
-        const response = await fetchWithAuth(`${djangoApiUrl}/tags/?limit=200`);
+        const response = await fetchWithAuth(
+          `${getBackendOrigin()}/api/v1/tags/?limit=200`,
+        );
         if (!response.ok) throw new Error("Failed to fetch tags for editing");
         const data: { results: Tag[] } = await response.json();
         setAllTags(data.results || []);
@@ -92,11 +92,8 @@ const EditPostPage = () => {
         setError("");
         setSaveSuccessMessage(null);
         try {
-          const djangoApiUrl =
-            process.env.NEXT_PUBLIC_DJANGO_API_URL ||
-            "http://localhost:8000/api/v1";
           const response = await fetchWithAuth(
-            `${djangoApiUrl}/posts/${slug}/`,
+            `${getBackendOrigin()}/api/v1/posts/${slug}/`,
           );
           if (!response.ok) {
             let errorDetail = `HTTP ошибка: ${response.status}`;
@@ -257,15 +254,15 @@ const EditPostPage = () => {
       } else if (path.length === 0) {
         path = "";
       } else if (path.length > 255) {
-    console.error(
-      `[EditPostPage SAVE ERROR] Очищенный путь слишком длинный (${path.length} символов): '${path}'. Исходный: '${imageSource}'`,
-    );
-    path = "";
-  }
-  imagePathForSave = path;
-}
+        console.error(
+          `[EditPostPage SAVE ERROR] Очищенный путь слишком длинный (${path.length} символов): '${path}'. Исходный: '${imageSource}'`,
+        );
+        path = "";
+      }
+      imagePathForSave = path;
+    }
 
-const postDataToSave: any = {
+    const postDataToSave: any = {
       ...post,
       image: imagePathForSave,
       body: editorContent,
@@ -282,13 +279,9 @@ const postDataToSave: any = {
     };
     delete postDataToSave.tags_details;
 
-
     try {
-      const djangoApiUrl =
-        process.env.NEXT_PUBLIC_DJANGO_API_URL ||
-        "http://localhost:8000/api/v1";
       const response = await fetchWithAuth(
-        `${djangoApiUrl}/posts/${post.slug}/`,
+        `${getBackendOrigin()}/api/v1/posts/${post.slug}/`,
         {
           method: "PUT",
           headers: {
@@ -402,15 +395,15 @@ const postDataToSave: any = {
         "Вы уверены, что хотите удалить этот пост? Это действие необратимо.",
       )
     ) {
-        try {
-          setIsLoadingPageContent(true);
-          setError("");
-        const djangoApiUrl =
-          process.env.NEXT_PUBLIC_DJANGO_API_URL ||
-          "http://localhost:8000/api/v1";
-        const response = await fetchWithAuth(`${djangoApiUrl}/posts/${slug}/`, {
-          method: "DELETE",
-        });
+      try {
+        setIsLoadingPageContent(true);
+        setError("");
+        const response = await fetchWithAuth(
+          `${getBackendOrigin()}/api/v1/posts/${slug}/`,
+          {
+            method: "DELETE",
+          },
+        );
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => null);
@@ -434,8 +427,8 @@ const postDataToSave: any = {
 
         router.push("/");
       } catch (e: unknown) {
-    console.error("Ошибка при удалении поста:", e);
-    setError(e instanceof Error ? e.message : "Не удалось удалить пост.");
+        console.error("Ошибка при удалении поста:", e);
+        setError(e instanceof Error ? e.message : "Не удалось удалить пост.");
         setIsLoadingPageContent(false);
       }
     }
@@ -675,7 +668,9 @@ const postDataToSave: any = {
               name="sitemap_priority"
               id="sitemap_priority"
               value={
-                (post as any).sitemap_priority === null ? "" : (post as any).sitemap_priority
+                (post as any).sitemap_priority === null
+                  ? ""
+                  : (post as any).sitemap_priority
               }
               onChange={handleInputChange}
               className="input-field"

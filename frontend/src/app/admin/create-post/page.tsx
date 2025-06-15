@@ -9,14 +9,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import slugify from "slugify";
 import { fetchWithAuth } from "@/services/apiClient";
 import ImageUploader from "@/components/image-uploader";
+import { getBackendOrigin } from "@/lib/apiBase";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-
-
-
-
-
 
 // Схема валидации с учетом максимальной длины
 const MAX_TITLE_LENGTH = 80;
@@ -35,7 +31,6 @@ export interface PostFormData {
   tags: number[];
 }
 
-
 const postSchema = z.object({
   title: z
     .string()
@@ -52,7 +47,11 @@ const postSchema = z.object({
       MAX_DESCRIPTION_LENGTH,
       `Описание не должно превышать ${MAX_DESCRIPTION_LENGTH} символов`,
     ),
-  body: z.custom<JSONContent>().refine((val) => val !== undefined && val !== null, { message: "Body is required" }), // Для TipTap JSONContent
+  body: z
+    .custom<JSONContent>()
+    .refine((val) => val !== undefined && val !== null, {
+      message: "Body is required",
+    }), // Для TipTap JSONContent
   is_published: z.boolean(),
   sitemap_include: z.boolean(),
   sitemap_priority: z.number().min(0).max(1),
@@ -61,22 +60,19 @@ const postSchema = z.object({
 });
 
 const CreatePostPage = () => {
-  
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
 
-  
-
   // Начальное состояние для нового поста
   // Расширяем Post для поддержки нужных полей
-interface PostExtended extends Post {
-  is_published?: boolean;
-  sitemap_include?: boolean;
-  sitemap_priority?: number;
-  sitemap_changefreq?: string;
-}
+  interface PostExtended extends Post {
+    is_published?: boolean;
+    sitemap_include?: boolean;
+    sitemap_priority?: number;
+    sitemap_changefreq?: string;
+  }
 
-const initialPostState: Partial<PostExtended> = {
+  const initialPostState: Partial<PostExtended> = {
     title: "",
     slug: "",
     description: "",
@@ -101,10 +97,9 @@ const initialPostState: Partial<PostExtended> = {
     null,
   );
   const successMessageTimerRef = useRef<NodeJS.Timeout | null>(null);
-  
 
   // Состояния для загрузчика изображений
-  
+
   const [imagePreview] = useState<string | null>(null);
 
   const {
@@ -147,10 +142,9 @@ const initialPostState: Partial<PostExtended> = {
     // Загрузка всех тегов
     const fetchAllTags = async () => {
       try {
-        const djangoApiUrl =
-          process.env.NEXT_PUBLIC_DJANGO_API_URL ||
-          "http://localhost:8000/api/v1";
-        const response = await fetchWithAuth(`${djangoApiUrl}/tags/?limit=200`); // Загружаем все теги (увеличил лимит на всякий случай)
+        const response = await fetchWithAuth(
+          `${getBackendOrigin()}/api/v1/tags/?limit=200`,
+        );
         if (!response.ok) throw new Error("Failed to fetch tags");
         const data: { results: Tag[] } = await response.json();
         setAllTags(data.results || []);
@@ -199,7 +193,9 @@ const initialPostState: Partial<PostExtended> = {
     );
   };
 
-  const performSaveOrPublish: SubmitHandler<PostFormData> = async (data: PostFormData) => {
+  const performSaveOrPublish: SubmitHandler<PostFormData> = async (
+    data: PostFormData,
+  ) => {
     if (!editorContent || !user) {
       setError(
         "Невозможно сохранить пост: пользователь не аутентифицирован или нет основного контента.",
@@ -234,12 +230,12 @@ const initialPostState: Partial<PostExtended> = {
           ? new Date(post.first_published_at).toISOString()
           : null,
 
-      sitemap_priority: (post.sitemap_priority ?? 0.5)
-        ? parseFloat(String(post.sitemap_priority ?? 0.5))
-        : 0.5,
-      sitemap_include: (post.sitemap_include ?? true),
-      sitemap_changefreq: (post.sitemap_changefreq ?? "monthly"),
-      
+      sitemap_priority:
+        (post.sitemap_priority ?? 0.5)
+          ? parseFloat(String(post.sitemap_priority ?? 0.5))
+          : 0.5,
+      sitemap_include: post.sitemap_include ?? true,
+      sitemap_changefreq: post.sitemap_changefreq ?? "monthly",
 
       tags: selectedTagIds,
       image: post.image,
@@ -248,17 +244,17 @@ const initialPostState: Partial<PostExtended> = {
     delete postDataToSave.id;
 
     try {
-      const djangoApiUrl =
-        process.env.NEXT_PUBLIC_DJANGO_API_URL ||
-        "http://localhost:8000/api/v1";
       // Отправляем POST запрос для создания
-      const response = await fetchWithAuth(`${djangoApiUrl}/posts/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetchWithAuth(
+        `${getBackendOrigin()}/api/v1/posts/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(postDataToSave),
         },
-        body: JSON.stringify(postDataToSave),
-      });
+      );
 
       if (!response.ok) {
         let errorDetail = `HTTP ошибка: ${response.status}`;
@@ -296,7 +292,7 @@ const initialPostState: Partial<PostExtended> = {
       }
 
       const newPostData: Post = await response.json();
-      
+
       setSaveSuccessMessage("Пост успешно создан! Запуск ревалидации кэша...");
       successMessageTimerRef.current = setTimeout(
         () => setSaveSuccessMessage(null),
@@ -315,16 +311,24 @@ const initialPostState: Partial<PostExtended> = {
         setTimeout(() => {
           if ((newPostData as Partial<PostExtended>)?.slug) {
             if ((newPostData as Partial<PostExtended>)?.is_published) {
-              router.push(`/posts/${(newPostData as Partial<PostExtended>)?.slug}`);
+              router.push(
+                `/posts/${(newPostData as Partial<PostExtended>)?.slug}`,
+              );
             } else {
               router.push(`/admin/drafts`);
             }
           }
         }, 1500);
       } else {
-        const pathsToRevalidate = ["/blog", "/"]; 
-        if (newPostData && (newPostData as Partial<PostExtended>).slug && (newPostData as Partial<PostExtended>).is_published) {
-          pathsToRevalidate.push(`/posts/${(newPostData as Partial<PostExtended>).slug}`);
+        const pathsToRevalidate = ["/blog", "/"];
+        if (
+          newPostData &&
+          (newPostData as Partial<PostExtended>).slug &&
+          (newPostData as Partial<PostExtended>).is_published
+        ) {
+          pathsToRevalidate.push(
+            `/posts/${(newPostData as Partial<PostExtended>).slug}`,
+          );
         }
         // pathsToRevalidate.push('/');
 
@@ -357,7 +361,9 @@ const initialPostState: Partial<PostExtended> = {
             setTimeout(() => {
               if (newPostData?.slug) {
                 if ((newPostData as Partial<PostExtended>).is_published) {
-                  router.push(`/posts/${(newPostData as Partial<PostExtended>).slug}`);
+                  router.push(
+                    `/posts/${(newPostData as Partial<PostExtended>).slug}`,
+                  );
                 } else {
                   router.push(`/admin/drafts`);
                 }
@@ -588,8 +594,8 @@ const initialPostState: Partial<PostExtended> = {
               />
               {!(post.is_published ?? false) && (
                 <p className="text-xs text-gray-500 mt-1">
-                  Установится автоматически при установке флага &quot;Опубликовано&quot; и
-                  сохранении, если не задано.
+                  Установится автоматически при установке флага
+                  &quot;Опубликовано&quot; и сохранении, если не задано.
                 </p>
               )}
             </div>
@@ -633,7 +639,7 @@ const initialPostState: Partial<PostExtended> = {
                 max="1"
                 name="sitemap_priority"
                 id="sitemap_priority"
-                value={(post.sitemap_priority ?? 0.5) ?? 0.5}
+                value={post.sitemap_priority ?? 0.5 ?? 0.5}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setPost((prev) => ({
                     ...prev,

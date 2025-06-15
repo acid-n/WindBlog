@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { getBackendOrigin } from "@/lib/apiBase";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -12,8 +13,7 @@ const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const router = useRouter();
 
-  const djangoApiBaseUrl =
-    process.env.NEXT_PUBLIC_DJANGO_API_URL || "http://localhost:8000/api/v1";
+  const backendOrigin = getBackendOrigin();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,16 +21,13 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `${djangoApiBaseUrl.replace("/v1", "")}/token/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
+      const response = await fetch(`${backendOrigin}/token/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ email, password }),
+      });
 
       const data = await response.json();
 

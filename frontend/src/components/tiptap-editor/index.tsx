@@ -3,11 +3,11 @@
 import React, { useCallback, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Table from '@tiptap/extension-table';
-import TableRow from '@tiptap/extension-table-row';
-import TableCell from '@tiptap/extension-table-cell';
-import TableHeader from '@tiptap/extension-table-header';
-import CodeBlock from '@tiptap/extension-code-block';
+import Table from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import CodeBlock from "@tiptap/extension-code-block";
 
 import TextAlign from "@tiptap/extension-text-align";
 import { Color } from "@tiptap/extension-color";
@@ -16,6 +16,7 @@ import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 
 import { GalleryNode } from "@/lib/tiptapGalleryExtension"; // NEW
+import { getBackendOrigin } from "@/lib/apiBase";
 import {
   FaBold,
   FaItalic,
@@ -83,7 +84,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       TableCell,
       TableHeader,
       CodeBlock.configure({
-        languageClassPrefix: 'language-',
+        languageClassPrefix: "language-",
       }),
     ],
     content: content as import("@tiptap/react").Content,
@@ -106,16 +107,18 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     (url: string | string[]) => {
       if (!editor) return;
       const djangoMediaUrl =
-        process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL ||
-        process.env.NEXT_PUBLIC_DJANGO_API_URL ||
-        "http://localhost:8000";
+        process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL || getBackendOrigin();
       if (Array.isArray(url)) {
         // Если массив, вставляем gallery node
         const images = url.map((src) => ({ src, alt: "" }));
-        editor.chain().focus().insertContent({
-          type: 'gallery',
-          attrs: { images },
-        }).run();
+        editor
+          .chain()
+          .focus()
+          .insertContent({
+            type: "gallery",
+            attrs: { images },
+          })
+          .run();
       } else {
         // Обычная картинка
         const absoluteUrl =
@@ -301,7 +304,9 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
                 .toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 })
                 .run()
             }
-            isActive={editor.isActive("heading", { level: level as 1 | 2 | 3 | 4 | 5 | 6 })}
+            isActive={editor.isActive("heading", {
+              level: level as 1 | 2 | 3 | 4 | 5 | 6,
+            })}
           >
             <div className="flex items-center">
               <FaHeading />
@@ -500,23 +505,38 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         </MenuButton>
       </div>
 
-      <EditorContent editor={editor} className="prose prose-lg max-w-none tiptap-content p-3" />
+      <EditorContent
+        editor={editor}
+        className="prose prose-lg max-w-none tiptap-content p-3"
+      />
 
       {/* Временная кнопка для вставки gallery node для теста */}
       {editor && (
         <button
           className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           onClick={() => {
-            editor.chain().focus().insertContent({
-              type: 'gallery',
-              attrs: {
-                images: [
-                  { src: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb', alt: 'Demo 1' },
-                  { src: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca', alt: 'Demo 2' },
-                  { src: 'https://images.unsplash.com/photo-1454023492550-5696f8ff10e1', alt: 'Demo 3' },
-                ],
-              },
-            });
+            editor
+              .chain()
+              .focus()
+              .insertContent({
+                type: "gallery",
+                attrs: {
+                  images: [
+                    {
+                      src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+                      alt: "Demo 1",
+                    },
+                    {
+                      src: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
+                      alt: "Demo 2",
+                    },
+                    {
+                      src: "https://images.unsplash.com/photo-1454023492550-5696f8ff10e1",
+                      alt: "Demo 3",
+                    },
+                  ],
+                },
+              });
           }}
         >
           + Галерея (тест)
@@ -525,7 +545,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
       {/* Кнопки для вставки изображения и галереи */}
       <div className="flex gap-2 mt-4">
-
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           onClick={() => setIsImageModalOpen(true)}
@@ -574,24 +593,43 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
               cropMode="content"
               onUploadComplete={(urls) => {
                 if (!editor) return;
-                let images: { src: string, alt: string }[] = [];
-                const djangoMediaUrl = process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL || process.env.NEXT_PUBLIC_DJANGO_API_URL || "http://localhost:8000";
+                let images: { src: string; alt: string }[] = [];
+                const djangoMediaUrl =
+                  process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL ||
+                  getBackendOrigin();
                 if (Array.isArray(urls)) {
                   images = urls.map((src) => ({
-                    src: src.startsWith("http") ? src : `${djangoMediaUrl}${src}`,
-                    alt: ""
+                    src: src.startsWith("http")
+                      ? src
+                      : `${djangoMediaUrl}${src}`,
+                    alt: "",
                   }));
                 } else if (typeof urls === "string") {
-                  images = [{ src: urls.startsWith("http") ? urls : `${djangoMediaUrl}${urls}`, alt: "" }];
+                  images = [
+                    {
+                      src: urls.startsWith("http")
+                        ? urls
+                        : `${djangoMediaUrl}${urls}`,
+                      alt: "",
+                    },
+                  ];
                 }
                 if (images.length === 1) {
                   // Вставляем как обычное изображение
-                  editor.chain().focus().setImage({ src: images[0].src, alt: "image" }).run();
+                  editor
+                    .chain()
+                    .focus()
+                    .setImage({ src: images[0].src, alt: "image" })
+                    .run();
                 } else if (images.length > 1) {
-                  editor.chain().focus().insertContent({
-                    type: 'gallery',
-                    attrs: { images },
-                  }).run();
+                  editor
+                    .chain()
+                    .focus()
+                    .insertContent({
+                      type: "gallery",
+                      attrs: { images },
+                    })
+                    .run();
                 }
                 setIsGalleryModalOpen(false);
               }}

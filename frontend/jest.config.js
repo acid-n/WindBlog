@@ -1,7 +1,7 @@
 const nextJest = require('next/jest')
 
 const createJestConfig = nextJest({
-  // Путь к приложению Next.js для загрузки next.config.ts и .env в тестах
+  // Путь к приложению Next.js для загрузки next.config.js и .env в тестах
   dir: './',
 })
 

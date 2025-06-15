@@ -6,6 +6,7 @@
 ---
 
 **Современный блог-проект: Next.js (TypeScript, Tailwind CSS) + Django 5 (DRF, PostgreSQL, JWT), строгая типизация, Docker, CI/CD, автотесты, pixel-perfect UI.**
+
 - **Backend:** Django 5, Django REST Framework, PostgreSQL, Pytest, JWT, кастомная модель пользователя, админка, API v1.
 - **CI/CD:** Docker (Dockerfile для backend и frontend), GitHub Actions (linting, tests, сборка и пуш образов в Yandex Container Registry), pre-commit хуки, автотесты. Подготовлена инфраструктура для деплоя в Yandex Cloud (пользователю необходимо настроить GitHub Secrets: `YC_SA_JSON_KEY_FOR_CR`, `YC_SA_JSON_KEY_FOR_DEPLOY`, `YC_CLOUD_ID`, `YC_FOLDER_ID` и заменить плейсхолдеры в `.github/workflows/ci.yml`).
 
@@ -138,13 +139,14 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 - Цель покрытия — не менее 95%.
 - Backend использует SQLite для тестов (config/settings_test.py).
 - Тесты и линтеры запускаются автоматически через pre-commit и CI.
- - Перед запуском убедитесь, что зависимости установлены:
-   - `pip install -r backend/requirements.txt`
-   - `npm ci --prefix frontend`
+- Перед запуском убедитесь, что зависимости установлены:
+  - `pip install -r backend/requirements.txt`
+  - `npm ci --prefix frontend`
 
 ## Проверка стиля и линтинг
 
 - Запуск линтеров вручную:
+
   - `flake8` и `black --check` в каталоге `backend`
   - `npm run lint` в каталоге `frontend`
 
@@ -178,20 +180,25 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 ### Инициализация backend после первого запуска
 
 1. **Выполните миграции (если не применились автоматически):**
+
    ```bash
    docker-compose exec backend python manage.py migrate
    ```
 
 2. **Создайте суперпользователя Django:**
+
    ```bash
    docker-compose exec backend python manage.py createsuperuser
    ```
+
    Следуйте инструкциям в терминале (логин, email, пароль).
 
 3. **Добавьте Site для локального домена (если используется django.contrib.sites и возникает ошибка "Site matching query does not exist"):**
+
    ```bash
    docker-compose exec backend python manage.py shell -c "from django.contrib.sites.models import Site; Site.objects.create(domain='localhost:8000', name='localhost')"
    ```
+
    Если используете другой порт/домен — замените на нужный.
 
 4. **Проверьте доступность админки:**
@@ -235,4 +242,4 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 
 ---
 
-Для доработок и новых фич — см. [CONTRIBUTING.md] (необходимо создать) или обращайтесь к разработчикам.
+Для доработок и новых фич — см. [CONTRIBUTING.md] или обращайтесь к разработчикам.

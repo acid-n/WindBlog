@@ -100,6 +100,7 @@ python manage.py runserver
 ```bash
 cd frontend
 npm install
+cp .env.local.example .env.local  # при первом запуске
 npm run dev
 ```
 
@@ -109,7 +110,7 @@ npm run dev
     ```bash
     cd docker
     cp .env.example .env
-    # Откройте .env и отредактируйте значения (POSTGRES_PASSWORD, DJANGO_SECRET_KEY_BE и др.)
+    # Откройте .env и отредактируйте значения (POSTGRES_PASSWORD, DJANGO_SECRET_KEY_BE, DJANGO_ALLOWED_HOSTS и др.)
     ```
 2.  **Запустите все сервисы:**
     ```bash
@@ -170,7 +171,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 ## Быстрый старт (Docker)
 
 1.  Склонируйте репозиторий.
-2.  Перейдите в папку `docker/`, скопируйте `.env.example` в `.env` и настройте его.
+2.  Перейдите в папку `docker/`, скопируйте `.env.example` в `.env` и настройте его. В корне проекта также скопируйте `.env.example` в `.env` (понадобится переменная `DJANGO_ALLOWED_HOSTS`).
 3.  Выполните `docker-compose up --build` из корня проекта или указав путь к файлу.
 4.  Откройте [http://localhost:3000](http://localhost:3000).
 5.  Сгенерируйте тестовые данные: `docker-compose exec backend python manage.py generate_test_data`.
@@ -231,7 +232,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 - **Ошибка миграций (локально):** Проверьте настройки `.env` и выполните `python manage.py migrate`.
 - **Не отображаются изображения:** Проверьте `MEDIA_URL`/`MEDIA_ROOT` в Django и доступность `media/` тома в Docker.
 - **Проблемы с генерацией тестовых данных:** Убедитесь, что есть интернет для скачивания изображений, и директория `media/posts/` доступна для записи (права доступа к тому в Docker).
-- **Проблемы с запуском фронтенда:** Проверьте, что все зависимости установлены (`npm install`). Используйте переменную `NEXT_PUBLIC_API_BASE` для указания URL API. При проблемах со стилями Tailwind CSS, попробуйте удалить папки `.next` и `node_modules`, затем выполнить `npm install`.
+- **Проблемы с запуском фронтенда:** Убедитесь, что все зависимости установлены (`npm install`). Проверьте переменную `NEXT_PUBLIC_API_BASE` в `.env.local` при запуске в Docker. При проблемах со стилями Tailwind CSS удалите папки `.next` и `node_modules`, затем выполните `npm install`.
 - **ESLint/Prettier в pre-commit:** Убедитесь, что в `frontend/` установлены все зависимости (`npm install`), включая `eslint-config-next` и другие плагины ESLint, указанные в `additional_dependencies` в `.pre-commit-config.yaml`.
 - **Вопросы:** musson@support.ru
 

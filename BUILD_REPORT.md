@@ -105,3 +105,5 @@
 - Удалены тестовые роуты в frontend.
 - Добавлен `CONTRIBUTING.md` и заполнен `CHANGELOG.md`.
 - Workflow CI уточнён: реальные переменные Yandex Registry, шаг деплоя помечен TODO.
+- Добавлена переменная USE_MOCK_DATA и примеры мок-данных для сборки без API.
+- Создан общий `.env.example`, расширен `.gitignore`.

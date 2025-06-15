@@ -1,5 +1,14 @@
 venv/
+node_modules/
+.next/
+.pytest_cache/
+*.log
+.env.local
 *.env
+.env.*
+!.env.example
+coverage/
+.coverage
 __pycache__/
 .DS_Store
 
@@ -11,4 +20,3 @@ media/posts/uploads/
 media/uploads/
 *.pyc
 backend/media/
-.coverage

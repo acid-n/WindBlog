@@ -4,6 +4,8 @@
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
+const USE_MOCK_DATA = process.env.USE_MOCK_DATA === "true";
+
 export interface ApiErrorFormat {
   error: string; // Обычно строка-ключ ошибки, например, "valation_error" или "not_found"
   message: string; // Человекочитаемое сообщение
@@ -119,20 +121,62 @@ export interface PaginatedTagsResponse {
 export async function fetchPosts(
   page: number = 1,
 ): Promise<PaginatedPostsResponse> {
-  return fetchService<PaginatedPostsResponse>(`posts/?page=${page}`, {
-    isPublic: true,
-  });
+  if (USE_MOCK_DATA) {
+    return {
+      count: 0,
+      next: null,
+      previous: null,
+      results: [],
+    };
+  }
+  try {
+    return await fetchService<PaginatedPostsResponse>(`posts/?page=${page}`, {
+      isPublic: true,
+    });
+  } catch (e) {
+    if (USE_MOCK_DATA) {
+      return {
+        count: 0,
+        next: null,
+        previous: null,
+        results: [],
+      };
+    }
+    throw e;
+  }
 }
 
 /**
  * Получить пост по slug.
  */
 export async function fetchPost(slug: string): Promise<Post> {
-  return fetchService<Post>(`posts/${slug}/`, {
-    isPublic: true,
-    tags: ["posts", `post-${slug}`],
-    cache: "no-store",
-  });
+  if (USE_MOCK_DATA) {
+    return {
+      id: 0,
+      title: "mock",
+      slug,
+      body: "",
+      tags_details: [],
+    } as Post;
+  }
+  try {
+    return await fetchService<Post>(`posts/${slug}/`, {
+      isPublic: true,
+      tags: ["posts", `post-${slug}`],
+      cache: "no-store",
+    });
+  } catch (e) {
+    if (USE_MOCK_DATA) {
+      return {
+        id: 0,
+        title: "mock",
+        slug,
+        body: "",
+        tags_details: [],
+      } as Post;
+    }
+    throw e;
+  }
 }
 
 /**
@@ -142,16 +186,38 @@ export async function fetchPost(slug: string): Promise<Post> {
 export async function fetchTags(
   page: number = 1,
 ): Promise<PaginatedTagsResponse> {
-  return fetchService<PaginatedTagsResponse>(`tags/?page=${page}`, {
-    isPublic: true,
-  });
+  if (USE_MOCK_DATA) {
+    return { count: 0, next: null, previous: null, results: [] };
+  }
+  try {
+    return await fetchService<PaginatedTagsResponse>(`tags/?page=${page}`, {
+      isPublic: true,
+    });
+  } catch (e) {
+    if (USE_MOCK_DATA) {
+      return { count: 0, next: null, previous: null, results: [] };
+    }
+    throw e;
+  }
 }
 
 /**
  * Получить список постов по тегу (slug).
  */
 export async function fetchPostsByTag(slug: string): Promise<Post[]> {
-  return fetchService<Post[]>(`tags/${slug}/posts/`, { isPublic: true });
+  if (USE_MOCK_DATA) {
+    return [];
+  }
+  try {
+    return await fetchService<Post[]>(`tags/${slug}/posts/`, {
+      isPublic: true,
+    });
+  } catch (e) {
+    if (USE_MOCK_DATA) {
+      return [];
+    }
+    throw e;
+  }
 }
 
 /**
@@ -181,7 +247,19 @@ export interface DaySummary {
  * Получить годовую сводку архива (год, кол-во постов).
  */
 export async function fetchArchiveYearsSummary(): Promise<YearSummary[]> {
-  return fetchService<YearSummary[]>("archive/summary/", { isPublic: true });
+  if (USE_MOCK_DATA) {
+    return [];
+  }
+  try {
+    return await fetchService<YearSummary[]>("archive/summary/", {
+      isPublic: true,
+    });
+  } catch (e) {
+    if (USE_MOCK_DATA) {
+      return [];
+    }
+    throw e;
+  }
 }
 
 /**
@@ -191,9 +269,19 @@ export async function fetchArchiveYearsSummary(): Promise<YearSummary[]> {
 export async function fetchArchiveMonthsSummary(
   year: number,
 ): Promise<MonthSummary[]> {
-  return fetchService<MonthSummary[]>(`archive/${year}/summary/`, {
-    isPublic: true,
-  });
+  if (USE_MOCK_DATA) {
+    return [];
+  }
+  try {
+    return await fetchService<MonthSummary[]>(`archive/${year}/summary/`, {
+      isPublic: true,
+    });
+  } catch (e) {
+    if (USE_MOCK_DATA) {
+      return [];
+    }
+    throw e;
+  }
 }
 
 /**
@@ -206,9 +294,22 @@ export async function fetchArchiveDaysSummary(
   month: number,
 ): Promise<DaySummary[]> {
   const monthPadded = month.toString();
-  return fetchService<DaySummary[]>(`archive/${year}/${monthPadded}/summary/`, {
-    isPublic: true,
-  });
+  if (USE_MOCK_DATA) {
+    return [];
+  }
+  try {
+    return await fetchService<DaySummary[]>(
+      `archive/${year}/${monthPadded}/summary/`,
+      {
+        isPublic: true,
+      },
+    );
+  } catch (e) {
+    if (USE_MOCK_DATA) {
+      return [];
+    }
+    throw e;
+  }
 }
 
 /**
@@ -227,7 +328,19 @@ export async function fetchArchivePostsByDate(
   const monthPadded = month.toString();
   const dayPadded = day.toString();
   const endpoint = `archive/${year}/${monthPadded}/${dayPadded}/?page=${page}`;
-  return fetchService<PaginatedPostsResponse>(endpoint, { isPublic: true });
+  if (USE_MOCK_DATA) {
+    return { count: 0, next: null, previous: null, results: [] };
+  }
+  try {
+    return await fetchService<PaginatedPostsResponse>(endpoint, {
+      isPublic: true,
+    });
+  } catch (e) {
+    if (USE_MOCK_DATA) {
+      return { count: 0, next: null, previous: null, results: [] };
+    }
+    throw e;
+  }
 }
 
 /**
@@ -239,10 +352,20 @@ export async function searchPosts(
   query: string,
   page: number = 1,
 ): Promise<PaginatedPostsResponse> {
-  return fetchService<PaginatedPostsResponse>(
-    `posts/?search=${encodeURIComponent(query)}&page=${page}`,
-    { isPublic: true },
-  );
+  if (USE_MOCK_DATA) {
+    return { count: 0, next: null, previous: null, results: [] };
+  }
+  try {
+    return await fetchService<PaginatedPostsResponse>(
+      `posts/?search=${encodeURIComponent(query)}&page=${page}`,
+      { isPublic: true },
+    );
+  } catch (e) {
+    if (USE_MOCK_DATA) {
+      return { count: 0, next: null, previous: null, results: [] };
+    }
+    throw e;
+  }
 }
 
 // Пример функции, требующей аутентификации (если появится такая необходимость)

@@ -1,8 +1,9 @@
 /**
  * API-сервис для работы с backend (REST, JWT, обработка ошибок).
  */
+// Базовый URL API; может быть переопределён в .env.local
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000/api/v1";
 
 const USE_MOCK_DATA = process.env.USE_MOCK_DATA === "true";
 

@@ -134,7 +134,7 @@ jobs:
           cache-to: type=inline
           # Пример передачи build-time переменных окружения, если Dockerfile их использует
           # secrets: |
-          #   NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL_PROD }}
+          #   NEXT_PUBLIC_API_BASE=${{ secrets.NEXT_PUBLIC_API_BASE_PROD }}
 
       - name: Deploy to Yandex Cloud
         env:
@@ -187,7 +187,7 @@ jobs:
           #   --execution-timeout 60s \
           #   --concurrency 10 \
           #   --service-account-id <your-invoker-sa-id> \
-          #   --environment NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL_PROD }},...
+          #   --environment NEXT_PUBLIC_API_BASE=${{ secrets.NEXT_PUBLIC_API_BASE_PROD }},...
           # TODO: настроить деплой в Yandex Cloud
           # см. tasks/001-codebase-cleanup.md
           echo "Deploy step is not configured"

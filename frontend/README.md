@@ -13,6 +13,7 @@
 ## Изменения: май 2025
 
 ### Улучшения галереи изображений (Tiptap Gallery)
+
 - **Изображения больше не обрезаются (crop)** — теперь любые картинки (любых пропорций) всегда полностью видны в слайдере.
 - Используется `object-fit: contain` для `<img>`, что гарантирует отсутствие искажений и crop.
 - Удалён debug-блок с JSON-отладкой.
@@ -20,6 +21,7 @@
 - Адаптивная верстка: галерея красиво смотрится на любых экранах.
 
 #### Использование галереи
+
 - Для вставки галереи используйте редактор Tiptap, кнопка "Галерея".
 - Поддерживается drag-and-drop, удаление, сортировка изображений.
 - Атрибуты: автолистание, задержка, зацикливание, высота галереи (galleryHeight).
@@ -60,6 +62,7 @@ cd frontend
 npm install
 npm run dev
 ```
+
 Приложение будет доступно на http://localhost:3000
 
 ---
@@ -87,7 +90,7 @@ npm run build
 ## Взаимодействие с API
 
 - Все запросы к backend инкапсулированы в сервисах (`src/services/api.ts`)
-- Используется переменная окружения `NEXT_PUBLIC_API_URL` (по умолчанию http://localhost:8000/api/v1)
+- Используется переменная окружения `NEXT_PUBLIC_API_BASE` (по умолчанию http://localhost:8000/api/v1)
 - Поддерживается JWT для защищённых эндпоинтов
 - Пример структуры ответа:
 
@@ -103,6 +106,7 @@ export interface PaginatedPostsResponse {
 ---
 
 ## Полезные ссылки
+
 - [Backend API OpenAPI/Swagger](http://localhost:8000/api/schema/)
 - [UX/UI STYLE GUIDE](../docs/UX_UI_STYLE_GUIDE.txt)
 - [Backend README](../backend/README.md)
@@ -110,6 +114,7 @@ export interface PaginatedPostsResponse {
 ---
 
 ## FAQ
+
 - **Как добавить компонент?**  
   В `src/components/`, следуйте style guide и типизации.
 - **Как писать тесты?**  
@@ -120,8 +125,8 @@ export interface PaginatedPostsResponse {
 ---
 
 ## Контакты
-- Issues: [github.com/your-org/your-repo/issues](https://github.com/your-org/your-repo/issues)
 
+- Issues: [github.com/your-org/your-repo/issues](https://github.com/your-org/your-repo/issues)
 
 Фронтенд-приложение для MUSSON Blog, реализованное на **Next.js 15.3.1** (с использованием App Router), **TypeScript** и **Tailwind CSS**. Анимации выполнены с помощью **Framer Motion**. Цель — максимальное соответствие MUSSON UX/UI STYLE GUIDE и теме Read WP.
 
@@ -199,7 +204,7 @@ npm run build
 ## Взаимодействие с API
 
 - Все запросы к бэкенду инкапсулированы в функциях сервиса `src/services/api.ts`.
-- Используется переменная окружения `NEXT_PUBLIC_API_URL` для определения базового URL API (по умолчанию `http://localhost:8000/api/v1` для локального запуска Next.js, или `http://backend:8000/api/v1` при запуске в Docker-сети).
+- Используется переменная окружения `NEXT_PUBLIC_API_BASE` для определения базового URL API (по умолчанию `http://localhost:8000/api/v1` для локального запуска Next.js, или `http://backend:8000/api/v1` при запуске в Docker-сети).
 - Поддерживается отправка JWT токенов для защищенных эндпоинтов.
 
 ## Важные замечания

@@ -3,9 +3,13 @@
 1. Форкните репозиторий и создайте ветку от `main`.
 2. Установите зависимости:
    - `pip install -r backend/requirements.txt`
-   - `npm ci --prefix frontend`
+
+- `npm ci --prefix frontend`
+
 3. Скопируйте `.env.example` в `.env.local` и заполните значения.
    Секретные данные храните только локально, их нельзя коммитить.
+   Обратите внимание на переменную `NEXT_PUBLIC_API_BASE` — она должна указывать
+   на URL вашего бэкенда (обычно `http://localhost:8000/api/v1`).
 4. Перед коммитом запустите `pre-commit run --all-files`.
 5. Убедитесь, что команды `npm test --prefix frontend` и `pytest -q backend` проходят без ошибок.
 6. Покрытие тестами должно оставаться не ниже 95%.

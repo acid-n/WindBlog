@@ -16,7 +16,7 @@ COPY . .
 
 # Переменные окружения для сборки (если нужны)
 # Например, если ваш API находится на другом домене в production
-# ENV NEXT_PUBLIC_API_URL=https://api.yourdomain.com 
+# ENV NEXT_PUBLIC_API_BASE=https://api.yourdomain.com
 # Убедитесь, что они передаются при сборке образа, например, через --build-arg
 
 RUN npm run build

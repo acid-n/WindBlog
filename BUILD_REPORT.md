@@ -122,3 +122,9 @@
 
 - Решена ошибка DisallowedHost при обращении к `backend:8000`.
 - Создан `frontend/.env.local.example` и обновлены примеры `.env`.
+
+## 2025-07-03
+
+- Добавлен пример `.env.local` для фронтенда и описание в README.
+- Введена util-функция `getAbsoluteImageUrl` с поддержкой `DJANGO_MEDIA_URL_SSR`.
+- Исправлены ссылки на медиафайлы при SSR, тесты проходят.

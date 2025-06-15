@@ -65,6 +65,17 @@ npm run dev
 
 Приложение будет доступно на http://localhost:3000
 
+### Настройка переменных окружения
+
+В каталоге `frontend` расположен файл `.env.local.example`. Скопируйте его в `.env.local` и при необходимости измените значения.
+Важно указать доступные из браузера URL, например:
+
+```env
+NEXT_PUBLIC_API_BASE=http://localhost:8000/api/v1
+NEXT_PUBLIC_DJANGO_MEDIA_URL=http://localhost:8000/media/
+DJANGO_MEDIA_URL_SSR=http://localhost:8000/media/
+```
+
 ---
 
 ## Тесты и линтинг

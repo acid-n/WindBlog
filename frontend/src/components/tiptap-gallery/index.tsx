@@ -21,8 +21,6 @@ const TiptapGallery: React.FC<NodeViewProps> = (props) => {
   React.useEffect(() => {
     setAutoplayDelay(props.node.attrs.autoplayDelay ?? 3500);
   }, [props.node.attrs.autoplayDelay]);
-  // Новый параметр — aspectRatio (по умолчанию 16/9)
-  const aspectRatio = props.node.attrs.aspectRatio ?? '16/9';
   // galleryHeight больше не нужен для пропорций
   const [showUploader, setShowUploader] = useState(false);
 
@@ -87,7 +85,7 @@ const TiptapGallery: React.FC<NodeViewProps> = (props) => {
           aria-label="Удалить галерею"
           onClick={() => {
             if (window.confirm('Удалить галерею?')) {
-              props.editor.commands.command(({ tr, state, dispatch }) => {
+              props.editor.commands.command(({ tr, state: _state, dispatch }) => {
                 dispatch(tr.deleteSelection());
                 return true;
               });

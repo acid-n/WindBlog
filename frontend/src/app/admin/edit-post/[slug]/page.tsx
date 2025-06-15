@@ -81,7 +81,6 @@ const EditPostPage = () => {
         const data: { results: Tag[] } = await response.json();
         setAllTags(data.results || []);
       } catch (e: unknown) {
-    const errorMessage = e instanceof Error ? e.message : String(e);
         console.error("Error fetching tags for editing:", e);
       }
     };
@@ -90,7 +89,7 @@ const EditPostPage = () => {
       fetchAllTags();
       const fetchPostToEdit = async () => {
         setIsLoadingPageContent(true);
-        setError(error ?? "");
+        setError("");
         setSaveSuccessMessage(null);
         try {
           const djangoApiUrl =
@@ -205,22 +204,16 @@ const EditPostPage = () => {
       return;
     }
     setIsLoadingPageContent(true);
-    setError(error ?? "");
+    setError("");
     setSaveSuccessMessage(null);
-    if (successMessageTimerRef.current)
+    if (successMessageTimerRef.current) {
       clearTimeout(successMessageTimerRef.current);
-
-      "[EditPostPage PRE-SAVE DEBUG] Current post.image state:",
-      post?.image,
-    );
+    }
 
     let imagePathForSave: string | null = null;
     const imageSource =
       latestUploadedImagePathRef.current ??
       (typeof post.image === "string" ? post.image : null);
-      "[EditPostPage PRE-SAVE DEBUG] Image source for save (from ref or post.image):",
-      imageSource,
-    );
 
     if (typeof imageSource === "string" && imageSource.trim() !== "") {
       let path = imageSource.trim();
@@ -264,21 +257,15 @@ const EditPostPage = () => {
       } else if (path.length === 0) {
         path = "";
       } else if (path.length > 255) {
-        console.error(
-          `[EditPostPage SAVE ERROR] Очищенный путь слишком длинный (${path.length} символов): '${path}'. Исходный: '${imageSource}'`,
-        );
-        path = "";
-      }
-      imagePathForSave = path;
-    }
-
-      "[EditPostPage FINAL DEBUG] imagePathForSave перед включением в postDataToSave:",
-      imagePathForSave,
+    console.error(
+      `[EditPostPage SAVE ERROR] Очищенный путь слишком длинный (${path.length} символов): '${path}'. Исходный: '${imageSource}'`,
     );
-      `[EditPostPage FINAL DEBUG] Длина imagePathForSave: ${imagePathForSave?.length}`,
-    );
+    path = "";
+  }
+  imagePathForSave = path;
+}
 
-    const postDataToSave: any = {
+const postDataToSave: any = {
       ...post,
       image: imagePathForSave,
       body: editorContent,
@@ -295,17 +282,6 @@ const EditPostPage = () => {
     };
     delete postDataToSave.tags_details;
 
-      "[EditPostPage DEBUG] Data being sent to backend (postDataToSave):",
-      JSON.stringify(postDataToSave, null, 2),
-    );
-      `[EditPostPage DEBUG] Length of title: ${postDataToSave.title?.length}`,
-    );
-      `[EditPostPage DEBUG] Length of slug: ${postDataToSave.slug?.length}`,
-    );
-      `[EditPostPage DEBUG] Length of image path: ${postDataToSave.image?.length}`,
-    );
-      `[EditPostPage DEBUG] Length of description: ${postDataToSave.description?.length}`,
-    );
 
     try {
       const djangoApiUrl =
@@ -374,8 +350,6 @@ const EditPostPage = () => {
           }
         }, 1500);
       } else {
-          "Запуск ревалидации после обновления поста (используя revalidatePath)...",
-        );
         const pathsToRevalidate = ["/blog", "/"];
         if (updatedPost && updatedPost.slug) {
           pathsToRevalidate.push(`/posts/${updatedPost.slug}`);
@@ -428,9 +402,9 @@ const EditPostPage = () => {
         "Вы уверены, что хотите удалить этот пост? Это действие необратимо.",
       )
     ) {
-      try {
-        setIsLoadingPageContent(true);
-        setError(error ?? "");
+        try {
+          setIsLoadingPageContent(true);
+          setError("");
         const djangoApiUrl =
           process.env.NEXT_PUBLIC_DJANGO_API_URL ||
           "http://localhost:8000/api/v1";
@@ -460,9 +434,8 @@ const EditPostPage = () => {
 
         router.push("/");
       } catch (e: unknown) {
-    const errorMessage = e instanceof Error ? e.message : String(e);
-        console.error("Ошибка при удалении поста:", e);
-        setError(e instanceof Error ? e.message : "Не удалось удалить пост.");
+    console.error("Ошибка при удалении поста:", e);
+    setError(e instanceof Error ? e.message : "Не удалось удалить пост.");
         setIsLoadingPageContent(false);
       }
     }
@@ -577,19 +550,10 @@ const EditPostPage = () => {
               initialImageUrl={post?.image}
               onUploadComplete={(uploadedUrl) => {
                 if (post) {
-                    "[EditPostPage DEBUG] ImageUploader onUploadComplete. Uploaded URL:",
-                    uploadedUrl,
-                  );
-                    "[EditPostPage DEBUG] ImageUploader onUploadComplete. Current post.image BEFORE setPost:",
-                    post.image,
-                  );
                   setPost((prevPost) =>
                     prevPost ? { ...prevPost, image: uploadedUrl } : null,
                   );
                   latestUploadedImagePathRef.current = uploadedUrl;
-                    "[EditPostPage DEBUG] ImageUploader onUploadComplete. latestUploadedImagePathRef.current SET TO:",
-                    latestUploadedImagePathRef.current,
-                  );
                 }
               }}
             />

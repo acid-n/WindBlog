@@ -31,7 +31,7 @@ module.exports = {
       maxWidth: {
         content: "720px",
       },
-      typography: (theme) => ({
+      typography: (_theme) => ({
         DEFAULT: {
           css: {
             figure: null,

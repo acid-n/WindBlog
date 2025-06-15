@@ -2,7 +2,6 @@
 
 import React, { useCallback, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
-import styles from "../post-body/styles.module.css";
 import StarterKit from "@tiptap/starter-kit";
 import Table from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';

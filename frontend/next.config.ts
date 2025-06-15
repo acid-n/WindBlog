@@ -4,7 +4,6 @@ import type { NextConfig } from "next";
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
 const backendHostname = new URL(backendUrl).hostname;
 const backendProtocol = new URL(backendUrl).protocol.slice(0, -1); // http или https
-const backendPort = new URL(backendUrl).port || '';
 
 const nextConfig: NextConfig = {
   async rewrites() {
@@ -25,7 +24,7 @@ const nextConfig: NextConfig = {
       {
         protocol: backendProtocol as "http" | "https",
         hostname: backendHostname,
-        // port: backendPort, // Раскомментируйте, если порт нестандартный и нужен в паттерне
+        // port: process.env.BACKEND_PORT, // Укажите порт, если требуется
         // pathname: '/media/**', // Можно указать более конкретный путь, если нужно
       },
       // Можно добавить другие паттерны для других доменов

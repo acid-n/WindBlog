@@ -1,6 +1,5 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
-import React from 'react';
 import TiptapGallery, { GalleryImage } from '@/components/tiptap-gallery';
 
 export interface GalleryNodeAttrs {

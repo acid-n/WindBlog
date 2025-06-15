@@ -63,7 +63,6 @@ urlpatterns = [
         name="token_refresh",
     ),
     path("api/v1/auth/", include("users.urls")),
-    path("api/v1/contact/", include("contact.urls")),
     path("api/v1/site-settings", SiteSettingsView.as_view(), name="site-settings"),
     path("robots.txt", robots_txt_view, name="robots_txt"),
     # path(

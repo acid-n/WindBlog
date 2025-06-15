@@ -61,7 +61,7 @@
 ## Структура репозитория
 
 - `frontend/` — Next.js 15.3.1, Tailwind CSS, компоненты, страницы, сервисы, тесты (Jest/RTL), Dockerfile, README.md
-- `backend/` — Django 5, DRF, приложения (blog, users, analytics, contact), миграции, тесты (Pytest), Dockerfile, README.md
+- `backend/` — Django 5, DRF, приложения (blog, users, seo), миграции, тесты (Pytest), Dockerfile, README.md
 - `.github/` — CI/CD (GitHub Actions workflow)
 - `docker/` — `docker-compose.yml` для полного стека (frontend, backend, db), `.env.example` для конфигурации Docker.
 - `docs/UX_UI_STYLE_GUIDE.txt` — [UX/UI STYLE GUIDE](docs/UX_UI_STYLE_GUIDE.txt) (pixel-perfect, типографика, сетка, цвета, компоненты)

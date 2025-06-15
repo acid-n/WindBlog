@@ -57,10 +57,8 @@ INSTALLED_APPS = [
     # Local apps
     "users.apps.UsersConfig",
     "blog.apps.BlogConfig",
-    "contact.apps.ContactConfig",
     "config.apps.ConfigConfig",
     "seo.apps.SeoConfig",
-    "analytics.apps.AnalyticsConfig",
 ]
 
 MIDDLEWARE = [

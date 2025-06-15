@@ -48,7 +48,7 @@
 - `src/services/` — Вся логика работы с API
 - `src/types/` — TypeScript типы
 - `public/` — Статические ассеты
-- `next.config.ts` — Конфиг Next.js (rewrites, images.remotePatterns)
+- `next.config.js` — Конфиг Next.js (rewrites, images.remotePatterns)
 - `tailwind.config.ts` — Конфиг Tailwind CSS
 
 ---
@@ -142,7 +142,7 @@ export interface PaginatedPostsResponse {
 - `src/services/` — Логика взаимодействия с бэкенд API.
 - `src/types/` — Определения TypeScript типов.
 - `public/` — Статические ассеты.
-- `next.config.ts` — Конфигурация Next.js (включая `rewrites` для проксирования API и `images.remotePatterns` для `next/image`).
+- `next.config.js` — Конфигурация Next.js (включая `rewrites` для проксирования API и `images.remotePatterns` для `next/image`).
 - `tailwind.config.ts` — Конфигурация и кастомизация Tailwind CSS (шрифты, цвета).
 - `jest.config.js` и `jest.setup.js` — Конфигурация для Jest.
 
@@ -204,7 +204,7 @@ npm run build
 
 ## Важные замечания
 
-- Для корректной работы `next/image` с изображениями с бэкенда, в `next.config.ts` настроены `images.remotePatterns`.
+- Для корректной работы `next/image` с изображениями с бэкенда, в `next.config.js` настроены `images.remotePatterns`.
 - Мета-теги для SEO генерируются с помощью функции `generateMetadata` в файлах страниц.
 - Файл `sitemap.xml` генерируется динамически с помощью `src/app/sitemap.ts`, который собирает данные со статических страниц и API бэкенда (посты, теги). Файл `robots.txt` обрабатывается бэкендом.
 - При использовании Next.js 15+ параметры маршрута (props `params` в компонентах страниц) должны извлекаться с помощью `await` перед использованием их свойств.

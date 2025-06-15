@@ -211,7 +211,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 - `frontend/src/app/` — страницы Next.js App Router.
 - `frontend/src/components/` — React-компоненты.
 - `frontend/src/services/api.ts` — унифицированный сервис для работы с API.
-- `frontend/next.config.ts` — конфигурация Next.js (включая `remotePatterns` для `next/image`).
+- `frontend/next.config.js` — конфигурация Next.js (включая `remotePatterns` для `next/image`).
 - `backend/config/settings.py` — настройки Django.
 - `backend/blog/views.py` — ViewSets для API блога (с `IsAuthenticatedOrReadOnly`).
 - `backend/blog/management/commands/generate_test_data.py` — генерация тестовых постов.

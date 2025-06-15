@@ -88,17 +88,17 @@
   padding: 1em;
   overflow-x: auto;
   font-family: 'Fira Mono', 'Consolas', monospace;
-} */  margin: 1.2em 0;
-  font-size: 1em;
 } */
+/* margin: 1.2em 0; */
+/* font-size: 1em; */
 /* .prose code {
   background: #ececec;
   color: #c7254e;
   border-radius: 3px;
   padding: 0.2em 0.4em;
   font-family: 'Fira Mono', 'Consolas', monospace;
-} */  font-size: 0.97em;
-}
+} */
+/* font-size: 0.97em; */
 /* .prose a {
   color: #2563eb;
   text-decoration: underline;
@@ -171,4 +171,3 @@
     padding: 1em;
   }
 }
-

@@ -6,7 +6,7 @@
 
 - `npm ci --prefix frontend`
 
-3. Скопируйте `.env.example` в `.env.local` и заполните значения.
+3. Скопируйте `frontend/.env.local.example` в `frontend/.env.local` и заполните значения. В корне проекта скопируйте `.env.example` в `.env` и убедитесь, что переменная `DJANGO_ALLOWED_HOSTS` содержит `backend`.
    Секретные данные храните только локально, их нельзя коммитить.
    Обратите внимание на переменную `NEXT_PUBLIC_API_BASE` — она должна указывать
    на URL вашего бэкенда (обычно `http://localhost:8000/api/v1`).

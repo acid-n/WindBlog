@@ -11,3 +11,4 @@ media/posts/uploads/
 media/uploads/
 *.pyc
 backend/media/
+.coverage

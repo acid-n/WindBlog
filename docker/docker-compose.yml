@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 # Рекомендуется создать .env файл в этой же директории (docker/.env)
 # и определить в нем переменные POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, DJANGO_SECRET_KEY и т.д.
@@ -58,14 +58,14 @@ services:
       context: ../frontend
       dockerfile: Dockerfile.dev
       args: # Передаем аргументы сборки, если они нужны Dockerfile
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL_FE:-http://backend:8000/api/v1} # URL бэкенда внутри Docker сети
+        NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE_FE:-http://backend:8000/api/v1} # URL бэкенда внутри Docker сети
     container_name: blog_frontend
     restart: always
     env_file:
       - .env
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL_FE:-http://backend:8000/api/v1}
+      - NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE_FE:-http://backend:8000/api/v1}
     ports:
       - "3000:3000"
     volumes:
@@ -84,5 +84,3 @@ volumes:
 networks:
   blog_network:
     driver: bridge
-
- 

@@ -13,7 +13,7 @@ const compat = new FlatCompat({
   allConfig: js.configs.all,
 });
 
-export default [
+const config = [
   {
     ignores: ['node_modules/**', 'coverage/**'],
   },
@@ -37,3 +37,5 @@ export default [
     },
   },
 ];
+
+export default config;

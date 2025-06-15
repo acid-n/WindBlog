@@ -39,9 +39,7 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }) {
-  // console.log('[generateMetadata] paramsProp BEFORE await - type:', typeof paramsProp, 'isPromise:', paramsProp instanceof Promise);
   const params = await paramsProp;
-  // console.log('[generateMetadata] params AFTER await - type:', typeof params, 'isPromise:', params instanceof Promise, 'value:', JSON.stringify(params));
   try {
     const post = await fetchPost(params.slug);
     if (!post) return { title: "Пост не найден" };
@@ -82,9 +80,7 @@ const PostPage = async ({
 }: {
   params: { slug: string };
 }) => {
-  // console.log('[PostPage] paramsProp BEFORE await - type:', typeof paramsProp, 'isPromise:', paramsProp instanceof Promise);
   const params = await paramsProp;
-  // console.log('[PostPage] params AFTER await - type:', typeof params, 'isPromise:', params instanceof Promise, 'value:', JSON.stringify(params));
   let post: Post | null = null;
   const error = "";
   try {
@@ -105,7 +101,6 @@ const PostPage = async ({
   if (!post || error) return notFound();
 
   // ОТЛАДКА: логируем тело поста
-  console.log("RAW POST.BODY FROM API:", JSON.stringify(post.body, null, 2));
 
   // Формат даты: 2 мая 2025 года
   const date = post.first_published_at

@@ -5,7 +5,6 @@ import { fetchWithAuth } from "@/services/apiClient"; // Для отправки
 import Image from "next/image"; // Для превью
 import {
   FaUpload,
-  FaCheckCircle,
   FaTimesCircle,
   FaSpinner,
 } from "react-icons/fa"; // Иконки
@@ -48,13 +47,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   // Полный URL для отображения WEBP превью
   const djangoMediaBase = process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL;
   let fullWebpPreviewUrl: string | null = null;
-
-  // --- ОТЛАДКА ---
-  console.log(
-    "[ImageUploader DEBUG] Raw initialImageUrl prop:",
-    initialImageUrl,
-  );
-  // --- КОНЕЦ ОТЛАДКИ ---
 
   // --- Множественная загрузка файлов ---
   const handleMultiFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,15 +142,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
   }
 
-  // --- ОТЛАДКА ---
-  console.log(
-    "[ImageUploader DEBUG] Effective relative webpUrl for processing:",
-    currentRelativeWebpPath,
-  );
-  console.log(
-    "[ImageUploader DEBUG] NEXT_PUBLIC_DJANGO_MEDIA_URL:",
-    djangoMediaBase,
-  );
   // --- КОНЕЦ ОТЛАДКИ ---
 
   if (currentRelativeWebpPath && djangoMediaBase) {
@@ -193,11 +176,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     fullWebpPreviewUrl = `/media/${currentRelativeWebpPath}`;
   }
 
-  // --- ОТЛАДКА ---
-  console.log(
-    "[ImageUploader DEBUG] Calculated fullWebpPreviewUrl:",
-    fullWebpPreviewUrl,
-  );
   // --- КОНЕЦ ОТЛАДКИ ---
 
   // Универсальная функция конвертации в WEBP с/без кропа
@@ -324,7 +302,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     const formData = new FormData();
     formData.append(uploadFieldName, convertedWebpFile, convertedWebpFile.name);
 
-    console.log("Отправка сконвертированного WEBP на URL:", fullApiEndpoint);
 
     try {
       const response = await fetchWithAuth(fullApiEndpoint, {
@@ -368,13 +345,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
       setWebpUrl(result.url);
 
-      // ---- НОВЫЙ ВЫЗОВ onUploadComplete ----
-      console.log(
-        "[ImageUploader INTERNAL DEBUG] Successfully uploaded. Calling onUploadComplete with URL:",
-        result.url,
-      );
       onUploadComplete(result.url as string); // result.url должен быть строкой, уточните тип если нужно
-      // ---- КОНЕЦ НОВОГО ВЫЗОВА ----
 
       // После успешной загрузки и вызова onUploadComplete, можно сбросить локальные файлы, если нужно
       // setOriginalFile(null);

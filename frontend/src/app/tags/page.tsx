@@ -21,9 +21,7 @@ interface TagsPageProps {
 const TagsPage = async ({
   searchParams: searchParamsProp = {},
 }: TagsPageProps) => {
-  // console.log('[TagsPage] searchParamsProp BEFORE await - type:', typeof searchParamsProp, 'isPromise:', searchParamsProp instanceof Promise);
   const searchParams = await searchParamsProp;
-  // console.log('[TagsPage] searchParams AFTER await - type:', typeof searchParams, 'isPromise:', searchParams instanceof Promise, 'value:', JSON.stringify(searchParams));
 
   // Используем "разрешенный" searchParams
   const pageQuery = searchParams.page; // Доступ без ?.

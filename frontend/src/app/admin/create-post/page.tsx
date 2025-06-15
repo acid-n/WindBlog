@@ -338,7 +338,6 @@ const initialPostState: Partial<PostExtended> = {
               }
               return res.json();
             })
-            .then((data) => console.log(`Результат ревалидации ${path}:`, data))
             .catch((err) =>
               console.error(`Ошибка при ревалидации ${path}:`, err),
             ),
@@ -381,7 +380,6 @@ const initialPostState: Partial<PostExtended> = {
 
   // Функция для обработки завершения загрузки изображения
   const handleImageUploadComplete = useCallback((uploadedUrl: string) => {
-    console.log("Изображение успешно загружено, URL:", uploadedUrl);
     setPost((prevPost) => ({
       ...prevPost,
       image: uploadedUrl,

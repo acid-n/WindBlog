@@ -7,6 +7,7 @@ import 'swiper/css/thumbs';
 import { Navigation, Pagination, Thumbs, Autoplay } from 'swiper/modules';
 import ImageUploader from '../image-uploader';
 
+import Image from 'next/image';
 const TiptapGallery: React.FC<NodeViewProps> = (props) => {
   const images = props.node.attrs.images || [];
   const editable = props.editor.isEditable;
@@ -20,8 +21,6 @@ const TiptapGallery: React.FC<NodeViewProps> = (props) => {
   React.useEffect(() => {
     setAutoplayDelay(props.node.attrs.autoplayDelay ?? 3500);
   }, [props.node.attrs.autoplayDelay]);
-  // Новый параметр — aspectRatio (по умолчанию 16/9)
-  const aspectRatio = props.node.attrs.aspectRatio ?? '16/9';
   // galleryHeight больше не нужен для пропорций
   const [showUploader, setShowUploader] = useState(false);
 
@@ -36,11 +35,9 @@ const TiptapGallery: React.FC<NodeViewProps> = (props) => {
     const value = Number(e.target.value);
     setAutoplayDelay(value);
     props.updateAttributes({ ...props.node.attrs, autoplayDelay: value });
-    console.log('Autoplay delay changed:', value);
   };
 
   React.useEffect(() => {
-    console.log('Current autoplayDelay:', autoplayDelay);
   }, [autoplayDelay]);
 
 
@@ -88,7 +85,7 @@ const TiptapGallery: React.FC<NodeViewProps> = (props) => {
           aria-label="Удалить галерею"
           onClick={() => {
             if (window.confirm('Удалить галерею?')) {
-              props.editor.commands.command(({ tr, state, dispatch }) => {
+              props.editor.commands.command(({ tr, state: _state, dispatch }) => {
                 dispatch(tr.deleteSelection());
                 return true;
               });
@@ -156,11 +153,7 @@ const TiptapGallery: React.FC<NodeViewProps> = (props) => {
           <div className="flex flex-row gap-2 flex-wrap">
             {images.map((img: any, idx: number) => (
               <div key={idx} className="relative group">
-                <img
-                  src={img.src}
-                  alt={img.alt || `image-${idx}`}
-                  className="w-24 h-24 object-cover rounded shadow"
-                />
+                <Image src={img.src} alt={img.alt || `image-${idx}`} className="w-24 h-24 object-cover rounded shadow" width={96} height={96} />
                 <button
                   className="absolute top-1 right-1 bg-white bg-opacity-80 rounded-full p-1 text-xs shadow hover:bg-red-100"
                   onClick={() => handleRemove(idx)}
@@ -202,10 +195,12 @@ const TiptapGallery: React.FC<NodeViewProps> = (props) => {
                   borderRadius: 12,
                 }}
               >
-                <img
+                <Image
                   src={img.src}
                   alt={img.alt || `image-${idx}`}
                   style={{ width: 'auto', height: '100%', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
+                  width={800}
+                  height={450}
                 />
               </div>
             </SwiperSlide>
@@ -243,16 +238,14 @@ const TiptapGallery: React.FC<NodeViewProps> = (props) => {
             >
               {images.map((img: any, idx: number) => (
                 <SwiperSlide key={idx} style={{ margin: 0, padding: 0 }}>
-                  <img
+                  <Image
                     src={img.src}
                     alt={img.alt || `thumb-${idx}`}
                     className="object-cover rounded border-2 border-transparent hover:border-blue-400 cursor-pointer"
-                    style={{ height: '40px', width: '50px', objectFit: 'cover', aspectRatio: 'auto', margin: 0, padding: 0, pointerEvents: 'all' }}
+                    style={{ height: "40px", width: "50px", objectFit: "cover", aspectRatio: "auto", margin: 0, padding: 0, pointerEvents: "all" }}
+                    width={50}
+                    height={40}
                   />
-                  {/*
-                    // Для локальной разработки: если src начинается с http://localhost:8000, можно выводить предупреждение или обрабатывать src для относительного пути
-                    // Например: img.src.replace('http://localhost:8000', '')
-                  */}
                 </SwiperSlide>
               ))}
             </Swiper>

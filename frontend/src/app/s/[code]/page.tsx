@@ -11,28 +11,23 @@ export default function ShortLinkRedirect({
   const router = useRouter();
   const { code } = params;
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function redirectToPost() {
       if (!code) {
         console.error('Отсутствует код короткой ссылки');
         setError('Отсутствует код короткой ссылки');
-        setLoading(false);
         setTimeout(() => router.push('/'), 2000);
         return;
       }
       
       try {
-        console.log(`Получаем пост по ID: ${code}`);
         // fetchPostById is deprecated or not implemented.
         setError('Функция коротких ссылок временно недоступна. Пожалуйста, обратитесь к администратору.');
-        setLoading(false);
         setTimeout(() => router.push('/'), 2000);
       } catch (error) {
         console.error('Ошибка при перенаправлении короткой ссылки:', error);
         setError('Не удалось найти запрашиваемую страницу');
-        setLoading(false);
         setTimeout(() => router.push('/'), 2000);
       }
     }

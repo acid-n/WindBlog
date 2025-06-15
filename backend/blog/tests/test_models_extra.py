@@ -1,6 +1,5 @@
-import pytest
 import factory
-
+import pytest
 from blog.models import Post, ShortLink, Tag
 
 
@@ -18,7 +17,12 @@ class PostFactory(factory.django.DjangoModelFactory):
 
     title = factory.Sequence(lambda n: f"Post {n}")
     slug = factory.Sequence(lambda n: f"post-{n}")
-    body = {"type": "doc", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "hello"}]}]}
+    body = {
+        "type": "doc",
+        "content": [
+            {"type": "paragraph", "content": [{"type": "text", "text": "hello"}]}
+        ],
+    }
 
 
 @pytest.mark.django_db

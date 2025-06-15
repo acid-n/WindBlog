@@ -1,10 +1,9 @@
-import pytest
 import factory
+import pytest
+from blog.models import Post, ShortLink, Tag
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APIClient
-
-from blog.models import Post, ShortLink, Tag
 
 
 class TagFactory(factory.django.DjangoModelFactory):

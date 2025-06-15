@@ -94,5 +94,3 @@ class ShortLinkAdmin(admin.ModelAdmin):
         return obj.post.title
 
     post_title.short_description = "Пост"
-
-

@@ -221,8 +221,6 @@ class ShortLink(models.Model):
         verbose_name_plural = "Короткие ссылки"
 
 
-
-
 @receiver(post_save, sender=Post)
 def create_shortlink_for_post(sender, instance, created, **kwargs):
     """Создает ShortLink для нового поста, если он еще не существует."""

@@ -166,7 +166,6 @@ class ShortLinkViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.AllowAny]
 
 
-
 # --- API Архива --- #
 
 

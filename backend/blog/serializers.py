@@ -254,8 +254,6 @@ class RatingSerializer(serializers.ModelSerializer):
         fields = ["id", "post", "score", "user_hash", "created_at"]
 
 
-
-
 # Сериализаторы для API Архива
 class YearArchiveSerializer(serializers.Serializer):
     """Сериализатор для годовой сводки архива."""

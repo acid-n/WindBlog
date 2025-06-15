@@ -16,7 +16,6 @@ const MENU = [
   { href: "/tags", label: "Теги" },
   { href: "/archive", label: "Архив" },
   { href: "/about", label: "Обо мне" },
-  { href: "/contact", label: "Контакты" },
 ];
 
 /**

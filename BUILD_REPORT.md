@@ -59,3 +59,7 @@
 ## 2025-06-23
 - Удалены приложения `analytics` и `contact` как пустые и неиспользуемые.
 
+## 2025-06-24
+- Из кода удалены модели `AnalyticsEvent` и `ContactMessage`.
+- Удалены placeholder-страницы, компонент `PostCard` и файл `next.config.js`.
+

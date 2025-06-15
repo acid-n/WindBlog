@@ -221,29 +221,6 @@ class ShortLink(models.Model):
         verbose_name_plural = "Короткие ссылки"
 
 
-class AnalyticsEvent(AbstractBaseModel):
-    """Событие аналитики: посещение, ip, user_agent, referrer."""
-
-    path = models.CharField(max_length=255)
-    ip = models.GenericIPAddressField()
-    user_agent = models.TextField()
-    referrer = models.URLField(blank=True, null=True)
-
-    class Meta:
-        verbose_name = "Событие аналитики"
-        verbose_name_plural = "События аналитики"
-
-
-class ContactMessage(AbstractBaseModel):
-    """Сообщение из формы обратной связи."""
-
-    name = models.CharField(max_length=100)
-    email = models.EmailField()
-    message = models.TextField()
-
-    class Meta:
-        verbose_name = "Сообщение (контакты)"
-        verbose_name_plural = "Сообщения (контакты)"
 
 
 @receiver(post_save, sender=Post)

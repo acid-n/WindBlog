@@ -47,20 +47,6 @@ class ShortLink(models.Model):
     def get_redirect_url(self):
         return self.post.get_absolute_url()
 
-📈 AnalyticsEvent
-class AnalyticsEvent(models.Model):
-    path = models.CharField(max_length=255)
-    ip = models.GenericIPAddressField()
-    user_agent = models.TextField()
-    referrer = models.URLField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-📬 ContactMessage
-class ContactMessage(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField()
-    message = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
 
 🔧 Базовая модель (DRY)
 class AbstractBaseModel(models.Model):
@@ -69,6 +55,6 @@ class AbstractBaseModel(models.Model):
 
     class Meta:
         abstract = True
-Используется в Post, Tag, AnalyticsEvent, ContactMessage через наследование или mixin.
+Используется в Post и Tag через наследование.
 
 Документ завершён. Используется как описание полной схемы моделей Django + PostgreSQL для проекта MUSSON.

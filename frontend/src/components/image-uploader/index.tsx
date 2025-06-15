@@ -50,7 +50,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   let fullWebpPreviewUrl: string | null = null;
 
   // --- ОТЛАДКА ---
-  console.log(
     "[ImageUploader DEBUG] Raw initialImageUrl prop:",
     initialImageUrl,
   );
@@ -151,11 +150,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   }
 
   // --- ОТЛАДКА ---
-  console.log(
     "[ImageUploader DEBUG] Effective relative webpUrl for processing:",
     currentRelativeWebpPath,
   );
-  console.log(
     "[ImageUploader DEBUG] NEXT_PUBLIC_DJANGO_MEDIA_URL:",
     djangoMediaBase,
   );
@@ -194,7 +191,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   }
 
   // --- ОТЛАДКА ---
-  console.log(
     "[ImageUploader DEBUG] Calculated fullWebpPreviewUrl:",
     fullWebpPreviewUrl,
   );
@@ -324,7 +320,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     const formData = new FormData();
     formData.append(uploadFieldName, convertedWebpFile, convertedWebpFile.name);
 
-    console.log("Отправка сконвертированного WEBP на URL:", fullApiEndpoint);
 
     try {
       const response = await fetchWithAuth(fullApiEndpoint, {
@@ -369,7 +364,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       setWebpUrl(result.url);
 
       // ---- НОВЫЙ ВЫЗОВ onUploadComplete ----
-      console.log(
         "[ImageUploader INTERNAL DEBUG] Successfully uploaded. Calling onUploadComplete with URL:",
         result.url,
       );

@@ -28,7 +28,6 @@ export async function POST(request: NextRequest) {
     // или React Server Components, которые возвращают данные.
     // Если путь является layout, он ревалидирует все страницы в этом layout.
     revalidatePath(path, "page"); // 'page' для ревалидации конкретной страницы, 'layout' для layout
-    console.log(`Revalidated path: ${path}`);
     return NextResponse.json({
       revalidated: true,
       now: Date.now(),

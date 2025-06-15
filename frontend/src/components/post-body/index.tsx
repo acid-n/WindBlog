@@ -11,7 +11,6 @@ import TableRow from '@tiptap/extension-table-row';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import CodeBlock from '@tiptap/extension-code-block';
-// import Highlight from '@tiptap/extension-highlight';
 import Typography from '@tiptap/extension-typography';
 import { GalleryNode } from "@/lib/tiptapGalleryExtension";
 
@@ -30,7 +29,6 @@ interface PostBodyProps {
 const processImageUrlsInJson = (node: JSONContent, mediaUrlBase: string): JSONContent | JSONContent[] => {
   if (typeof node === "object" && node !== null && 'type' in node) {
     // Здесь node гарантированно JSONContent
-    // console.log(`[PostBody] Processing node type: ${node.type}`, JSON.stringify((node as unknown).attrs));
   }
 
   if (Array.isArray(node)) {
@@ -49,23 +47,18 @@ const processImageUrlsInJson = (node: JSONContent, mediaUrlBase: string): JSONCo
     if (node.type === "image") {
       // Нашли узел типа 'image'
       // ОТЛАДКА: Логируем весь узел image, чтобы увидеть его структуру
-      console.log(
         "[PostBody] Found image node structure:",
         JSON.stringify(node, null, 2),
       );
       if (newNode.attrs?.src && typeof newNode.attrs?.src === "string") {
-        console.log("[PostBody] Image node original src:", newNode.attrs?.src);
         if (newNode.attrs?.src && newNode.attrs.src.startsWith("/media/")) {
           if (newNode.attrs) newNode.attrs.src = `${mediaUrlBase}${newNode.attrs.src.substring(1)}`;
-          console.log("[PostBody] Modified image src to:", newNode.attrs?.src);
         } else {
-          console.log(
             "[PostBody] Image src does not start with /media/, not modified:",
             node.attrs?.src,
           );
         }
       } else {
-        console.log(
           "[PostBody] Image node attrs.src is not a string or is missing. Attrs:",
           node.attrs,
         );
@@ -81,7 +74,6 @@ const processImageUrlsInJson = (node: JSONContent, mediaUrlBase: string): JSONCo
 };
 
 const PostBody: React.FC<PostBodyProps> = ({ content }) => {
-  console.log(
     "CONTENT PROP RECEIVED BY PostBody:",
     JSON.stringify(content, null, 2),
   );

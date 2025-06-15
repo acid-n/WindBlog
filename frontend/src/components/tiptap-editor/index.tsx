@@ -63,7 +63,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
 
-  console.log('[TiptapEditor] content:', content);
   const editor = useEditor({
     extensions: [
       StarterKit.configure({

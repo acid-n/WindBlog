@@ -67,9 +67,7 @@ export const fetchWithAuth = async (
 
   // 1. Проверяем, истек ли текущий access токен
   if (isTokenExpired(currentAccessToken)) {
-    console.log("Access token expired or missing, attempting refresh...");
     if (!currentRefreshToken) {
-      console.log("No refresh token available. Logging out.");
       // Тут можно вызвать logout из AuthContext или просто выбросить ошибку/редирект
       window.location.href = "/login"; // Простой редирект
       throw new Error("Требуется аутентификация");
@@ -79,12 +77,10 @@ export const fetchWithAuth = async (
     currentAccessToken = await refreshToken(currentRefreshToken);
 
     if (!currentAccessToken) {
-      console.log("Refresh token failed. Logging out.");
       // Аналогично - logout или редирект
       window.location.href = "/login";
       throw new Error("Сессия истекла, пожалуйста, войдите снова");
     }
-    console.log("Token refreshed successfully.");
   }
 
   // 3. Добавляем актуальный токен в заголовки

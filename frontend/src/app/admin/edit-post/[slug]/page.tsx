@@ -210,7 +210,6 @@ const EditPostPage = () => {
     if (successMessageTimerRef.current)
       clearTimeout(successMessageTimerRef.current);
 
-    console.log(
       "[EditPostPage PRE-SAVE DEBUG] Current post.image state:",
       post?.image,
     );
@@ -219,7 +218,6 @@ const EditPostPage = () => {
     const imageSource =
       latestUploadedImagePathRef.current ??
       (typeof post.image === "string" ? post.image : null);
-    console.log(
       "[EditPostPage PRE-SAVE DEBUG] Image source for save (from ref or post.image):",
       imageSource,
     );
@@ -274,11 +272,9 @@ const EditPostPage = () => {
       imagePathForSave = path;
     }
 
-    console.log(
       "[EditPostPage FINAL DEBUG] imagePathForSave перед включением в postDataToSave:",
       imagePathForSave,
     );
-    console.log(
       `[EditPostPage FINAL DEBUG] Длина imagePathForSave: ${imagePathForSave?.length}`,
     );
 
@@ -299,20 +295,15 @@ const EditPostPage = () => {
     };
     delete postDataToSave.tags_details;
 
-    console.log(
       "[EditPostPage DEBUG] Data being sent to backend (postDataToSave):",
       JSON.stringify(postDataToSave, null, 2),
     );
-    console.log(
       `[EditPostPage DEBUG] Length of title: ${postDataToSave.title?.length}`,
     );
-    console.log(
       `[EditPostPage DEBUG] Length of slug: ${postDataToSave.slug?.length}`,
     );
-    console.log(
       `[EditPostPage DEBUG] Length of image path: ${postDataToSave.image?.length}`,
     );
-    console.log(
       `[EditPostPage DEBUG] Length of description: ${postDataToSave.description?.length}`,
     );
 
@@ -383,7 +374,6 @@ const EditPostPage = () => {
           }
         }, 1500);
       } else {
-        console.log(
           "Запуск ревалидации после обновления поста (используя revalidatePath)...",
         );
         const pathsToRevalidate = ["/blog", "/"];
@@ -401,7 +391,6 @@ const EditPostPage = () => {
               }
               return res.json();
             })
-            .then((data) => console.log(`Результат ревалидации ${path}:`, data))
             .catch((err) =>
               console.error(`Ошибка при ревалидации ${path}:`, err),
             ),
@@ -588,11 +577,9 @@ const EditPostPage = () => {
               initialImageUrl={post?.image}
               onUploadComplete={(uploadedUrl) => {
                 if (post) {
-                  console.log(
                     "[EditPostPage DEBUG] ImageUploader onUploadComplete. Uploaded URL:",
                     uploadedUrl,
                   );
-                  console.log(
                     "[EditPostPage DEBUG] ImageUploader onUploadComplete. Current post.image BEFORE setPost:",
                     post.image,
                   );
@@ -600,7 +587,6 @@ const EditPostPage = () => {
                     prevPost ? { ...prevPost, image: uploadedUrl } : null,
                   );
                   latestUploadedImagePathRef.current = uploadedUrl;
-                  console.log(
                     "[EditPostPage DEBUG] ImageUploader onUploadComplete. latestUploadedImagePathRef.current SET TO:",
                     latestUploadedImagePathRef.current,
                   );

@@ -52,7 +52,6 @@ async function fetchService<T>(
   };
 
   const url = `${API_BASE_URL}/${endpoint.startsWith("/") ? endpoint.substring(1) : endpoint}`;
-  // console.log(`Fetching API: ${url}`, requestOptions);
 
   try {
     const res = await fetch(url, requestOptions);

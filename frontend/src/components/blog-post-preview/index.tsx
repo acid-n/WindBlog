@@ -62,9 +62,6 @@ const BlogPostPreview: React.FC<BlogPostPreviewProps> = ({
   const finalImageUrl = getAbsoluteImageUrl(
     typeof post.image === "string" ? post.image : undefined,
   );
-  // --- ОТЛАДКА ---
-  console.log("[BlogPostPreview DEBUG] post.image received:", post?.image);
-  // --- КОНЕЦ ОТЛАДКИ ---
 
   // Формат даты: 2 мая 2025 года
   const date = post.first_published_at

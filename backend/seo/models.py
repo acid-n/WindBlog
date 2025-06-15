@@ -18,7 +18,6 @@ class RobotsRule(models.Model):
     path = models.CharField(
         max_length=255, help_text="Путь, например, '/admin/' или '/private_page'."
     )
-    # TODO: Добавить поле order = models.PositiveIntegerField(default=0) для сортировки правил
 
     def __str__(self):
         return f"{self.directive}: {self.path} ({self.user_agent})"

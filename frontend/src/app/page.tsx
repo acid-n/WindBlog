@@ -10,7 +10,6 @@ import type { Metadata } from 'next';
 // Явно указываем динамический рендеринг (т.к. используем searchParams)
 export const dynamic = 'force-dynamic';
 
-// TODO: Получать эти данные из API (например, из SiteSettings) или констант
 const SITE_TITLE = "MUSSON Blog";
 const SITE_DESCRIPTION = "Блог о технологиях, разработке и жизни. Читайте свежие статьи, обзоры и советы от MUSSON.";
 
@@ -51,7 +50,6 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-// TODO: Это значение должно быть синхронизировано с PAGE_SIZE в Django REST Framework настройках (сейчас по умолчанию 10).
 // В идеале, API должен возвращать page_size в ответе пагинации, или это значение должно быть доступно
 // через общую конфигурацию / переменные окружения, доступные и бэкенду, и фронтенду.
 const DEFAULT_PAGE_SIZE = 10;
@@ -64,14 +62,9 @@ interface HomePageProps {
 }
 
 // Вспомогательная async функция
-// async function getResolvedSearchParams(searchParamsInput: HomePageProps['searchParams']) {
-//   return Promise.resolve(searchParamsInput || {});
-// }
 
 const Home = async ({ searchParams: searchParamsProp = {} }: HomePageProps) => {
-  // console.log('[Home] searchParamsProp BEFORE await - type:', typeof searchParamsProp, 'isPromise:', searchParamsProp instanceof Promise);
   const searchParams = await searchParamsProp;
-  // console.log('[Home] searchParams AFTER await - type:', typeof searchParams, 'isPromise:', searchParams instanceof Promise, 'value:', JSON.stringify(searchParams));
   
   let pageQuery: string | undefined = undefined;
   // Используем "разрешенный" searchParams

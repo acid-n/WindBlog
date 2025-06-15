@@ -18,9 +18,7 @@ interface SearchPageProps {
  * Страница поиска — MUSSON UX/UI STYLE GUIDE.
  */
 const SearchPage = async ({ searchParams: searchParamsProp = {} }: SearchPageProps) => {
-  // console.log('[SearchPage] searchParamsProp BEFORE await - type:', typeof searchParamsProp, 'isPromise:', searchParamsProp instanceof Promise);
   const searchParams = await searchParamsProp;
-  // console.log('[SearchPage] searchParams AFTER await - type:', typeof searchParams, 'isPromise:', searchParams instanceof Promise, 'value:', JSON.stringify(searchParams));
 
   const rawQuery = searchParams.q;
   const searchQuery = Array.isArray(rawQuery) ? rawQuery[0] || "" : rawQuery || "";

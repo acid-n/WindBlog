@@ -24,7 +24,6 @@ export default function ShortLinkRedirect({
       }
       
       try {
-        console.log(`Получаем пост по ID: ${code}`);
         // fetchPostById is deprecated or not implemented.
         setError('Функция коротких ссылок временно недоступна. Пожалуйста, обратитесь к администратору.');
         setLoading(false);

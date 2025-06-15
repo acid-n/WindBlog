@@ -6,6 +6,7 @@ import styles from "./styles.module.css";
 import PostRating from "@/components/post-rating";
 import Link from "next/link";
 import Image from "next/image";
+import { getAbsoluteImageUrl } from "@/lib/media";
 
 /**
  * Превью поста для главной страницы (стиль Read WP, RU).
@@ -39,21 +40,6 @@ const highlightText = (text: string, query: string) => {
   );
 };
 
-// Универсальная функция для абсолютного URL
-const getAbsoluteImageUrl = (imagePath?: string) => {
-  if (!imagePath) return null;
-  if (imagePath.startsWith("http")) return imagePath;
-  const djangoMediaUrl =
-    process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL || "http://localhost:8000/media/";
-  let cleanPath = imagePath;
-  if (cleanPath.startsWith("/media/")) {
-    cleanPath = cleanPath.substring("/media/".length);
-  }
-  const base = djangoMediaUrl.endsWith("/")
-    ? djangoMediaUrl
-    : `${djangoMediaUrl}/`;
-  return `${base}${cleanPath}`;
-};
 
 const BlogPostPreview: React.FC<BlogPostPreviewProps> = ({
   post,

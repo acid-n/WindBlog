@@ -2,6 +2,7 @@ import React from "react";
 import type { Post, Tag } from "@/types/blog";
 import Image from "next/image";
 import { fetchPost } from "@/services/api";
+import { getAbsoluteImageUrl } from "@/lib/media";
 
 import PostRating from "@/components/post-rating";
 import { notFound } from "next/navigation";
@@ -17,21 +18,6 @@ import EditPostLink from "@/components/edit-post-link";
 //   return Promise.resolve(paramsInput);
 // }
 
-// Вспомогательная функция для абсолютного URL
-const getAbsoluteImageUrl = (imagePath?: string) => {
-  if (!imagePath) return null;
-  if (imagePath.startsWith("http")) return imagePath;
-  const djangoMediaUrl =
-    process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL || "http://localhost:8000/media/";
-  let cleanPath = imagePath;
-  if (cleanPath.startsWith("/media/")) {
-    cleanPath = cleanPath.substring("/media/".length);
-  }
-  const base = djangoMediaUrl.endsWith("/")
-    ? djangoMediaUrl
-    : `${djangoMediaUrl}/`;
-  return `${base}${cleanPath}`;
-};
 
 // Метаданные страницы поста
 export async function generateMetadata({
@@ -56,7 +42,10 @@ export async function generateMetadata({
           post.description ||
           post.short_description ||
           `Пост "${post.title}" в блоге`,
-        images: post.image ? [{ url: post.image }] : [],
+        images: (() => {
+          const url = getAbsoluteImageUrl(post.image);
+          return url ? [{ url }] : [];
+        })(),
       },
     };
   } catch (e: unknown) {

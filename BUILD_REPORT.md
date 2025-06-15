@@ -76,3 +76,9 @@
 - Обновлены версии хуков pre-commit
 - Код форматирован black и isort
 
+## 2025-06-28
+- Обновлена версия хуков в `.pre-commit-config.yaml`
+- Установлены совместимые версии black, flake8 и isort
+- Выполнен `pre-commit run --all-files` (без prettier)
+- Все тесты и линтеры проходят без ошибок
+

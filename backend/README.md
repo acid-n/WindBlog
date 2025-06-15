@@ -26,8 +26,6 @@
 
 - `blog/`: Основное приложение блога (модели Post, Tag, Rating, ShortLink, сериализаторы, API ViewSets)
 - `users/`: Кастомная модель пользователя (`CustomUser`), эндпоинты для регистрации/управления
-- `analytics/`: Модель AnalyticsEvent и API для сбора аналитики
-- `contact/`: Модель ContactMessage и API для формы обратной связи
 - `seo/`: SEO-функционал (robots.txt, sitemap.xml, OpenGraph)
 - `config/`: Настройки Django (`settings.py`), корневые URL, WSGI/ASGI
 - `management/commands/`: Кастомные manage.py команды (например, generate_test_data)
@@ -128,8 +126,6 @@ curl http://localhost:8000/api/v1/posts/
 
 - `blog/`: Основное приложение блога (модели Post, Tag, Rating, ShortLink (с автогенерацией уникального `code` и логикой редиректа для `/s/<code>/`); сериализаторы (включая поле `code` из `ShortLink` в `PostSerializer`); API ViewSets (включая поддержку `?for_sitemap=true` для эндпоинта постов); тесты).
 - `users/`: Кастомная модель пользователя (`CustomUser`) и эндпоинты для регистрации/управления пользователями.
-- `analytics/`: Модель `AnalyticsEvent` и API для сбора простой аналитики.
-- `contact/`: Модель `ContactMessage` и API для формы обратной связи.
 - `seo/`: Новое приложение для SEO-функциональности (модели `RobotsRule`, `GlobalSEOSettings`); модель `Post` расширена SEO-полями; Django генерирует `/robots.txt`.
 - `config/`: Основные настройки Django (`settings.py`), корневые URL (`urls.py`), WSGI/ASGI конфигурации. Включает модель `SiteSettings`.
 - `management/commands/`: Директория для кастомных manage.py команд (например, `generate_test_data`).

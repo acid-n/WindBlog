@@ -2,8 +2,7 @@
  * API-сервис для работы с backend (REST, JWT, обработка ошибок).
  */
 // Базовый URL API; может быть переопределён в .env.local
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000/api/v1";
+import { getBaseUrl } from "@/lib/apiBase";
 
 const USE_MOCK_DATA = process.env.USE_MOCK_DATA === "true";
 
@@ -54,7 +53,7 @@ async function fetchService<T>(
     next: nextOptions,
   };
 
-  const url = `${API_BASE_URL}/${endpoint.startsWith("/") ? endpoint.substring(1) : endpoint}`;
+  const url = `${getBaseUrl()}/${endpoint.startsWith("/") ? endpoint.substring(1) : endpoint}`;
 
   try {
     const res = await fetch(url, requestOptions);

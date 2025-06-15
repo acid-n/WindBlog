@@ -1,4 +1,5 @@
 import { jwtDecode } from "jwt-decode";
+import { getBackendOrigin } from "@/lib/apiBase";
 
 // Утилита для проверки времени жизни токена (с небольшим запасом)
 const isTokenExpired = (token: string | null, bufferSeconds = 60): boolean => {
@@ -18,9 +19,7 @@ const refreshToken = async (
   currentRefreshToken: string,
 ): Promise<string | null> => {
   try {
-    const apiUrl =
-      process.env.NEXT_PUBLIC_DJANGO_API_URL || "http://localhost:8000/api/v1";
-    const refreshUrl = `${apiUrl.replace("/v1", "")}/token/refresh/`;
+    const refreshUrl = `${getBackendOrigin()}/token/refresh/`;
 
     const response = await fetch(refreshUrl, {
       method: "POST",

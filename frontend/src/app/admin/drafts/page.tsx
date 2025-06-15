@@ -8,6 +8,7 @@ import { fetchWithAuth } from "@/services/apiClient";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
+import { getBackendOrigin } from "@/lib/apiBase";
 
 const DraftsPage = () => {
   const [drafts, setDrafts] = useState<Post[]>([]);
@@ -27,11 +28,8 @@ const DraftsPage = () => {
         setIsLoading(true);
         setError(null);
         try {
-          const djangoApiUrl =
-            process.env.NEXT_PUBLIC_DJANGO_API_URL ||
-            "http://localhost:8000/api/v1";
           const response = await fetchWithAuth(
-            `${djangoApiUrl}/posts/?drafts=true`,
+            `${getBackendOrigin()}/api/v1/posts/?drafts=true`,
           );
           if (!response.ok) {
             throw new Error("Не удалось загрузить черновики");

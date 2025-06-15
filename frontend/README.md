@@ -76,6 +76,11 @@ NEXT_PUBLIC_DJANGO_MEDIA_URL=http://localhost:8000/media/
 DJANGO_MEDIA_URL_SSR=http://localhost:8000/media/
 ```
 
+Функция `getBaseUrl()` автоматически выбирает базовый URL API:
+
+- в браузере используется `NEXT_PUBLIC_API_BASE`;
+- при SSR берётся `DJANGO_MEDIA_URL_SSR` (путь заменяется на `/api/v1`) или `http://backend:8000`.
+
 ---
 
 ## Тесты и линтинг

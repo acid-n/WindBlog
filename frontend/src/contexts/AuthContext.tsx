@@ -8,6 +8,7 @@ import React, {
   ReactNode,
 } from "react";
 import { jwtDecode } from "jwt-decode"; // Установим эту библиотеку
+import { getBackendOrigin } from "@/lib/apiBase";
 
 interface User {
   id: number; // Это будет user_id из токена
@@ -50,7 +51,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setIsLoading(true);
     try {
       const storedAccessToken = localStorage.getItem("accessToken");
-       // Пока не используем, но храним
+      // Пока не используем, но храним
 
       if (storedAccessToken) {
         const decodedToken = jwtDecode<DecodedJwt>(storedAccessToken); // Декодируем токен
@@ -119,7 +120,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         throw new Error("No refresh token found");
       }
       // Эндпоинт обновления токена (замените на ваш путь, если отличается)
-      const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_API_URL}/api/token/refresh/`, {
+      const response = await fetch(`${getBackendOrigin()}/api/token/refresh/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

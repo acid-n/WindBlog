@@ -3,11 +3,8 @@
 import React, { useState, useRef } from "react";
 import { fetchWithAuth } from "@/services/apiClient"; // Для отправки файла
 import Image from "next/image"; // Для превью
-import {
-  FaUpload,
-  FaTimesCircle,
-  FaSpinner,
-} from "react-icons/fa"; // Иконки
+import { FaUpload, FaTimesCircle, FaSpinner } from "react-icons/fa"; // Иконки
+import { getBackendOrigin } from "@/lib/apiBase";
 
 export type CropMode = "content" | "preview";
 
@@ -37,19 +34,21 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isConverting, setIsConverting] = useState(false);
   const [convertedWebpFile, setConvertedWebpFile] = useState<File | null>(null);
-  const [convertedWebpPreview, setConvertedWebpPreview] = useState<string | null>(null);
+  const [convertedWebpPreview, setConvertedWebpPreview] = useState<
+    string | null
+  >(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const djangoApiUrl =
-    process.env.NEXT_PUBLIC_DJANGO_API_URL || "http://localhost:8000";
-  const fullApiEndpoint = new URL(apiEndpoint, djangoApiUrl).toString();
+  const fullApiEndpoint = new URL(apiEndpoint, getBackendOrigin()).toString();
 
   // Полный URL для отображения WEBP превью
   const djangoMediaBase = process.env.NEXT_PUBLIC_DJANGO_MEDIA_URL;
   let fullWebpPreviewUrl: string | null = null;
 
   // --- Множественная загрузка файлов ---
-  const handleMultiFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMultiFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
     setIsLoading(true);
@@ -70,12 +69,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         });
         if (!response.ok) {
           let errorText = await response.text();
-          throw new Error(`Ошибка загрузки файла ${file.name} (status ${response.status}): ${errorText}`);
+          throw new Error(
+            `Ошибка загрузки файла ${file.name} (status ${response.status}): ${errorText}`,
+          );
         }
         const data = await response.json();
         uploadedUrls.push(data.url || data.image || "");
       } catch (err) {
-        setError("Ошибка загрузки одного из файлов: " + (err instanceof Error ? err.message : String(err)));
+        setError(
+          "Ошибка загрузки одного из файлов: " +
+            (err instanceof Error ? err.message : String(err)),
+        );
       }
     }
     setIsLoading(false);
@@ -86,7 +90,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     // Сбросить value input, чтобы повторно можно было выбрать те же файлы
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
-
 
   let currentRelativeWebpPath: string = "";
   if (webpUrl) {
@@ -112,7 +115,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       } catch {
         // Ошибка парсинга URL
         console.error(
-          `[ImageUploader ERROR] Не удалось распарсить как URL, хотя начинался с http: ${pathForProcessing}`
+          `[ImageUploader ERROR] Не удалось распарсить как URL, хотя начинался с http: ${pathForProcessing}`,
         );
         pathForProcessing = ""; // Считаем путь невалидным
       }
@@ -179,7 +182,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   // --- КОНЕЦ ОТЛАДКИ ---
 
   // Универсальная функция конвертации в WEBP с/без кропа
-  const convertToWebPWithCropMode = async (file: File, cropMode: CropMode): Promise<File | null> => {
+  const convertToWebPWithCropMode = async (
+    file: File,
+    cropMode: CropMode,
+  ): Promise<File | null> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -191,8 +197,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             // Кроп под 3:1
             const TARGET_ASPECT_RATIO = 3 / 1;
             const TARGET_WIDTH = 1200;
-            const TARGET_HEIGHT = Math.round(TARGET_WIDTH / TARGET_ASPECT_RATIO);
-            let sourceX = 0, sourceY = 0, sourceWidth = img.width, sourceHeight = img.height;
+            const TARGET_HEIGHT = Math.round(
+              TARGET_WIDTH / TARGET_ASPECT_RATIO,
+            );
+            let sourceX = 0,
+              sourceY = 0,
+              sourceWidth = img.width,
+              sourceHeight = img.height;
             const inputAspect = img.width / img.height;
             if (inputAspect > TARGET_ASPECT_RATIO) {
               sourceWidth = Math.round(img.height * TARGET_ASPECT_RATIO);
@@ -205,7 +216,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             canvas.width = TARGET_WIDTH;
             canvas.height = TARGET_HEIGHT;
             ctx = canvas.getContext("2d");
-            if (!ctx) return reject(new Error("Не удалось получить 2D контекст канваса."));
+            if (!ctx)
+              return reject(
+                new Error("Не удалось получить 2D контекст канваса."),
+              );
             ctx.drawImage(
               img,
               sourceX,
@@ -231,7 +245,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             canvas.width = newWidth;
             canvas.height = newHeight;
             ctx = canvas.getContext("2d");
-            if (!ctx) return reject(new Error("Не удалось получить 2D контекст канваса."));
+            if (!ctx)
+              return reject(
+                new Error("Не удалось получить 2D контекст канваса."),
+              );
             ctx.drawImage(img, 0, 0, newWidth, newHeight);
           }
           canvas.toBlob(
@@ -258,7 +275,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         if (event.target?.result && typeof event.target.result === "string") {
           img.src = event.target.result;
         } else {
-          reject(new Error("Результат FileReader не является строкой или отсутствует."));
+          reject(
+            new Error(
+              "Результат FileReader не является строкой или отсутствует.",
+            ),
+          );
         }
       };
       reader.onerror = () => reject(new Error("Ошибка чтения файла"));
@@ -266,15 +287,19 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     });
   };
 
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
       setOriginalFile(file);
       setOriginalPreview(URL.createObjectURL(file));
       setIsConverting(true);
       try {
-        const convertedWebpFile = await convertToWebPWithCropMode(file, cropMode);
+        const convertedWebpFile = await convertToWebPWithCropMode(
+          file,
+          cropMode,
+        );
         if (convertedWebpFile) {
           setConvertedWebpFile(convertedWebpFile);
           setConvertedWebpPreview(URL.createObjectURL(convertedWebpFile));
@@ -288,7 +313,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
   };
 
-
   const handleUploadConvertedWebP = async () => {
     // Переименовали функцию
     if (!convertedWebpFile) {
@@ -301,7 +325,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
     const formData = new FormData();
     formData.append(uploadFieldName, convertedWebpFile, convertedWebpFile.name);
-
 
     try {
       const response = await fetchWithAuth(fullApiEndpoint, {
@@ -324,8 +347,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           } catch {
             errorMessage = `Ошибка сервера: ${response.status}. Не удалось декодировать JSON с ошибкой.`;
           }
-        }
-        else {
+        } else {
           errorMessage = `Сервер вернул неожиданный ответ (не JSON). Статус: ${response.status}`;
         }
         throw new Error(errorMessage);
@@ -391,7 +413,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           disabled={isConverting || isLoading} // Блокируем во время конвертации или загрузки
           className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
         >
-          Выбрать файл{multiple ? 'ы' : ''}...
+          Выбрать файл{multiple ? "ы" : ""}...
         </button>
         <input
           ref={fileInputRef}

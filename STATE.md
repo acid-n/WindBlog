@@ -16,3 +16,4 @@
 - [x] Удалены мёртвые приложения `analytics` и `contact`
 - [x] Удалены модели AnalyticsEvent и ContactMessage, убраны заглушки страниц и компонент PostCard
 - [x] Исправлены предупреждения flake8 в admin/models/serializers/views
+- [x] Очистка тестов, убраны неиспользуемые импорты, flake8 проходит ✅

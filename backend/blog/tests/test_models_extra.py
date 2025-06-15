@@ -1,6 +1,5 @@
 import pytest
 import factory
-from django.utils import timezone
 
 from blog.models import Post, ShortLink, Tag
 

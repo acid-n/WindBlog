@@ -20,10 +20,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView, View
 
-from .models import AnalyticsEvent, ContactMessage, Post, Rating, ShortLink, Tag
+from .models import Post, Rating, ShortLink, Tag
 from .serializers import (
-    AnalyticsEventSerializer,
-    ContactMessageSerializer,
     DayArchiveSerializer,
     MonthArchiveSerializer,
     PostSerializer,
@@ -165,22 +163,6 @@ class ShortLinkViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = ShortLink.objects.all().order_by("id")
     serializer_class = ShortLinkSerializer
-    permission_classes = [permissions.AllowAny]
-
-
-class AnalyticsEventViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    """API для событий аналитики (только создание)."""
-
-    queryset = AnalyticsEvent.objects.all()
-    serializer_class = AnalyticsEventSerializer
-    permission_classes = [permissions.AllowAny]
-
-
-class ContactMessageViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    """API для сообщений обратной связи (только создание)."""
-
-    queryset = ContactMessage.objects.all()
-    serializer_class = ContactMessageSerializer
     permission_classes = [permissions.AllowAny]
 
 

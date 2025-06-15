@@ -5,7 +5,7 @@ from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.settings import api_settings
 
-from .models import AnalyticsEvent, ContactMessage, Post, Rating, ShortLink, Tag
+from .models import Post, Rating, ShortLink, Tag
 
 # Убедимся, что ContentFile импортирован, если понадобится для CustomImageField
 # from django.core.files.base import ContentFile
@@ -252,30 +252,6 @@ class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
         fields = ["id", "post", "score", "user_hash", "created_at"]
-
-
-class AnalyticsEventSerializer(serializers.ModelSerializer):
-    """Сериализатор для событий аналитики."""
-
-    class Meta:
-        model = AnalyticsEvent
-        fields = [
-            "id",
-            "path",
-            "ip",
-            "user_agent",
-            "referrer",
-            "created_at",
-            "updated_at",
-        ]
-
-
-class ContactMessageSerializer(serializers.ModelSerializer):
-    """Сериализатор для сообщений обратной связи."""
-
-    class Meta:
-        model = ContactMessage
-        fields = ["id", "name", "email", "message", "created_at", "updated_at"]
 
 
 # Сериализаторы для API Архива

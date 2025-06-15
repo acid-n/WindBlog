@@ -2,7 +2,6 @@ import React from "react";
 import { notFound } from "next/navigation";
 import { fetchPostsByTag, fetchTags, PaginatedTagsResponse } from "@/services/api";
 import type { Post, Tag } from "@/types/blog";
-// import PostCard from "@/components/post-card"; // Убираем PostCard
 import BlogPostPreview from "@/components/blog-post-preview"; // Добавляем BlogPostPreview
 import Pagination from "@/components/pagination"; // Добавляем Pagination
 

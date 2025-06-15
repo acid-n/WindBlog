@@ -2,12 +2,10 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from .views import (
-    AnalyticsEventViewSet,
     ArchiveDayPostsView,
     ArchiveDaySummaryView,
     ArchiveMonthSummaryView,
     ArchiveYearSummaryView,
-    ContactMessageViewSet,
     ImageUploadView,
     PostViewSet,
     RatingViewSet,
@@ -23,8 +21,6 @@ router.register("posts", PostViewSet, basename="post")
 router.register("tags", TagViewSet, basename="tag")
 router.register("ratings", RatingViewSet, basename="rating")
 router.register("shortlinks", ShortLinkViewSet, basename="shortlink")
-router.register("analytics", AnalyticsEventViewSet, basename="analytics")
-router.register("contact", ContactMessageViewSet, basename="contact")
 
 # Добавляем URL-ы для архива отдельно, так как они не вписываются в стандартный ViewSet
 archive_urlpatterns = [

@@ -1,7 +1,7 @@
 import random
 
 import requests
-from blog.models import AnalyticsEvent, ContactMessage, Post, Rating, ShortLink, Tag
+from blog.models import Post, Rating, ShortLink, Tag
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 from django.utils import timezone
@@ -236,40 +236,15 @@ class Command(BaseCommand):
             shortlinks += 1
         self.stdout.write(self.style.SUCCESS(f"Создано коротких ссылок: {shortlinks}"))
 
-        # Аналитика
-        analytics = 0
-        for _ in range(20):
-            AnalyticsEvent.objects.create(
-                path=fake.uri_path(),
-                ip=fake.ipv4(),
-                user_agent=fake.user_agent(),
-                referrer=fake.uri(),
-            )
-            analytics += 1
-        self.stdout.write(self.style.SUCCESS(f"Создано событий аналитики: {analytics}"))
-
-        # Обратная связь
-        contacts = 0
-        for _ in range(8):
-            ContactMessage.objects.create(
-                name=fake.name(),
-                email=fake.email(),
-                message=fake.text(max_nb_chars=200),
-            )
-            contacts += 1
-        self.stdout.write(
-            self.style.SUCCESS(f"Создано сообщений обратной связи: {contacts}")
-        )
+        # Аналитика и обратная связь больше не используются
 
         self.stdout.write(
             self.style.SUCCESS(
-                "Создано {} тегов, {} постов, {} рейтингов, {} коротких ссылок, {} событий аналитики, {} сообщений.".format(
+                "Создано {} тегов, {} постов, {} рейтингов, {} коротких ссылок.".format(
                     Tag.objects.count(),
                     Post.objects.count(),
                     Rating.objects.count(),
                     ShortLink.objects.count(),
-                    AnalyticsEvent.objects.count(),
-                    ContactMessage.objects.count(),
                 )
             )
         )

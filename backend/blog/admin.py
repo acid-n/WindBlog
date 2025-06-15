@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import AnalyticsEvent, ContactMessage, Post, Rating, ShortLink, Tag
+from .models import Post, Rating, ShortLink, Tag
 
 
 class ShortLinkInline(admin.TabularInline):
@@ -94,18 +94,3 @@ class ShortLinkAdmin(admin.ModelAdmin):
         return obj.post.title
 
     post_title.short_description = "Пост"
-
-
-@admin.register(AnalyticsEvent)
-class AnalyticsEventAdmin(admin.ModelAdmin):
-    list_display = ("path", "ip", "referrer", "created_at")
-    list_filter = ("created_at",)
-    search_fields = ("path", "ip", "user_agent", "referrer")
-    readonly_fields = ("created_at", "updated_at")
-
-
-@admin.register(ContactMessage)
-class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "created_at")
-    search_fields = ("name", "email", "message")
-    readonly_fields = ("created_at", "updated_at")

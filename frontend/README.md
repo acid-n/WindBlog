@@ -73,14 +73,14 @@ npm run dev
 ```env
 NEXT_PUBLIC_API_BASE=http://localhost:8000/api/v1
 NEXT_PUBLIC_DJANGO_MEDIA_URL=http://localhost:8000/media/
-DJANGO_API_URL_SSR=http://backend:8000/api/v1
+DJANGO_API_URL_SSR=http://localhost:8000/api/v1
 DJANGO_MEDIA_URL_SSR=http://localhost:8000/media/
 ```
 
 Функция `getBaseUrl()` автоматически подставляет правильный базовый URL API:
 
 - в браузере используется `NEXT_PUBLIC_API_BASE`;
-- при SSR берётся `DJANGO_API_URL_SSR` (или `http://backend:8000/api/v1` по умолчанию).
+- при SSR берётся `DJANGO_API_URL_SSR` (обычно `http://localhost:8000/api/v1`).
 
 ---
 

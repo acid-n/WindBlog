@@ -2,7 +2,7 @@
  * API-сервис для работы с backend (REST, JWT, обработка ошибок).
  */
 // Базовый URL API; может быть переопределён в .env.local
-import { getBaseUrl } from "@/lib/apiBase";
+import { getBaseUrl } from "@/lib/getBaseUrl";
 
 const USE_MOCK_DATA = process.env.USE_MOCK_DATA === "true";
 

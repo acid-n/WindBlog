@@ -104,6 +104,8 @@ python manage.py runserver
 cd frontend
 npm install
 cp .env.local.example .env.local  # при первом запуске
+cd ..
+cp .env.local.example .env.local   # настройки API для e2e (корень проекта)
 npm run dev
 ```
 
@@ -140,6 +142,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 
 - **Backend:** Pytest, pytest-django. Запуск: `cd backend && pytest --cov=. -q` для вывода покрытия.
 - **Frontend:** Jest, React Testing Library. Запуск: `cd frontend && npm test -- --coverage`.
+- **E2E:** Playwright. Запуск: `pnpm exec playwright test` (требует запущенного сервера).
 - Цель покрытия — не менее 95%.
 - Backend использует SQLite для тестов (config/settings_test.py).
 - Тесты и линтеры запускаются автоматически через pre-commit и CI.

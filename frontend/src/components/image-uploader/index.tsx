@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 import { fetchWithAuth } from "@/services/apiClient"; // Для отправки файла
 import Image from "next/image"; // Для превью
 import { FaUpload, FaTimesCircle, FaSpinner } from "react-icons/fa"; // Иконки
-import { getBackendOrigin } from "@/lib/apiBase";
+import { getBackendOrigin } from "@/lib/getBaseUrl";
 
 export type CropMode = "content" | "preview";
 

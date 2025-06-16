@@ -8,7 +8,7 @@ import { fetchWithAuth } from "@/services/apiClient";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { getBackendOrigin } from "@/lib/apiBase";
+import { getBackendOrigin } from "@/lib/getBaseUrl";
 
 const DraftsPage = () => {
   const [drafts, setDrafts] = useState<Post[]>([]);

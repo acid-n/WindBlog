@@ -9,7 +9,7 @@ import slugify from "slugify";
 import { fetchWithAuth } from "@/services/apiClient";
 import ImageUploader from "@/components/image-uploader";
 import { TrashIcon } from "@heroicons/react/24/outline";
-import { getBackendOrigin } from "@/lib/apiBase";
+import { getBackendOrigin } from "@/lib/getBaseUrl";
 
 const processImageUrlsInJson = (node: unknown, mediaUrl: string): unknown => {
   if (Array.isArray(node)) {

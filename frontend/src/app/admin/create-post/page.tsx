@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import slugify from "slugify";
 import { fetchWithAuth } from "@/services/apiClient";
 import ImageUploader from "@/components/image-uploader";
-import { getBackendOrigin } from "@/lib/apiBase";
+import { getBackendOrigin } from "@/lib/getBaseUrl";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";

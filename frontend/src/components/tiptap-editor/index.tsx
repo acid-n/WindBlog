@@ -16,7 +16,7 @@ import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 
 import { GalleryNode } from "@/lib/tiptapGalleryExtension"; // NEW
-import { getBackendOrigin } from "@/lib/apiBase";
+import { getBackendOrigin } from "@/lib/getBaseUrl";
 import {
   FaBold,
   FaItalic,

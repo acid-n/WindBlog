@@ -21,4 +21,18 @@ describe("getBaseUrl", () => {
     process.env.NEXT_PUBLIC_API_BASE = "http://client.com/api/v1";
     expect(getBaseUrl()).toBe("http://client.com/api/v1");
   });
+
+  it("falls back to localhost for SSR when env is undefined", () => {
+    // @ts-expect-error window is undefined in SSR
+    delete global.window;
+    delete process.env.DJANGO_API_URL_SSR;
+    expect(getBaseUrl()).toBe("http://localhost:8000/api/v1");
+  });
+
+  it("falls back to localhost in browser when env is undefined", () => {
+    // @ts-expect-error window is defined in browser context
+    global.window = {};
+    delete process.env.NEXT_PUBLIC_API_BASE;
+    expect(getBaseUrl()).toBe("http://localhost:8000/api/v1");
+  });
 });

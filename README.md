@@ -45,7 +45,7 @@
   - Название и описание сайта берутся из Django-модели SiteSettings (через API `/api/v1/site-settings`).
   - В Header и Footer всегда актуальное название из админки.
   - Для запросов используется утилита `getBaseUrl`.
-    При SSR берётся `DJANGO_API_URL_SSR` (или `http://backend:8000/api/v1` по умолчанию),
+    При SSR берётся `DJANGO_API_URL_SSR` (обычно `http://localhost:8000/api/v1`),
     в браузере — `NEXT_PUBLIC_API_BASE`.
 
 - **Архитектура:**

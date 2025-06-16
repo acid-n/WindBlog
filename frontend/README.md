@@ -73,13 +73,14 @@ npm run dev
 ```env
 NEXT_PUBLIC_API_BASE=http://localhost:8000/api/v1
 NEXT_PUBLIC_DJANGO_MEDIA_URL=http://localhost:8000/media/
+DJANGO_API_URL_SSR=http://backend:8000/api/v1
 DJANGO_MEDIA_URL_SSR=http://localhost:8000/media/
 ```
 
-Функция `getBaseUrl()` автоматически выбирает базовый URL API:
+Функция `getBaseUrl()` автоматически подставляет правильный базовый URL API:
 
 - в браузере используется `NEXT_PUBLIC_API_BASE`;
-- при SSR берётся `DJANGO_MEDIA_URL_SSR` (путь заменяется на `/api/v1`) или `http://backend:8000`.
+- при SSR берётся `DJANGO_API_URL_SSR` (или `http://backend:8000/api/v1` по умолчанию).
 
 ---
 
@@ -106,7 +107,7 @@ npm run build
 ## Взаимодействие с API
 
 - Все запросы к backend инкапсулированы в сервисах (`src/services/api.ts`)
-- Используется переменная окружения `NEXT_PUBLIC_API_BASE` (по умолчанию http://localhost:8000/api/v1)
+- Используется `getBaseUrl`, который подставляет `NEXT_PUBLIC_API_BASE` в браузере и `DJANGO_API_URL_SSR` при SSR
 - Поддерживается JWT для защищённых эндпоинтов
 - Пример структуры ответа:
 
@@ -220,7 +221,7 @@ npm run build
 ## Взаимодействие с API
 
 - Все запросы к бэкенду инкапсулированы в функциях сервиса `src/services/api.ts`.
-- Используется переменная окружения `NEXT_PUBLIC_API_BASE` для определения базового URL API (по умолчанию `http://localhost:8000/api/v1` для локального запуска Next.js, или `http://backend:8000/api/v1` при запуске в Docker-сети).
+- Базовый URL определяется `getBaseUrl`: в браузере берётся `NEXT_PUBLIC_API_BASE`, при SSR — `DJANGO_API_URL_SSR`.
 - Поддерживается отправка JWT токенов для защищенных эндпоинтов.
 
 ## Важные замечания

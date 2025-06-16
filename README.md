@@ -44,8 +44,9 @@
 
   - Название и описание сайта берутся из Django-модели SiteSettings (через API `/api/v1/site-settings`).
   - В Header и Footer всегда актуальное название из админки.
-  - Для запросов с сервера и из браузера используется утилита `getBaseUrl`,
-    которая подставляет `http://backend:8000` при SSR и `NEXT_PUBLIC_API_BASE` в браузере.
+  - Для запросов используется утилита `getBaseUrl`.
+    При SSR берётся `DJANGO_API_URL_SSR` (или `http://backend:8000/api/v1` по умолчанию),
+    в браузере — `NEXT_PUBLIC_API_BASE`.
 
 - **Архитектура:**
 
@@ -234,7 +235,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 - **Ошибка миграций (локально):** Проверьте настройки `.env` и выполните `python manage.py migrate`.
 - **Не отображаются изображения:** Проверьте `MEDIA_URL`/`MEDIA_ROOT` в Django и доступность `media/` тома в Docker.
 - **Проблемы с генерацией тестовых данных:** Убедитесь, что есть интернет для скачивания изображений, и директория `media/posts/` доступна для записи (права доступа к тому в Docker).
-- **Проблемы с запуском фронтенда:** Убедитесь, что все зависимости установлены (`npm install`). Проверьте переменную `NEXT_PUBLIC_API_BASE` в `.env.local` при запуске в Docker. При проблемах со стилями Tailwind CSS удалите папки `.next` и `node_modules`, затем выполните `npm install`.
+- **Проблемы с запуском фронтенда:** Убедитесь, что все зависимости установлены (`npm install`). Проверьте переменные `NEXT_PUBLIC_API_BASE` и `DJANGO_API_URL_SSR` в `.env.local` при запуске в Docker. При проблемах со стилями Tailwind CSS удалите папки `.next` и `node_modules`, затем выполните `npm install`.
 - **ESLint/Prettier в pre-commit:** Убедитесь, что в `frontend/` установлены все зависимости (`npm install`), включая `eslint-config-next` и другие плагины ESLint, указанные в `additional_dependencies` в `.pre-commit-config.yaml`.
 - **Вопросы:** musson@support.ru
 

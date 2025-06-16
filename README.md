@@ -237,6 +237,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 - **Проблемы с генерацией тестовых данных:** Убедитесь, что есть интернет для скачивания изображений, и директория `media/posts/` доступна для записи (права доступа к тому в Docker).
 - **Проблемы с запуском фронтенда:** Убедитесь, что все зависимости установлены (`npm install`). Проверьте переменные `NEXT_PUBLIC_API_BASE` и `DJANGO_API_URL_SSR` в `.env.local` при запуске в Docker. При проблемах со стилями Tailwind CSS удалите папки `.next` и `node_modules`, затем выполните `npm install`.
 - **ESLint/Prettier в pre-commit:** Убедитесь, что в `frontend/` установлены все зависимости (`npm install`), включая `eslint-config-next` и другие плагины ESLint, указанные в `additional_dependencies` в `.pre-commit-config.yaml`.
+- **Ошибка ESLint `ban-ts-comment`:** используйте `@ts-expect-error` вместо `@ts-ignore`.
 - **Вопросы:** musson@support.ru
 
 ## Git-гигиена

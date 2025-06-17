@@ -161,6 +161,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 
 - **Python:** black, isort, flake8 (настроены в pre-commit и CI).
 - **JS/TS/CSS и др.:** Prettier, ESLint (настроены в pre-commit и CI).
+- Для `@ts-expect-error` требуется описание причины (минимум 3 символа) из-за правила ESLint.
 
 ## Документация
 

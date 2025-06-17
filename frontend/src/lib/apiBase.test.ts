@@ -3,6 +3,7 @@ import { fetchJson } from './getBaseUrl';
 describe('fetchJson', () => {
   afterEach(() => {
     delete process.env.DJANGO_API_URL_SSR;
+    delete process.env.NEXT_PUBLIC_API_BASE;
     // @ts-expect-error – remove mocked fetch
     delete global.fetch;
     // @ts-expect-error – remove window for SSR
@@ -31,6 +32,17 @@ describe('fetchJson', () => {
     global.fetch = fetchSpy;
     await fetchJson('/foo');
     expect(fetchSpy).toHaveBeenCalledWith('http://client.com/foo', undefined);
+  });
+
+  it('использует origin браузера при отсутствии переменной', async () => {
+    // @ts-expect-error эмуляция window
+    global.window = { location: { origin: 'http://host:3000' } };
+    const mockResponse = { ok: true, json: jest.fn().mockResolvedValue({ data: true }) } as any;
+    const fetchSpy = jest.fn().mockResolvedValue(mockResponse);
+    // @ts-expect-error подмена fetch
+    global.fetch = fetchSpy;
+    await fetchJson('/foo');
+    expect(fetchSpy).toHaveBeenCalledWith('http://host:3000/foo', undefined);
   });
 
   it('не изменяет абсолютный URL', async () => {

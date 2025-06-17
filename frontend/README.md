@@ -82,6 +82,8 @@ DJANGO_MEDIA_URL_SSR=http://localhost:8000/media/
 - в браузере используется `NEXT_PUBLIC_API_BASE`;
 - при SSR берётся `DJANGO_API_URL_SSR` (обычно `http://localhost:8000/api/v1`).
 
+SSR uses `DJANGO_API_URL_SSR`, client uses `NEXT_PUBLIC_API_BASE`.
+
 ---
 
 ## Тесты и линтинг

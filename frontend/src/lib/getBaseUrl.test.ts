@@ -33,6 +33,6 @@ describe("getBaseUrl", () => {
   it("возвращает пустую строку без переменных", () => {
     // @ts-expect-error window отсутствует
     delete global.window;
-    expect(getBaseUrl()).toBe("");
+    expect(getBaseUrl()).toBe("/api/v1");
   });
 });

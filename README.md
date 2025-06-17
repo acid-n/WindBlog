@@ -111,6 +111,10 @@ cp .env.local.example .env.local   # настройки API для e2e (коре
 npm run dev
 ```
 
+### Environment variables
+
+SSR uses `DJANGO_API_URL_SSR`, client uses `NEXT_PUBLIC_API_BASE`.
+
 ### Docker (рекомендуемый способ для разработки и продакшена)
 
 1.  **Скопируйте `docker/.env.example` в `docker/.env`** и настройте переменные:

@@ -37,3 +37,4 @@
 - [x] Настройки Docker и сервисов используют getBaseUrl, добавлены e2e тесты
 - [x] Универсальный fetchJson и абсолютные URL в sitemap
 - [x] Исправлен конфликт маршрута sitemap в Next.js 14 ✅
+- [x] Исправлено получение базового URL на клиенте (fetchJson и getBaseUrl) ✅

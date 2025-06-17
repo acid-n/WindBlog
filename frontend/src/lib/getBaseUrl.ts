@@ -3,7 +3,8 @@ let logged = false;
 export function getBaseUrl(): string {
   const isBrowser = typeof window !== "undefined";
   const url = isBrowser
-    ? process.env.NEXT_PUBLIC_API_BASE || "/api/v1"
+    ? process.env.NEXT_PUBLIC_API_BASE ||
+      `${window.location.origin.replace(/\/$/, "")}/api/v1`
     : process.env.DJANGO_API_URL_SSR ||
       process.env.NEXT_PUBLIC_API_BASE ||
       "/api/v1";

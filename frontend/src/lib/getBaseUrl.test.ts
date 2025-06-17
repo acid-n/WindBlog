@@ -30,7 +30,13 @@ describe("getBaseUrl", () => {
     expect(getBaseUrl()).toBe("http://fallback.com/api/v1");
   });
 
-  it("возвращает пустую строку без переменных", () => {
+  it("возвращает window.location.origin при отсутствии переменной", () => {
+    // @ts-expect-error эмуляция window
+    global.window = { location: { origin: "http://host:3000" } };
+    expect(getBaseUrl()).toBe("http://host:3000/api/v1");
+  });
+
+  it("возвращает '/api/v1' без переменных при SSR", () => {
     // @ts-expect-error window отсутствует
     delete global.window;
     expect(getBaseUrl()).toBe("/api/v1");

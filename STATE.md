@@ -38,3 +38,4 @@
 - [x] Универсальный fetchJson и абсолютные URL в sitemap
 - [x] Исправлен конфликт маршрута sitemap в Next.js 14 ✅
 - [x] Исправлено получение базового URL на клиенте (fetchJson и getBaseUrl) ✅
+- [x] Прокинута переменная NEXT_PUBLIC_API_BASE в Docker и обновлены тесты ✅

@@ -14,10 +14,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Переменные окружения для сборки (если нужны)
-# Например, если ваш API находится на другом домене в production
-# ENV NEXT_PUBLIC_API_BASE=https://api.yourdomain.com
-# Убедитесь, что они передаются при сборке образа, например, через --build-arg
+ARG NEXT_PUBLIC_API_BASE
+ARG DJANGO_API_URL_SSR
+ENV NEXT_PUBLIC_API_BASE=$NEXT_PUBLIC_API_BASE \
+    DJANGO_API_URL_SSR=$DJANGO_API_URL_SSR
 
 RUN npm run build
 
@@ -25,7 +25,11 @@ RUN npm run build
 FROM node:18-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV=production
+ARG NEXT_PUBLIC_API_BASE
+ARG DJANGO_API_URL_SSR
+ENV NODE_ENV=production \
+    NEXT_PUBLIC_API_BASE=$NEXT_PUBLIC_API_BASE \
+    DJANGO_API_URL_SSR=$DJANGO_API_URL_SSR
 
 # Копируем только необходимые артефакты сборки и производственные зависимости
 COPY --from=builder /app/node_modules ./node_modules

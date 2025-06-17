@@ -8,7 +8,7 @@ import React, {
   ReactNode,
 } from "react";
 import { jwtDecode } from "jwt-decode"; // Установим эту библиотеку
-import { getBackendOrigin } from "@/lib/apiBase";
+import { getBackendOrigin } from "@/lib/getBaseUrl";
 
 interface User {
   id: number; // Это будет user_id из токена

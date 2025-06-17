@@ -1,38 +1,35 @@
-import { getBaseUrl } from "./apiBase";
+import { fetchJson } from './getBaseUrl';
 
-describe("getBaseUrl", () => {
+describe('fetchJson', () => {
   afterEach(() => {
     delete process.env.DJANGO_API_URL_SSR;
-    delete process.env.NEXT_PUBLIC_API_BASE;
-    // @ts-expect-error window is mocked
+    // @ts-expect-error – remove mocked fetch
+    delete global.fetch;
+    // @ts-expect-error – remove window for SSR
     delete global.window;
   });
 
-  it("returns SSR base URL when window is undefined", () => {
-    // @ts-expect-error window is undefined in SSR
+  it('конвертирует относительный путь в абсолютный', async () => {
+    process.env.DJANGO_API_URL_SSR = 'http://example.com/api/v1';
+    // @ts-expect-error – remove window for SSR
     delete global.window;
-    process.env.DJANGO_API_URL_SSR = "http://example.com/api/v1";
-    expect(getBaseUrl()).toBe("http://example.com/api/v1");
+    const mockResponse = { ok: true, json: jest.fn().mockResolvedValue({ data: true }) } as any;
+    const fetchSpy = jest.fn().mockResolvedValue(mockResponse);
+    // @ts-expect-error – mock fetch
+    global.fetch = fetchSpy;
+    await fetchJson('/foo');
+    expect(fetchSpy).toHaveBeenCalledWith('http://example.com/foo', undefined);
   });
 
-  it("returns browser base URL when window exists", () => {
-    // @ts-expect-error window is defined in browser context
-    global.window = {};
-    process.env.NEXT_PUBLIC_API_BASE = "http://client.com/api/v1";
-    expect(getBaseUrl()).toBe("http://client.com/api/v1");
-  });
-
-  it("falls back to localhost for SSR when env is undefined", () => {
-    // @ts-expect-error window is undefined in SSR
+  it('не изменяет абсолютный URL', async () => {
+    process.env.DJANGO_API_URL_SSR = 'http://example.com/api/v1';
+    // @ts-expect-error – remove window for SSR
     delete global.window;
-    delete process.env.DJANGO_API_URL_SSR;
-    expect(getBaseUrl()).toBe("http://localhost:8000/api/v1");
-  });
-
-  it("falls back to localhost in browser when env is undefined", () => {
-    // @ts-expect-error window is defined in browser context
-    global.window = {};
-    delete process.env.NEXT_PUBLIC_API_BASE;
-    expect(getBaseUrl()).toBe("http://localhost:8000/api/v1");
+    const mockResponse = { ok: true, json: jest.fn().mockResolvedValue({}) } as any;
+    const fetchSpy = jest.fn().mockResolvedValue(mockResponse);
+    // @ts-expect-error – mock fetch
+    global.fetch = fetchSpy;
+    await fetchJson('http://test.com/bar');
+    expect(fetchSpy).toHaveBeenCalledWith('http://test.com/bar', undefined);
   });
 });

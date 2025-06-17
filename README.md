@@ -47,6 +47,8 @@
   - Для запросов используется утилита `getBaseUrl`.
     При SSR берётся `DJANGO_API_URL_SSR` (обычно `http://localhost:8000/api/v1`),
     в браузере — `NEXT_PUBLIC_API_BASE`.
+  - Серверные fetch-запросы должны быть абсолютными.
+    Используйте хелпер `fetchJson('/api/v1/…')`, который подставит `getBackendOrigin()`.
 
 - **Архитектура:**
 
@@ -104,6 +106,8 @@ python manage.py runserver
 cd frontend
 npm install
 cp .env.local.example .env.local  # при первом запуске
+cd ..
+cp .env.local.example .env.local   # настройки API для e2e (корень проекта)
 npm run dev
 ```
 
@@ -140,6 +144,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 
 - **Backend:** Pytest, pytest-django. Запуск: `cd backend && pytest --cov=. -q` для вывода покрытия.
 - **Frontend:** Jest, React Testing Library. Запуск: `cd frontend && npm test -- --coverage`.
+- **E2E:** Playwright. Запуск: `pnpm exec playwright test` (требует запущенного сервера).
 - Цель покрытия — не менее 95%.
 - Backend использует SQLite для тестов (config/settings_test.py).
 - Тесты и линтеры запускаются автоматически через pre-commit и CI.
@@ -156,6 +161,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 
 - **Python:** black, isort, flake8 (настроены в pre-commit и CI).
 - **JS/TS/CSS и др.:** Prettier, ESLint (настроены в pre-commit и CI).
+- Для `@ts-expect-error` требуется описание причины (минимум 3 символа) из-за правила ESLint.
 
 ## Документация
 

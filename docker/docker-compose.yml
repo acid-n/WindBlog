@@ -59,6 +59,7 @@ services:
       dockerfile: Dockerfile.dev
       args: # Передаем аргументы сборки, если они нужны Dockerfile
         NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE_FE:-http://backend:8000/api/v1} # URL бэкенда внутри Docker сети
+        DJANGO_API_URL_SSR: ${DJANGO_API_URL_SSR_FE:-http://backend:8000/api/v1}
     container_name: blog_frontend
     restart: always
     env_file:
@@ -66,6 +67,7 @@ services:
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE_FE:-http://backend:8000/api/v1}
+      - DJANGO_API_URL_SSR=${DJANGO_API_URL_SSR_FE:-http://backend:8000/api/v1}
     ports:
       - "3000:3000"
     volumes:

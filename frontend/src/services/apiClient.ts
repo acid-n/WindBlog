@@ -1,5 +1,5 @@
 import { jwtDecode } from "jwt-decode";
-import { getBackendOrigin } from "@/lib/apiBase";
+import { getBackendOrigin } from "@/lib/getBaseUrl";
 
 // Утилита для проверки времени жизни токена (с небольшим запасом)
 const isTokenExpired = (token: string | null, bufferSeconds = 60): boolean => {

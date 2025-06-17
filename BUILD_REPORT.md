@@ -155,3 +155,17 @@
   или `NEXT_PUBLIC_API_BASE`, по умолчанию `http://localhost:8000/api/v1`.
 - Обновлены README и примеры `.env`.
 - Добавлен тест для проверки режимов SSR и браузера.
+
+## 2025-07-09
+
+- Унифицировано получение базового URL через `getBaseUrl`.
+- Добавлены e2e тесты Playwright, обновлён Dockerfile.dev и docker-compose.
+- Пример `.env.local.example` в корне для тестов.
+
+## 2025-07-10
+
+- Создан хелпер `fetchJson` для серверных запросов.
+- Маршрут `sitemap.xml` использует абсолютные URL.
+- `fetchSiteSettings` теперь обращается к API через `fetchJson`.
+- В workflow CI переданы переменные окружения при сборке фронтенда.
+- README дополнено описанием `fetchJson`.

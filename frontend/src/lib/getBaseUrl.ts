@@ -13,3 +13,18 @@ export function getBaseUrl(): string {
 export function getBackendOrigin(): string {
   return getBaseUrl().replace(/\/api\/v1\/?$/, "");
 }
+
+export async function fetchJson(
+  input: string,
+  init?: RequestInit,
+): Promise<any> {
+  const origin = getBackendOrigin();
+  const url = input.startsWith("/")
+    ? `${origin.replace(/\/$/, "")}${input}`
+    : input;
+  const res = await fetch(url, init);
+  if (!res.ok) {
+    throw new Error(`${res.status} ${res.statusText}`);
+  }
+  return res.json();
+}

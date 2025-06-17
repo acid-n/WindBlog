@@ -2,7 +2,7 @@
  * API-сервис для работы с backend (REST, JWT, обработка ошибок).
  */
 // Базовый URL API; может быть переопределён в .env.local
-import { getBaseUrl } from "@/lib/getBaseUrl";
+import { getBaseUrl, fetchJson } from "@/lib/getBaseUrl";
 
 const USE_MOCK_DATA = process.env.USE_MOCK_DATA === "true";
 
@@ -385,8 +385,7 @@ export interface SiteSettingsData {
   // добавьте другие поля, если они есть
 }
 export async function fetchSiteSettings(): Promise<SiteSettingsData> {
-  return fetchService<SiteSettingsData>("site-settings", {
-    isPublic: true,
-    revalate: 3600,
-  }); // Кешируем на час
+  return fetchJson('/api/v1/site-settings/', {
+    next: { revalidate: 3600 },
+  });
 }

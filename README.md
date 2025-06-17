@@ -47,6 +47,8 @@
   - Для запросов используется утилита `getBaseUrl`.
     При SSR берётся `DJANGO_API_URL_SSR` (обычно `http://localhost:8000/api/v1`),
     в браузере — `NEXT_PUBLIC_API_BASE`.
+  - Серверные fetch-запросы должны быть абсолютными.
+    Используйте хелпер `fetchJson('/api/v1/…')`, который подставит `getBackendOrigin()`.
 
 - **Архитектура:**
 

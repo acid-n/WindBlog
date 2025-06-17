@@ -1,13 +1,19 @@
+let logged = false;
+
 export function getBaseUrl(): string {
   const isBrowser = typeof window !== "undefined";
   const url = isBrowser
-    ? process.env.NEXT_PUBLIC_API_BASE
-    : process.env.DJANGO_API_URL_SSR || process.env.NEXT_PUBLIC_API_BASE;
+    ? process.env.NEXT_PUBLIC_API_BASE || "/api/v1"
+    : process.env.DJANGO_API_URL_SSR ||
+      process.env.NEXT_PUBLIC_API_BASE ||
+      "/api/v1";
 
-  if (process.env.NODE_ENV === "development") {
+  if (!logged && process.env.NODE_ENV !== "production") {
     console.info("[getBaseUrl]", { isBrowser, url });
+    logged = true;
   }
-  return url ?? "";
+
+  return url;
 }
 
 export function getBackendOrigin(): string {
@@ -18,10 +24,11 @@ export async function fetchJson(
   input: string,
   init?: RequestInit,
 ): Promise<any> {
-  const origin = getBackendOrigin();
-  const url = input.startsWith("/")
-    ? `${origin.replace(/\/$/, "")}${input}`
-    : input;
+  let url = input;
+  if (input.startsWith("/")) {
+    const origin = getBackendOrigin();
+    url = `${origin.replace(/\/$/, "")}${input}`;
+  }
   const res = await fetch(url, init);
   if (!res.ok) {
     throw new Error(`${res.status} ${res.statusText}`);

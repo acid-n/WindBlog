@@ -16,6 +16,10 @@ const nextConfig = (() => {
           source: "/media/:path*",
           destination: `${backendUrl}/media/:path*`,
         },
+        {
+          source: "/sitemap.xml",
+          destination: "/sitemap",
+        },
       ];
     },
     images: {

@@ -16,7 +16,7 @@ describe('Header E2E', () => {
   beforeEach(() => {
     fetchMock.resetMocks();
     fetchMock.mockResponseOnce(
-      JSON.stringify({ site_title: 'Блог', site_description: 'Записки…' }),
+      JSON.stringify({ title: 'Блог', tagline: 'Записки…' }),
     );
   });
 

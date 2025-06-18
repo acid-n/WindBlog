@@ -29,8 +29,6 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from seo.views import robots_txt_view
 from users.serializers import MyTokenObtainPairSerializer
 
-from .views import SiteSettingsView
-
 logger = logging.getLogger(__name__)
 
 # Словарь sitemaps
@@ -63,7 +61,7 @@ urlpatterns = [
         name="token_refresh",
     ),
     path("api/v1/auth/", include("users.urls")),
-    path("api/v1/site-settings", SiteSettingsView.as_view(), name="site-settings"),
+    path("api/v1/", include("backend.urls")),
     path("robots.txt", robots_txt_view, name="robots_txt"),
     # path(
     #     "sitemap.xml",

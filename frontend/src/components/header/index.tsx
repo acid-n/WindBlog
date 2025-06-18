@@ -23,8 +23,8 @@ const MENU = [
  */
 const Header: React.FC = () => {
   const [settings, setSettings] = useState<SiteSettingsData>({
-    site_title: "MyBlog",
-    site_description: "",
+    title: "MyBlog",
+    tagline: "",
   });
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
@@ -45,8 +45,8 @@ const Header: React.FC = () => {
           apiError.details,
         );
         setSettings({
-          site_title: "Блог",
-          site_description: "Ошибка загрузки описания",
+          title: "Блог",
+          tagline: "Ошибка загрузки описания",
         });
       }
     };
@@ -68,12 +68,12 @@ const Header: React.FC = () => {
             aria-label="На главную"
             className="text-gray-800 no-underline"
           >
-            {settings.site_title}
+            {settings.title}
           </Link>
         </h1>
         <div className="site-title-sep" />
-        {settings.site_description && (
-          <h2 className="site-description">{settings.site_description}</h2>
+        {settings.tagline && (
+          <h2 className="site-description">{settings.tagline}</h2>
         )}
         <div className="menu-sep" />
         <nav className="main-navigation w-full">

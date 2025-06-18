@@ -121,11 +121,11 @@ SSR uses `DJANGO_API_URL_SSR`, client uses `NEXT_PUBLIC_API_BASE`.
     ```bash
     cd docker
     cp .env.example .env
-    # Откройте .env и отредактируйте значения (POSTGRES_PASSWORD, DJANGO_SECRET_KEY_BE, DJANGO_ALLOWED_HOSTS и др.)
+    # Откройте .env и отредактируйте значения (POSTGRES_PASSWORD, DJANGO_SECRET_KEY и др.)
     ```
 2.  **Запустите все сервисы:**
     ```bash
-    docker-compose -f docker/docker-compose.yml up --build
+    docker compose up --build
     ```
     Приложения будут доступны:
     - Frontend: http://localhost:3000
@@ -161,6 +161,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 - Запуск линтеров вручную:
 
   - `flake8` и `black --check` в каталоге `backend`
+  - `isort --check` для проверки порядка импортов
   - `npm run lint` в каталоге `frontend`
 
 - **Python:** black, isort, flake8 (настроены в pre-commit и CI).
@@ -185,7 +186,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 
 1.  Склонируйте репозиторий.
 2.  Перейдите в папку `docker/`, скопируйте `.env.example` в `.env` и настройте его. В каталоге `frontend` создайте `.env.local` на основе `.env.local.example`. Docker-compose автоматически подхватит `NEXT_PUBLIC_API_BASE` из этого файла. В корне проекта также скопируйте `.env.example` в `.env` (понадобится переменная `DJANGO_ALLOWED_HOSTS`).
-3.  Выполните `docker-compose up --build` из корня проекта или указав путь к файлу.
+3.  Выполните `docker compose up --build` из корня проекта.
 4.  Откройте [http://localhost:3000](http://localhost:3000).
 5.  Сгенерируйте тестовые данные: `docker-compose exec backend python manage.py generate_test_data`.
 

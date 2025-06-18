@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import Header from './index';
+import Header from '@/components/header';
 import { usePathname } from 'next/navigation';
 // Мокаем контекст авторизации, чтобы не требовался AuthProvider
 jest.mock('@/contexts/AuthContext', () => ({

@@ -379,13 +379,15 @@ export async function searchPosts(
 // }
 
 // Для получения настроек сайта (используется в Header, данные не чувствительные)
+import { SITE_SETTINGS_URL } from "@/lib/api";
+
 export interface SiteSettingsData {
-  site_title: string;
-  site_description: string;
-  // добавьте другие поля, если они есть
+  title: string;
+  tagline: string;
 }
+
 export async function fetchSiteSettings(): Promise<SiteSettingsData> {
-  return fetchJson('/api/v1/site-settings/', {
+  return fetchJson(SITE_SETTINGS_URL, {
     next: { revalidate: 3600 },
   });
 }

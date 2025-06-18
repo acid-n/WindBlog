@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
 
   useEffect(() => {
     fetchSiteSettings()
-      .then((data) => setSiteTitle(data.site_title || "MyBlog"))
+      .then((data) => setSiteTitle(data.title || "MyBlog"))
       .catch((error: ApiErrorFormat) => {
         console.error(
           "Failed to process site title for footer:",

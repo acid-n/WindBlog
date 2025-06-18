@@ -178,3 +178,6 @@
 ## 2025-07-13
 - Исправлена передача `NEXT_PUBLIC_API_BASE` в Docker, обновлён `getBaseUrl` с fallback на `window.location.origin`.
 - Обновлены тесты и документация.
+
+## 2025-07-14
+- Добавлен endpoint SiteSettings и обновлены Docker-файлы. Новые тесты для API и Header.

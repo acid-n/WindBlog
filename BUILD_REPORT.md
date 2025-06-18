@@ -181,3 +181,6 @@
 
 ## 2025-07-14
 - Добавлен endpoint SiteSettings и обновлены Docker-файлы. Новые тесты для API и Header.
+## 2025-07-15
+- Исправлено форматирование SiteSettingsSerializer для flake8.
+

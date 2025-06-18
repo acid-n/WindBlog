@@ -42,3 +42,4 @@
 - [x] Реализован endpoint site-settings и единая конфигурация Docker
 - [x] Исправлено форматирование SiteSettingsSerializer для flake8
 - [x] Импорт отсортирован isort для flake8
+- [x] Расширена поддержка SiteSettings: singleton модель, кеширование и интеграция с React Query ✅

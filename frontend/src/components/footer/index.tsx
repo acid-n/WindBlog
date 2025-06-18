@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { fetchSiteSettings, ApiErrorFormat } from "@/services/api";
+import { fetchSiteSettings } from "@/lib/fetchSiteSettings";
 /**
  * Компонент Footer — нижний колонтитул сайта с копирайтом и ссылками.
  */
@@ -10,12 +10,7 @@ const Footer: React.FC = () => {
   useEffect(() => {
     fetchSiteSettings()
       .then((data) => setSiteTitle(data.title || "MyBlog"))
-      .catch((error: ApiErrorFormat) => {
-        console.error(
-          "Failed to process site title for footer:",
-          error.message,
-          error.details,
-        );
+      .catch(() => {
         setSiteTitle("MyBlog");
       });
   }, []);

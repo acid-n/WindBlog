@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "blog.apps.BlogConfig",
     "config.apps.ConfigConfig",
     "seo.apps.SeoConfig",
+    "core.apps.CoreConfig",
 ]
 
 MIDDLEWARE = [

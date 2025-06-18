@@ -47,6 +47,8 @@ drf-spectacular[validation]==0.28.0
     # via -r backend/requirements.in
 factory-boy==3.3.3
     # via -r backend/requirements.in
+django-model-utils==5.0.0
+    # via -r backend/requirements.in
 faker==37.4.0
     # via
     #   -r backend/requirements.in

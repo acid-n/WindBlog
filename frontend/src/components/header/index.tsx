@@ -1,13 +1,10 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  fetchSiteSettings,
-  SiteSettingsData,
-  ApiErrorFormat,
-} from "@/services/api";
+import { useQuery } from "@tanstack/react-query";
+import { fetchSiteSettings, SiteSettings } from "@/lib/fetchSiteSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { FaPlus, FaFileAlt, FaSignOutAlt } from "react-icons/fa";
 
@@ -22,36 +19,26 @@ const MENU = [
  * Header — MUSSON UX/UI STYLE GUIDE, структура и стили как в Read WP.
  */
 const Header: React.FC = () => {
-  const [settings, setSettings] = useState<SiteSettingsData>({
-    title: "MyBlog",
-    tagline: "",
-  });
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { user, isLoading: authLoading, logout } = useAuth();
 
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const data = await fetchSiteSettings();
-        setSettings(data);
-      } catch (error) {
-        const apiError = error as ApiErrorFormat;
-        console.error(
-          "Ошибка загрузки настроек сайта:",
-          apiError.message,
-          apiError.details,
-        );
-        setSettings({
-          title: "Блог",
-          tagline: "Ошибка загрузки описания",
-        });
-      }
-    };
-    loadSettings();
-  }, []);
+  const {
+    data: settings,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["siteSettings"],
+    queryFn: fetchSiteSettings,
+    staleTime: 60 * 60 * 1000,
+  });
+
+  const siteTitle = settings?.title ?? "Блог";
+  const siteTagline = isError
+    ? "Ошибка загрузки описания"
+    : (settings?.tagline ?? "");
 
   useEffect(() => {
     if (searchOpen && searchInputRef.current) {
@@ -68,13 +55,11 @@ const Header: React.FC = () => {
             aria-label="На главную"
             className="text-gray-800 no-underline"
           >
-            {settings.title}
+            {siteTitle}
           </Link>
         </h1>
         <div className="site-title-sep" />
-        {settings.tagline && (
-          <h2 className="site-description">{settings.tagline}</h2>
-        )}
+        {siteTagline && <h2 className="site-description">{siteTagline}</h2>}
         <div className="menu-sep" />
         <nav className="main-navigation w-full">
           <ul className="flex justify-center items-center font-heading text-lg font-normal text-center relative min-w-[700px]">

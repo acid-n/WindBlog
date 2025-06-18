@@ -1,12 +1,15 @@
 import pytest
-from config.models import SiteSettings
+from core.models import SiteSettings
 from django.urls import reverse
 from rest_framework.test import APIClient
 
 
 @pytest.mark.django_db
 def test_site_settings_endpoint():
-    SiteSettings.objects.create(site_title="Blog", site_description="Tagline")
+    settings = SiteSettings.load()
+    settings.title = "Blog"
+    settings.tagline = "Tagline"
+    settings.save()
     client = APIClient()
     url = reverse("site-settings-list")
     response = client.get(url)

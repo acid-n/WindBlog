@@ -53,7 +53,7 @@ services:
       - blog_network
     # Для разработки: запускается runserver с hot-reload (см. Dockerfile.dev)
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz", "||", "exit", "1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -69,7 +69,6 @@ services:
     restart: always
     env_file:
       - .env
-      - ../frontend/.env.local
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE:-http://backend:8000/api/v1}

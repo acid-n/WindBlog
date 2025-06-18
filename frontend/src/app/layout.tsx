@@ -6,8 +6,7 @@ import "./globals.css";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { AuthProvider } from "@/contexts/AuthContext";
-
-
+import { ReactQueryProvider } from "@/contexts/ReactQueryProvider";
 
 export const metadata: Metadata = {
   title: "Muggn Техноблог про ИИ",
@@ -33,11 +32,13 @@ export default function RootLayout({
       </head>
       <body className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col min-h-screen">
         <AuthProvider>
-          <Header />
-          <main className="flex-grow container mx-auto px-4 py-8">
-            {children}
-          </main>
-          <Footer />
+          <ReactQueryProvider>
+            <Header />
+            <main className="flex-grow container mx-auto px-4 py-8">
+              {children}
+            </main>
+            <Footer />
+          </ReactQueryProvider>
         </AuthProvider>
       </body>
     </html>

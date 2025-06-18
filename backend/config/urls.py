@@ -61,7 +61,7 @@ urlpatterns = [
         name="token_refresh",
     ),
     path("api/v1/auth/", include("users.urls")),
-    path("api/v1/", include("backend.urls")),
+    path("api/v1/", include("core.urls")),
     path("robots.txt", robots_txt_view, name="robots_txt"),
     # path(
     #     "sitemap.xml",

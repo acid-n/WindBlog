@@ -1,7 +1,7 @@
 import pytest
-from rest_framework.test import APIClient
-from django.urls import reverse
 from config.models import SiteSettings
+from django.urls import reverse
+from rest_framework.test import APIClient
 
 
 @pytest.mark.django_db

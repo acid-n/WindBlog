@@ -161,6 +161,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 - Запуск линтеров вручную:
 
   - `flake8` и `black --check` в каталоге `backend`
+  - `isort --check` для проверки порядка импортов
   - `npm run lint` в каталоге `frontend`
 
 - **Python:** black, isort, flake8 (настроены в pre-commit и CI).

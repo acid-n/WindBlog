@@ -41,3 +41,4 @@
 - [x] Прокинута переменная NEXT_PUBLIC_API_BASE в Docker и обновлены тесты ✅
 - [x] Реализован endpoint site-settings и единая конфигурация Docker
 - [x] Исправлено форматирование SiteSettingsSerializer для flake8
+- [x] Импорт отсортирован isort для flake8

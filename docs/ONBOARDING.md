@@ -1,6 +1,7 @@
 # Быстрый старт для разработчиков
 
 ## Переменные окружения
+
 Создайте файл `.env` на основе `.env.example` в корне проекта. Основные настройки:
 
 - `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` — параметры подключения к PostgreSQL
@@ -11,10 +12,11 @@
 - `CORS_ALLOWED_ORIGINS` — разрешённые источники CORS
 
 ## Запуск проекта
+
 1. Установите зависимости:
    ```bash
    pip install -r backend/requirements.txt
-   npm ci --prefix frontend
+   npm ci --legacy-peer-deps --prefix frontend
    ```
 2. Скопируйте `.env.example` в `.env` и при необходимости отредактируйте параметры.
 3. Запустите сервисы:
@@ -24,6 +26,6 @@
    Backend будет доступен на <http://localhost:8000>, frontend — на <http://localhost:3000>.
 
 ## Тесты
+
 - **Backend:** `pytest -q backend`
 - **Frontend:** `npm test --prefix frontend`
-

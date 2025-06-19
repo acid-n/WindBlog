@@ -169,39 +169,57 @@
 - `fetchSiteSettings` теперь обращается к API через `fetchJson`.
 - В workflow CI переданы переменные окружения при сборке фронтенда.
 - README дополнено описанием `fetchJson`.
+
 ## 2025-07-11
+
 - Исправлен конфликт маршрута sitemap и добавлен тест на отсутствие дубликатов.
 
 ## 2025-07-12
+
 - Исправлена логика getBaseUrl для клиентских запросов и обновлены тесты. Покрытие неизменно.
 
 ## 2025-07-13
+
 - Исправлена передача `NEXT_PUBLIC_API_BASE` в Docker, обновлён `getBaseUrl` с fallback на `window.location.origin`.
 - Обновлены тесты и документация.
 
 ## 2025-07-14
+
 - Добавлен endpoint SiteSettings и обновлены Docker-файлы. Новые тесты для API и Header.
+
 ## 2025-07-15
+
 - Исправлено форматирование SiteSettingsSerializer для flake8.
 
 ## 2025-07-16
+
 - Запущен isort для файлов API и тестов, flake8 проходит без ошибок.
 
 ## 2025-07-17
+
 - Реализована модель SiteSettings как Singleton, добавлено кеширование и интеграция с React Query. Обновлены тесты и конфигурация Docker.
+
 ## 2025-07-18
+
 - URL-конфигурация использует core.urls вместо backend.urls.
 
 ## 2025-07-19
+
 - Обновлена переменная окружения и docker-compose.
 - Добавлена health-проверка и React Query Devtools.
 - SiteSettingsFactory в тестах, новая инструкция по сбросу volume.
 
 ## 2025-07-20
+
 - Переход на django-environ для чтения настроек.
 - docker-compose теперь использует блоковый синтаксис и переменную API_URL в backend.
 - CI запускает isort с профилем Django и npm install с legacy-peer-deps.
 - Добавлен документ `docs/ONBOARDING.md` с инструкциями по окружению.
 
 ## 2025-07-21
+
 - Добавлена зависимость `@testing-library/dom`, обновлён workflow CI для использования `npm ci --legacy-peer-deps`.
+
+## 2025-07-22
+
+- Обновлена @testing-library/dom до ^10.4.0 и добавлен флаг --legacy-peer-deps для npm ci. Docker-сборка снова зелёная.

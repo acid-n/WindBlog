@@ -191,3 +191,8 @@
 - Реализована модель SiteSettings как Singleton, добавлено кеширование и интеграция с React Query. Обновлены тесты и конфигурация Docker.
 ## 2025-07-18
 - URL-конфигурация использует core.urls вместо backend.urls.
+
+## 2025-07-19
+- Обновлена переменная окружения и docker-compose.
+- Добавлена health-проверка и React Query Devtools.
+- SiteSettingsFactory в тестах, новая инструкция по сбросу volume.

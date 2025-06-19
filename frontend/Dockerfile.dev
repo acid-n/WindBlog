@@ -2,17 +2,7 @@
 FROM node:18-alpine
 WORKDIR /app
 
-ARG NEXT_PUBLIC_API_BASE
-ARG DJANGO_API_URL_SSR
-ENV NEXT_PUBLIC_API_BASE=$NEXT_PUBLIC_API_BASE \
-    DJANGO_API_URL_SSR=$DJANGO_API_URL_SSR
-
-# Копируем только package.json и lock для ускорения install
-COPY package.json package-lock.json* ./
-RUN npm install
-
-# Копируем исходники (но для hot-reload будет volume)
+COPY package*.json ./
+RUN npm ci
 COPY . .
-
-EXPOSE 3000
 CMD ["npm", "run", "dev"]

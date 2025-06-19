@@ -117,12 +117,8 @@ SSR uses `DJANGO_API_URL_SSR`, client uses `NEXT_PUBLIC_API_BASE`.
 
 ### Docker (рекомендуемый способ для разработки и продакшена)
 
-1.  **Скопируйте `docker/.env.example` в `docker/.env`** и настройте переменные:
-    ```bash
-    cd docker
-    cp .env.example .env
-    # Откройте .env и отредактируйте значения (POSTGRES_PASSWORD, DJANGO_SECRET_KEY и др.)
-    ```
+1.  **Скопируйте `.env.example` в `.env`** и при необходимости измените `POSTGRES_PASSWORD`.
+    Если пароль менялся ранее, выполните `docker compose down -v` перед перезапуском.
 2.  **Запустите все сервисы:**
     ```bash
     docker compose up --build
@@ -185,7 +181,9 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 ## Быстрый старт (Docker)
 
 1.  Склонируйте репозиторий.
-2.  Перейдите в папку `docker/`, скопируйте `.env.example` в `.env` и настройте его. В каталоге `frontend` создайте `.env.local` на основе `.env.local.example`. Docker-compose автоматически подхватит `NEXT_PUBLIC_API_BASE` из этого файла. В корне проекта также скопируйте `.env.example` в `.env` (понадобится переменная `DJANGO_ALLOWED_HOSTS`).
+2.  Скопируйте `.env.example` в `.env` в корне проекта и при необходимости измените `POSTGRES_PASSWORD`.
+    Если пароль менялся ранее, удалите том БД командой `docker compose down -v`.
+    В каталоге `frontend` создайте `.env.local` на основе `.env.local.example`.
 3.  Выполните `docker compose up --build` из корня проекта.
 4.  Откройте [http://localhost:3000](http://localhost:3000).
 5.  Сгенерируйте тестовые данные: `docker-compose exec backend python manage.py generate_test_data`.

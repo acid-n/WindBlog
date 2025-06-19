@@ -19,6 +19,7 @@ import logging
 
 from blog.models import ShortLink
 from blog.views import custom_ckeditor_upload_file_view
+from core.views import health
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -63,6 +64,7 @@ urlpatterns = [
     path("api/v1/auth/", include("users.urls")),
     path("api/v1/", include("core.urls")),
     path("robots.txt", robots_txt_view, name="robots_txt"),
+    path("health/", health),
     # path(
     #     "sitemap.xml",
     #     sitemap,

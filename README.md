@@ -115,6 +115,15 @@ npm run dev
 
 SSR uses `DJANGO_API_URL_SSR`, client uses `NEXT_PUBLIC_API_BASE`.
 
+Основные переменные из `.env`:
+
+- `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` — параметры БД
+- `DJANGO_SECRET_KEY` — секретный ключ Django
+- `DJANGO_DEBUG` — режим отладки
+- `API_URL` — базовый адрес API, используется фронтендом
+- `DJANGO_ALLOWED_HOSTS` — хосты для Django
+- `CORS_ALLOWED_ORIGINS` — разрешённые источники CORS
+
 ### Docker (рекомендуемый способ для разработки и продакшена)
 
 1.  **Скопируйте `.env.example` в `.env`** и при необходимости измените `POSTGRES_PASSWORD`.
@@ -157,7 +166,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 - Запуск линтеров вручную:
 
   - `flake8` и `black --check` в каталоге `backend`
-  - `isort --check` для проверки порядка импортов
+  - `isort --check --profile=django` для проверки порядка импортов
   - `npm run lint` в каталоге `frontend`
 
 - **Python:** black, isort, flake8 (настроены в pre-commit и CI).

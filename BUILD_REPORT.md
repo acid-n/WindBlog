@@ -202,3 +202,6 @@
 - docker-compose теперь использует блоковый синтаксис и переменную API_URL в backend.
 - CI запускает isort с профилем Django и npm install с legacy-peer-deps.
 - Добавлен документ `docs/ONBOARDING.md` с инструкциями по окружению.
+
+## 2025-07-21
+- Добавлена зависимость `@testing-library/dom`, обновлён workflow CI для использования `npm ci --legacy-peer-deps`.

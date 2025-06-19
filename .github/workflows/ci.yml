@@ -50,9 +50,9 @@ jobs:
       - name: Run backend linters
         working-directory: ./backend
         run: |
+          isort --check --profile=django .
           flake8 .
           black --check .
-          isort --check-only .
 
       - name: Run backend tests
         working-directory: ./backend
@@ -76,7 +76,7 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: ./frontend
-        run: npm ci # Используйте npm ci для более быстрого и надежного билда в CI
+        run: npm install --legacy-peer-deps
 
       - name: Run frontend linters
         working-directory: ./frontend

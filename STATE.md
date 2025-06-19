@@ -45,3 +45,4 @@
 - [x] Расширена поддержка SiteSettings: singleton модель, кеширование и интеграция с React Query ✅
 - [x] Обновлён роутинг: include("core.urls") вместо устаревшего backend.urls ✅
 - [x] Стабилизированы Docker-файлы и отображение заголовка из админки ✅
+- [x] Переход на django-environ и обновлён docker-compose ✅

@@ -196,3 +196,9 @@
 - Обновлена переменная окружения и docker-compose.
 - Добавлена health-проверка и React Query Devtools.
 - SiteSettingsFactory в тестах, новая инструкция по сбросу volume.
+
+## 2025-07-20
+- Переход на django-environ для чтения настроек.
+- docker-compose теперь использует блоковый синтаксис и переменную API_URL в backend.
+- CI запускает isort с профилем Django и npm install с legacy-peer-deps.
+- Добавлен документ `docs/ONBOARDING.md` с инструкциями по окружению.

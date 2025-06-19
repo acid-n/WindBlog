@@ -109,7 +109,7 @@ pytest-cov==6.2.1
     # via -r backend/requirements.in
 pytest-django==4.11.1
     # via -r backend/requirements.in
-python-dotenv==1.1.0
+django-environ==0.12.0
     # via -r backend/requirements.in
 pyyaml==6.0.2
     # via drf-spectacular

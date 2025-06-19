@@ -47,3 +47,4 @@
 - [x] Стабилизированы Docker-файлы и отображение заголовка из админки ✅
 - [x] Переход на django-environ и обновлён docker-compose ✅
 - [x] Добавлена зависимость @testing-library/dom и обновлен workflow CI
+- [x] Обновлены версии @testing-library и флаг --legacy-peer-deps для npm ci

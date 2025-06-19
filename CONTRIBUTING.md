@@ -4,7 +4,7 @@
 2. Установите зависимости:
    - `pip install -r backend/requirements.txt`
 
-- `npm ci --prefix frontend`
+- `npm ci --legacy-peer-deps --prefix frontend`
 
 3. Скопируйте `frontend/.env.local.example` в `frontend/.env.local` и заполните значения. В корне проекта скопируйте `.env.example` в `.env` и убедитесь, что переменная `DJANGO_ALLOWED_HOSTS` содержит `backend`.
    Секретные данные храните только локально, их нельзя коммитить.

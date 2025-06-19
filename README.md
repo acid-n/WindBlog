@@ -159,7 +159,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 - Тесты и линтеры запускаются автоматически через pre-commit и CI.
 - Перед запуском убедитесь, что зависимости установлены:
   - `pip install -r backend/requirements.txt`
-  - `npm ci --prefix frontend`
+  - `npm ci --legacy-peer-deps --prefix frontend`
 
 ## Проверка стиля и линтинг
 

@@ -18,6 +18,10 @@ jobs:
             compose:
               - 'docker/**/*.yml'
               - '**/docker-compose*.yml'
+      - name: Prepare env for Docker Compose
+        run: |
+          cp .env.example .env
+          echo "API_URL=http://backend:8000/api/v1" >> .env
       - name: Check compose syntax
         if: steps.filter.outputs.compose == 'true'
         run: docker compose -f docker/docker-compose.yml config

@@ -228,3 +228,7 @@
 
 - Единый файл `.env` для backend и db, добавлен раздел о смене пароля в README.
 - CI проверяет синтаксис `docker-compose.yml` при изменениях.
+
+## 2025-07-24
+
+- Обновлен docker-compose: общий .env, healthcheck для db и backend, автоприменение миграций. Frontend и backend запускаются одной командой.

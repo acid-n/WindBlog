@@ -19,16 +19,21 @@ import logging
 
 from blog.models import ShortLink
 from blog.views import custom_ckeditor_upload_file_view
-from core.views import health
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from seo.views import robots_txt_view
 from users.serializers import MyTokenObtainPairSerializer
+
+
+def health(request):
+    return JsonResponse({"status": "ok"})
+
 
 logger = logging.getLogger(__name__)
 

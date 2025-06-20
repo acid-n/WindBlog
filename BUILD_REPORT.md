@@ -232,3 +232,8 @@
 ## 2025-07-24
 
 - Обновлен docker-compose: общий .env, healthcheck для db и backend, автоприменение миграций. Frontend и backend запускаются одной командой.
+
+## 2025-07-25
+
+- Упрощена конфигурация docker-compose: один .env в корне, build context прописан через блоки.
+- Из README удалены ссылки на несуществующие файлы `.env.local.example`.

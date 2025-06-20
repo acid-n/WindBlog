@@ -1,7 +1,6 @@
 x-envfile: &envfile ../.env
 
 services:
-  # Том сохраняет данные БД, поэтому пароль из .env фиксируется при первом запуске
   db:
     image: postgres:15-alpine
     restart: unless-stopped
@@ -17,9 +16,11 @@ services:
       - blog
 
   backend:
-    build: ../backend/Dockerfile.dev
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.dev
     command: >
-      sh -c "python manage.py migrate --noinput &&
+      sh -c "python manage.py migrate --noinput && \
              python manage.py runserver 0.0.0.0:8000"
     restart: unless-stopped
     env_file: *envfile
@@ -45,6 +46,7 @@ services:
       dockerfile: Dockerfile.dev
       args:
         API_URL: ${API_URL}
+    command: npm run dev
     env_file: *envfile
     restart: unless-stopped
     depends_on:
@@ -52,8 +54,6 @@ services:
         condition: service_healthy
     volumes:
       - ../frontend:/app
-      - /app/node_modules
-      - /app/.next
     networks:
       - blog
     ports:

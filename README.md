@@ -105,9 +105,7 @@ python manage.py runserver
 ```bash
 cd frontend
 npm install
-cp .env.local.example .env.local  # при первом запуске
-cd ..
-cp .env.local.example .env.local   # настройки API для e2e (корень проекта)
+# создайте .env.local со значениями NEXT_PUBLIC_API_BASE и др.
 npm run dev
 ```
 
@@ -199,7 +197,7 @@ docker-compose -f docker/docker-compose.yml exec backend python manage.py genera
 1.  Склонируйте репозиторий.
 2.  Скопируйте `.env.example` в `.env` в корне проекта и при необходимости измените `POSTGRES_PASSWORD`.
     Если пароль менялся ранее, удалите том БД командой `docker compose down -v`.
-    В каталоге `frontend` создайте `.env.local` на основе `.env.local.example`.
+    В каталоге `frontend` создайте файл `.env.local` с `NEXT_PUBLIC_API_BASE=http://localhost:8000/api/v1`.
 3.  Выполните `docker compose up --build` из корня проекта.
 4.  Откройте [http://localhost:3000](http://localhost:3000).
 5.  Сгенерируйте тестовые данные: `docker-compose exec backend python manage.py generate_test_data`.

@@ -50,3 +50,4 @@
 - [x] Обновлены версии @testing-library и флаг --legacy-peer-deps для npm ci
 - [x] Единый .env для Docker и проверка compose в CI ✅
 - [x] Единый docker-compose с healthchecks и автозапуском миграций
+- [x] docker-compose использует один .env без дублей, README актуален ✅
